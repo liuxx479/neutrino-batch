@@ -5,7 +5,7 @@ h = 0.7
 ombh2 = 0.0223
 
 ###Planck 2015 parameters
-omega_m = 0.7438
+omega_m = 0.2880
 A_s9 = 2.142
 M_nu = 0.1
 
@@ -157,5 +157,240 @@ l_sample_boost          = 1'''%(filename, omch2, omnuh2, A_s9)
     f.write(paramtext)
     f.close()
 
-#camb_gen(M_nu, omega_m, A_s9)
 
+
+def ngenic_gen(M_nu, omega_m, A_s9):
+    omnuh2 = M_nu / 93.14
+    omch2 = omega_m*h**2 - omnuh2 - ombh2
+    filename = 'ngenic_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
+    fn_matter = 'camb_mnv%.5f_om%.5f_As%.4f_matterpow_99.dat'%(M_nu, omega_m, A_s9)
+    fn_transfer = 'camb_mnv%.5f_om%.5f_As%.4f_transfer_99.dat'%(M_nu, omega_m, A_s9)
+    paramtext='''#==Required parameters==
+# This is the size of the FFT grid used to
+# compute the displacement field. One
+# should have Nmesh >= Npart.
+Nmesh = 2048
+# Random seed for modes in phase realisation
+Seed = 10027	
+
+# Periodic box size of simulation
+Box = 256000
+
+# Base-filename of output files
+FileBase = %s
+# Directory for storing output files
+OutputDir = ../ngenic
+
+# Total matter density  (at z=0)
+Omega = %.5f
+# Cosmological constant (at z=0)
+OmegaLambda = %.5f
+# Baryon density        (at z=0)
+OmegaBaryon = %.5f
+# Hubble parameter (may be used for power spec parameterization)
+HubbleParam = 0.7
+# Starting redshift
+Redshift = 99
+
+#Number of files used in output snapshot set, for ICFormat < 4.
+NumFiles = 28
+# filename of tabulated MATTER powerspectrum from CAMB
+FileWithInputSpectrum = ../camb/%s
+# filename of transfer functions from CAMB
+FileWithTransfer = ../camb/%s
+
+#==Optional Parameters==
+# (Cube root of) number of particles
+NBaryon = 0
+NCDM = 1024
+NNeutrino = 0
+
+#Particle mass of neutrinos in eV.
+#OmegaNu is derived self-consistently from this value
+#and hence not specified separately.
+NU_PartMass_in_ev = %.5f
+#1,0,-1 correspond to normal, degenerate and inverted neutrino species hierarchies, respectively.
+#Note if you ask for a mass below the minimum allowed by the hierarchy, 
+#you will get a single massive neutrino species.
+Hierarchy = 1
+#Output format of ICs: 1 and 2 correspond to Gadget format 1 and 2, 3 is HDF5 and 4 is BigFile.
+ICFormat = 2
+
+# Enable twolpt
+# Note this is only formally derived for single-fluid (CDM) simulations.
+TWOLPT = 0
+#If 1, each mode will be scattered from the mean power to mimic cosmic variance
+RayleighScatter = 1
+#If true, do not include radiation (inc. massless neutrinos) 
+#when computing the Hubble function (for the velocity prefactor)
+NoRadiation = 0
+
+#==Specialised optional parameters you are unlikely to use==
+# "1" selects Eisenstein & Hu spectrum,
+# "2" selects a tabulated power spectrum in
+# the file 'FileWithInputSpectrum'
+# otherwise, Efstathiou parametrization is used
+WhichSpectrum = 2
+
+# defines length unit of tabulated
+# input spectrum in cm/h. By default 1 Mpc.
+# Only used for CAMB power spectra.
+InputSpectrum_UnitLength_in_cm = 3.085678e24
+
+# if set to zero, the tabulated spectrum is
+# assumed to be normalized already in its amplitude to
+# the starting redshift, otherwise this is recomputed
+# based on the specified sigma8
+ReNormalizeInputSpectrum = 0
+
+#Amplitude of matter fluctuations at z=0, used only if ReNormalizeInputSpectrum=1.
+Sigma8 = 0.8
+#ns - only used for non-tabulated power spectra.
+PrimordialIndex = 1.
+
+# defines length unit of output (in cm/h)
+UnitLength_in_cm = 3.085678e21
+# defines mass unit of output (in g/cm)
+UnitMass_in_g = 1.989e43
+# defines velocity unit of output (in cm/sec)
+UnitVelocity_in_cm_per_s = 1e5
+
+# If 1, the neutrino masses will be included in the dark matter particles,
+# as a change in the transfer function. This is a very inaccurate way to simulate neutrinos.
+NU_in_DM = 0
+#If one, add neutrino thermal velocities to type 2 particles.
+NU_Vtherm_On = 1
+
+#Shape parameter, only for Efstathiou power spectrum
+ShapeGamma = 0.201
+    '''%(filename, omega_m, 1-omega_m, ombh2/h**2, fn_matter, fn_transfer, M_nu)
+    f = open('params/%s.param'%(filename), 'w')
+    f.write(paramtext)
+    f.close()
+
+def gadget_gen ():
+    
+    paramtext='''InitCondFile		        ICs_planck/test_planck
+OutputDir		        snapshots
+EnergyFile			energy.txt
+InfoFile			info.txt
+TimingsFile			timings.txt
+CpuFile			cpu.txt
+RestartFile			restart
+SnapshotFileBase			snapshot
+OutputListFilename		snapshots/outputs.txt
+
+% cpu_timings
+
+TimeLimitCPU		86400.0
+ResubmitOn		0
+ResubmitCommand		my-scriptfile
+
+
+% code_options
+
+ICFormat		2
+SnapFormat		1
+ComovingIntegrationOn		1
+TypeOfTimestepCriterion		0
+OutputListOn		1
+PeriodicBoundariesOn		1
+
+
+TimeBegin			0.01
+% characteristics_of_run
+
+TimeMax		1.0
+
+
+Omega0			0.309796
+OmegaLambda			0.690204
+OmegaBaryon			0.045510
+HubbleParam			0.7
+BoxSize			256000.000000
+
+% output_frequency
+
+TimeBetSnapshot		0.5
+TimeOfFirstSnapshot		0
+CpuTimeBetRestartFile		45000.0
+TimeBetStatistics		0.05
+NumFilesPerSnapshot		32
+NumFilesWrittenInParallel		1
+
+
+% accuracy_time_integration
+
+ErrTolIntAccuracy		0.025
+MaxRMSDisplacementFac		0.2
+CourantFac		0.15
+MaxSizeTimestep		0.02
+MinSizeTimestep		0.0
+
+
+% tree_algorithm
+
+ErrTolTheta		0.45
+TypeOfOpeningCriterion		1
+ErrTolForceAcc		0.005
+TreeDomainUpdateFrequency		0.025
+
+
+% sph
+
+DesNumNgb		33
+MaxNumNgbDeviation		2
+ArtBulkViscConst		0.8
+InitGasTemp		1000.0
+MinGasTemp		50.0
+
+
+% memory_allocation
+
+PartAllocFactor		1.5
+TreeAllocFactor		0.7
+BufferSize		20.0
+
+
+% system_of_units
+
+UnitLength_in_cm		3.085678e+21
+UnitMass_in_g		1.989e+43
+UnitVelocity_in_cm_per_s		100000.0
+GravityConstantInternal		0
+
+
+% softening
+
+MinGasHsmlFractional		0.25
+SofteningGas		0
+SofteningHalo		9.0
+SofteningDisk		0
+SofteningBulge		0
+SofteningStars		0
+SofteningBndry		0
+SofteningGasMaxPhys		0
+SofteningHaloMaxPhys		9.0
+SofteningDiskMaxPhys		0
+SofteningBulgeMaxPhys		0
+SofteningStarsMaxPhys		0
+SofteningBndryMaxPhys		0
+
+% neutrinos
+
+KspaceTransferFunction      camb_planck/camb_transfer_99.dat ; File containing CAMB formatted output transfer functions.
+
+TimeTransfer                0.01  ;     Scale factor at which the CAMB transfer functions were generated.
+OmegaBaryonCAMB             0.04551  ;    OmegaBaryon used for the CAMB transfer functions.
+InputSpectrum_UnitLength_in_cm               3.085678e24  ; Units of the CAMB transfer function in cm. By default Mpc.
+MNue                        0.3333   ;    Mass of the lightest neutrino in eV.
+MNum                        0.3333   ;    Second neutrino mass in eV.
+MNut                        0.3333   ;    Third neutrino mass. Note the observed mass splitting is not enforced.
+Vcrit                       500    ;    Critical velocity in the Fermi-Dirac distribution below which the neutrinos
+NuPartTime                  0.3333   ;    Scale factor at which to 'turn on', ie, make active gravitators,
+
+HybridNeutrinosOn           0  ;       Whether hybrid neutrinos are enabled.
+'''
+
+#camb_gen(M_nu, omega_m, A_s9)
+#ngenic_gen(M_nu, omega_m, A_s9)
