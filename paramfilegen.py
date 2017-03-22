@@ -1,5 +1,8 @@
 ###### generate parameter files for camb, ICs, gadget, and slurm
 from scipy import *
+import os
+
+#os.system('mkdir -p /tigress/jialiu/neutrino-batch/params')
 
 h = 0.7
 ombh2 = 0.0223
@@ -165,6 +168,9 @@ def ngenic_gen(M_nu, omega_m, A_s9):
     filename = 'ngenic_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
     fn_matter = 'camb_mnv%.5f_om%.5f_As%.4f_matterpow_99.dat'%(M_nu, omega_m, A_s9)
     fn_transfer = 'camb_mnv%.5f_om%.5f_As%.4f_transfer_99.dat'%(M_nu, omega_m, A_s9)
+    cosmo = 'mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
+    os.system('mkdir -p /tigress/jialiu/temp/%s/ICs'%(cosmo))
+    
     paramtext='''#==Required parameters==
 # This is the size of the FFT grid used to
 # compute the displacement field. One
@@ -177,9 +183,9 @@ Seed = 10027
 Box = 256000
 
 # Base-filename of output files
-FileBase = %s
+FileBase = ICs
 # Directory for storing output files
-OutputDir = ../ngenic
+OutputDir = /tigress/jialiu/temp/%s/ICs
 
 # Total matter density  (at z=0)
 Omega = %.5f
@@ -263,31 +269,45 @@ NU_Vtherm_On = 1
 
 #Shape parameter, only for Efstathiou power spectrum
 ShapeGamma = 0.201
-    '''%(filename, omega_m, 1-omega_m, ombh2/h**2, fn_matter, fn_transfer, M_nu)
+    '''%(cosmo, omega_m, 1-omega_m, ombh2/h**2, fn_matter, fn_transfer, M_nu)
     f = open('params/%s.param'%(filename), 'w')
     f.write(paramtext)
     f.close()
 
-def gadget_gen ():
+
+def neutrino_mass_calc (M_nu, split=1):
+    '''split = 1, 2, 3 for normal, inverted, degenerate
+    '''
+    return ones(3)*M_nu/3.0
+        
+        
+def gadget_gen (M_nu, omega_m, A_s9):
     
-    paramtext='''InitCondFile		        ICs_planck/test_planck
-OutputDir		        snapshots
+    cosmo = 'mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
+    fn_ICs='/tigress/jialiu/temp/%s/ICs/IC'%(cosmo)
+    fn_transfer = '../camb/camb_mnv%.5f_om%.5f_As%.4f_transfer_99.dat'%(M_nu, omega_m, A_s9)
+    filename = 'gadget_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
+    os.system('mkdir -p /tigress/jialiu/temp/%s/snapshots'%(cosmo))
+    m1, m2, m3 = neutrino_mass_calc(M_nu)
+    
+    paramtext='''InitCondFile		        %s
+OutputDir		        /tigress/jialiu/temp/%s/snapshots
 EnergyFile			energy.txt
 InfoFile			info.txt
 TimingsFile			timings.txt
 CpuFile			cpu.txt
 RestartFile			restart
 SnapshotFileBase			snapshot
-OutputListFilename		snapshots/outputs.txt
+OutputListFilename		outputs_%s.txt
 
-% cpu_timings
+%%    cpu_timings
 
 TimeLimitCPU		86400.0
 ResubmitOn		0
 ResubmitCommand		my-scriptfile
 
 
-% code_options
+%%    code_options
 
 ICFormat		2
 SnapFormat		1
@@ -298,18 +318,18 @@ PeriodicBoundariesOn		1
 
 
 TimeBegin			0.01
-% characteristics_of_run
+%%    characteristics_of_run
 
 TimeMax		1.0
 
 
-Omega0			0.309796
-OmegaLambda			0.690204
-OmegaBaryon			0.045510
+Omega0			%.5f
+OmegaLambda			%.5f
+OmegaBaryon			%.5f
 HubbleParam			0.7
 BoxSize			256000.000000
 
-% output_frequency
+%%    output_frequency
 
 TimeBetSnapshot		0.5
 TimeOfFirstSnapshot		0
@@ -319,7 +339,7 @@ NumFilesPerSnapshot		32
 NumFilesWrittenInParallel		1
 
 
-% accuracy_time_integration
+%%     accuracy_time_integration
 
 ErrTolIntAccuracy		0.025
 MaxRMSDisplacementFac		0.2
@@ -328,7 +348,7 @@ MaxSizeTimestep		0.02
 MinSizeTimestep		0.0
 
 
-% tree_algorithm
+%%     tree_algorithm
 
 ErrTolTheta		0.45
 TypeOfOpeningCriterion		1
@@ -336,7 +356,7 @@ ErrTolForceAcc		0.005
 TreeDomainUpdateFrequency		0.025
 
 
-% sph
+%%    sph
 
 DesNumNgb		33
 MaxNumNgbDeviation		2
@@ -345,14 +365,14 @@ InitGasTemp		1000.0
 MinGasTemp		50.0
 
 
-% memory_allocation
+%%     memory_allocation
 
 PartAllocFactor		1.5
 TreeAllocFactor		0.7
 BufferSize		20.0
 
 
-% system_of_units
+%%    system_of_units
 
 UnitLength_in_cm		3.085678e+21
 UnitMass_in_g		1.989e+43
@@ -360,7 +380,7 @@ UnitVelocity_in_cm_per_s		100000.0
 GravityConstantInternal		0
 
 
-% softening
+%%    softening
 
 MinGasHsmlFractional		0.25
 SofteningGas		0
@@ -376,21 +396,25 @@ SofteningBulgeMaxPhys		0
 SofteningStarsMaxPhys		0
 SofteningBndryMaxPhys		0
 
-% neutrinos
+%%     neutrinos
 
-KspaceTransferFunction      camb_planck/camb_transfer_99.dat ; File containing CAMB formatted output transfer functions.
+KspaceTransferFunction      %s ; File containing CAMB formatted output transfer functions.
 
 TimeTransfer                0.01  ;     Scale factor at which the CAMB transfer functions were generated.
-OmegaBaryonCAMB             0.04551  ;    OmegaBaryon used for the CAMB transfer functions.
+OmegaBaryonCAMB             %.5f  ;    OmegaBaryon used for the CAMB transfer functions.
 InputSpectrum_UnitLength_in_cm               3.085678e24  ; Units of the CAMB transfer function in cm. By default Mpc.
-MNue                        0.3333   ;    Mass of the lightest neutrino in eV.
-MNum                        0.3333   ;    Second neutrino mass in eV.
-MNut                        0.3333   ;    Third neutrino mass. Note the observed mass splitting is not enforced.
+MNue                        %.5f   ;    Mass of the lightest neutrino in eV.
+MNum                        %.5f   ;    Second neutrino mass in eV.
+MNut                        %.5f   ;    Third neutrino mass. Note the observed mass splitting is not enforced.
 Vcrit                       500    ;    Critical velocity in the Fermi-Dirac distribution below which the neutrinos
 NuPartTime                  0.3333   ;    Scale factor at which to 'turn on', ie, make active gravitators,
 
 HybridNeutrinosOn           0  ;       Whether hybrid neutrinos are enabled.
-'''
+'''%(fn_ICs, cosmo, cosmo, omega_m, 1.0-omega_m, ombh2*h**2, fn_transfer, ombh2*h**2, m1,m2,m3)
+    f = open('params/%s.param'%(filename), 'w')
+    f.write(paramtext)
+    f.close()
 
 #camb_gen(M_nu, omega_m, A_s9)
 #ngenic_gen(M_nu, omega_m, A_s9)
+#gadget_gen(M_nu, omega_m, A_s9)
