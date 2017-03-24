@@ -1,5 +1,6 @@
 ###### generate parameter files for camb, ICs, gadget, and slurm
 from scipy import *
+from scipy import optimize
 import os
 
 os.system('mkdir -p /tigress/jialiu/neutrino-batch/params')
