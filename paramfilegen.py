@@ -2,7 +2,8 @@
 from scipy import *
 import os
 
-#os.system('mkdir -p /tigress/jialiu/neutrino-batch/params')
+os.system('mkdir -p /tigress/jialiu/neutrino-batch/params')
+os.system('mkdir -p /tigress/jialiu/neutrino-batch/camb')
 
 h = 0.7
 ombh2 = 0.0223
@@ -53,6 +54,8 @@ def camb_gen(M_nu, omega_m, A_s9):
     omnuh2 = M_nu / 93.14
     omch2 = omega_m*h**2 - omnuh2 - ombh2
     filename = 'camb_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
+    m1, m2, m3 = neutrino_mass_calc (M_nu)
+    
     paramtext='''#Parameters for CAMB
 
 #output_root is prefixed to output file names
@@ -81,10 +84,10 @@ temp_cmb           = 2.7255
 helium_fraction    = 0.24
 
 massless_neutrinos = 0.046
-nu_mass_eigenstates = 1
+nu_mass_eigenstates = 3
 massive_neutrinos  = 3
 share_delta_neff = T
-nu_mass_fractions = 1
+nu_mass_fractions = %.5f %.5f %.5f
 nu_mass_degeneracies = 
 
 initial_power_num         = 1
@@ -187,7 +190,7 @@ high_accuracy_default=T
 
 accuracy_boost          = 1
 l_accuracy_boost        = 1
-l_sample_boost          = 1'''%(filename, omch2, omnuh2, A_s9)
+l_sample_boost          = 1'''%(filename, omch2, omnuh2, m1/M_nu, m2/M_nu, m3/M_nu, A_s9)
     
     f = open('params/%s.param'%(filename), 'w')
     f.write(paramtext)
@@ -443,5 +446,5 @@ HybridNeutrinosOn           0  ;       Whether hybrid neutrinos are enabled.
     f.close()
 
 camb_gen(M_nu, omega_m, A_s9)
-ngenic_gen(M_nu, omega_m, A_s9)
-gadget_gen(M_nu, omega_m, A_s9)
+#ngenic_gen(M_nu, omega_m, A_s9)
+#gadget_gen(M_nu, omega_m, A_s9)
