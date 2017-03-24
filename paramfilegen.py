@@ -12,6 +12,39 @@ omega_m = 0.2880
 A_s9 = 2.142
 M_nu = 0.1
 
+#### delta m21^2=7.37e-5
+#### |delta m^2| = 2.5e-3 (normal) 2.46e-3 (inverted)
+d31N = 2.5e-3
+d31I = 2.46e-3
+d21 = 7.37e-5
+
+m2fcn = lambda m1: sqrt(d21 + m1**2)
+m3_NH = lambda m1: sqrt(d31N + 0.5*m2fcn(m1)**2 +0.5*m1**2)
+m3_IH = lambda m1: sqrt(0.5*m2fcn(m1)**2 +0.5*m1**2 - d31I)
+root_NH = lambda m1, M: M-(m1+m2fcn(m1)+m3_NH(m1))
+root_IH = lambda m1, M: M-(m1+m2fcn(m1)+m3_IH(m1))
+
+Mmin_NH = sqrt(d21)+sqrt(d31N+d21/2)
+Mmin_IH = sqrt(d31I-0.5*d21) + sqrt(d31I+0.5*d21)
+m1min_IH = sqrt(d31I-0.5*d21)
+
+def neutrino_mass_calc (M, split=1):
+    '''split = 1, 2, 3 for normal, inverted, degenerate
+    '''    
+    #print M
+    if split == 1:
+        m1=optimize.bisect(root_NH, 0, M, args=(M,))       
+        m2=m2fcn(m1)
+        m3=m3_NH(m1)
+    elif split == 2:
+        m1=optimize.bisect(root_IH, m1min_IH, M, args=(M,))
+        m2=m2fcn(m1)
+        m3=m3_IH(m1)
+    elif split ==3:
+        m1, m2, m3 = ones(3)*M/3.0
+    return m1,m2,m3
+
+
 def camb_gen(M_nu, omega_m, A_s9):
     '''M_nu: total mass of neutrinos in unit of eV
     A_s9 = A_s * 1e9
@@ -275,12 +308,6 @@ ShapeGamma = 0.201
     f.close()
 
 
-def neutrino_mass_calc (M_nu, split=1):
-    '''split = 1, 2, 3 for normal, inverted, degenerate
-    '''
-    return ones(3)*M_nu/3.0
-        
-        
 def gadget_gen (M_nu, omega_m, A_s9):
     
     cosmo = 'mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
