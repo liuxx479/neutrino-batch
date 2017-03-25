@@ -449,3 +449,5 @@ HybridNeutrinosOn           0  ;       Whether hybrid neutrinos are enabled.
 camb_gen(M_nu, omega_m, A_s9)
 ngenic_gen(M_nu, omega_m, A_s9)
 gadget_gen(M_nu, omega_m, A_s9)
+
+######## latin hyper cube to sample parameters ########
