@@ -502,7 +502,7 @@ def outputs(iparams):
     savetxt(fn, sort(a_arr))
     #cosmo.comoving_distance(newz_arr).value/h/DC_arr-1
 
-def sbatch_camb(iparams, write='w'):
+def sbatch_camb(iparams, offset=0, write='w'):
     M_nu, omega_m, A_s9 = iparams
     fn='jobs/camb.sh'
     if write=='w':
@@ -522,7 +522,7 @@ module load intel/17.0/64/17.0.0.098
     elif write=='a':
         f = open(fn, 'a')
         filename = 'camb_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
-        scripttext='''\nsrun -n 1 /tigress/jialiu/PipelineJL/CAMB-Jan2017/camb /tigress/jialiu/neutrino-batch/params/%s.param &'''%(filename)
+        scripttext='''\nsrun -n 1 -o %i /tigress/jialiu/PipelineJL/CAMB-Jan2017/camb /tigress/jialiu/neutrino-batch/params/%s.param &'''%(offset, filename)
     elif write=='wait':
         f = open(fn, 'a')
         scripttext='\n wait\n'
@@ -578,8 +578,10 @@ srun -N %i -n %i /tigress/jialiu/PipelineJL/Gadget-2.0.7/Gadget2/Gadget2_1800 /t
     f.close()
     
 sbatch_camb(range(3), write='w')
+offset=-1
 for iparams in params:
     print iparams
+    offset+=1
     M_nu, omega_m, A_s9 = iparams
     camb_gen(M_nu, omega_m, A_s9)
     ngenic_gen(M_nu, omega_m, A_s9)
@@ -587,6 +589,6 @@ for iparams in params:
     outputs(iparams)
     sbatch_gadget(iparams)
     sbatch_ngenic(iparams)
-    sbatch_camb(iparams, write='a')
+    sbatch_camb(iparams, offset=offset, write='a')
     
 sbatch_camb(iparams, write='wait')
