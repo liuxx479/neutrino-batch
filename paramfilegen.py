@@ -511,8 +511,8 @@ def sbatch_camb(iparams, offset=0, write='w'):
 #SBATCH -N 2 # node count 
 #SBATCH --ntasks-per-node=28 
 #SBATCH -t 2:00:00 
-#SBATCH --output=/tigress/jialiu/neutrino-batch/logs/camb_%%j.out
-#SBATCH --error=/tigress/jialiu/neutrino-batch/logs/camb_%%j.err
+#SBATCH --output=/tigress/jialiu/neutrino-batch/logs/camb_.out
+#SBATCH --error=/tigress/jialiu/neutrino-batch/logs/camb_.err
 #SBATCH --mail-type=begin 
 #SBATCH --mail-type=end 
 #SBATCH --mail-user=jia@astro.princeton.edu 
@@ -524,7 +524,7 @@ module load intel/17.0/64/17.0.0.098
     elif write=='a':
         f = open(fn, 'a')
         filename = 'camb_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
-        scripttext='''\nsrun -n 1 -o %i /tigress/jialiu/PipelineJL/CAMB-Jan2017/camb /tigress/jialiu/neutrino-batch/params/%s.param &'''%(offset, filename)
+        scripttext='''\nsrun -n 1 /tigress/jialiu/PipelineJL/CAMB-Jan2017/camb /tigress/jialiu/neutrino-batch/params/%s.param &'''%(filename)
     elif write=='wait':
         f = open(fn, 'a')
         scripttext='\nwait\n'
@@ -538,8 +538,8 @@ def sbatch_ngenic(params):
 #SBATCH -N 2 # node count 
 #SBATCH --ntasks-per-node=1
 #SBATCH -t 1:00:00 
-#SBATCH --output=/tigress/jialiu/neutrino-batch/logs/%s%%j.out
-#SBATCH --error=/tigress/jialiu/neutrino-batch/logs/%s%%j.err
+#SBATCH --output=/tigress/jialiu/neutrino-batch/logs/%s.out
+#SBATCH --error=/tigress/jialiu/neutrino-batch/logs/%s.err
 #SBATCH --mail-type=begin 
 #SBATCH --mail-type=end 
 #SBATCH --mail-user=jia@astro.princeton.edu 
@@ -566,8 +566,8 @@ def sbatch_gadget(iparams, N=40):
 #SBATCH -N %i # node count 
 #SBATCH --ntasks-per-node=28 
 #SBATCH -t 15:00:00 
-#SBATCH --output=/tigress/jialiu/neutrino-batch/logs/%s%%j.out
-#SBATCH --error=/tigress/jialiu/neutrino-batch/logs/%s%%j.err
+#SBATCH --output=/tigress/jialiu/neutrino-batch/logs/%s.out
+#SBATCH --error=/tigress/jialiu/neutrino-batch/logs/%s.err
 #SBATCH --mail-type=begin 
 #SBATCH --mail-type=end 
 #SBATCH --mail-user=jia@astro.princeton.edu 
