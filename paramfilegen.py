@@ -80,7 +80,7 @@ def camb_gen(M_nu, omega_m, A_s9):
     paramtext='''#Parameters for CAMB
 
 #output_root is prefixed to output file names
-output_root = ../camb/%s
+output_root = /tigress/jialiu/neutrino-batch/camb/%s
 
 get_scalar_cls = F
 get_vector_cls = F
@@ -258,9 +258,9 @@ Redshift = 99
 #Number of files used in output snapshot set, for ICFormat < 4.
 NumFiles = 28
 # filename of tabulated MATTER powerspectrum from CAMB
-FileWithInputSpectrum = ../camb/%s
+FileWithInputSpectrum = /tigress/jialiu/neutrino-batch/camb/%s
 # filename of transfer functions from CAMB
-FileWithTransfer = ../camb/%s
+FileWithTransfer = /tigress/jialiu/neutrino-batch/camb/%s
 
 #==Optional Parameters==
 # (Cube root of) number of particles
@@ -336,7 +336,7 @@ def gadget_gen (M_nu, omega_m, A_s9):
     
     cosmo = 'mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
     fn_ICs='/tigress/jialiu/temp/%s/ICs/IC'%(cosmo)
-    fn_transfer = '../camb/camb_mnv%.5f_om%.5f_As%.4f_transfer_99.dat'%(M_nu, omega_m, A_s9)
+    fn_transfer = '/tigress/jialiu/neutrino-batch/camb/camb_mnv%.5f_om%.5f_As%.4f_transfer_99.dat'%(M_nu, omega_m, A_s9)
     filename = 'gadget_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
     os.system('mkdir -p /tigress/jialiu/temp/%s/snapshots'%(cosmo))
     m1, m2, m3 = neutrino_mass_calc(M_nu)
