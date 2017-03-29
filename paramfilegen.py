@@ -69,7 +69,6 @@ def camb_gen(M_nu, omega_m, A_s9):
     A_s9 = A_s * 1e9
     modify omch2, omnuh2, scalar_amp(1)
     '''
-
     if M_nu==0:
         omnuh2=0
     else:
