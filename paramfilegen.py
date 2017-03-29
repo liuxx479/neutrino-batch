@@ -528,7 +528,7 @@ module load intel/17.0/64/17.0.0.098
 
 def sbatch_ngenic(params):
     filename = 'ngenic_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
-    f = open(fn, 'w')
+    f = open('jobs/'+filename, 'w')
     scripttext='''#!/bin/bash 
 #SBATCH -N 2 # node count 
 #SBATCH --ntasks-per-node=1
@@ -544,7 +544,7 @@ module load hdf5
 export CC=icc
 export CXX=icpc
 
-srun -N 1 -n 1 /tigress/jialiu/PipelineJL/S-GenIC params/%i
+srun -N 1 -n 1 /tigress/jialiu/PipelineJL/S-GenIC params/%i.param
 '''%(filename)
     f.write(scripttext)
     f.close()
