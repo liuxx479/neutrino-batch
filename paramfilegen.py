@@ -520,7 +520,7 @@ module load intel/17.0/64/17.0.0.098
         f = open(fn, 'a')
         filename = 'camb_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
         scripttext='''\nsrun -n 1 /tigress/jialiu/PipelineJL/CAMB-Jan2017/camb /tigress/jialiu/neutrino-batch/params/%s.param &'''%(filename)
-    elif write='wait':
+    elif write=='wait':
         f = open(fn, 'a')
         scripttext='\n wait\n'
     f.write(scripttext)
