@@ -69,7 +69,11 @@ def camb_gen(M_nu, omega_m, A_s9):
     A_s9 = A_s * 1e9
     modify omch2, omnuh2, scalar_amp(1)
     '''
-    omnuh2 = Mnu2Omeganu(M_nu, omega_m)*h**2
+
+    if M_nu==0:
+        omnuh2=0
+    else:
+        omnuh2 = Mnu2Omeganu(M_nu, omega_m)*h**2
     omch2 = omega_m*h**2 - omnuh2 - ombh2
     filename = 'camb_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
     m1, m2, m3 = neutrino_mass_calc (M_nu)
