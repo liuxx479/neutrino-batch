@@ -593,8 +593,8 @@ for iparams in params:
     print iparams
     M_nu, omega_m, A_s9 = iparams
     camb_gen(M_nu, omega_m, A_s9)
-    ngenic_gen(M_nu, omega_m, A_s9)
-    gadget_gen(M_nu, omega_m, A_s9)
-    outputs(iparams)
-    sbatch_gadget(iparams)
-    sbatch_ngenic(iparams)
+    #ngenic_gen(M_nu, omega_m, A_s9)
+    #gadget_gen(M_nu, omega_m, A_s9)
+    #outputs(iparams)
+    #sbatch_gadget(iparams)
+    #sbatch_ngenic(iparams)
