@@ -508,11 +508,10 @@ def outputs(iparams):
 def sbatch_camb(iparams,  write='w'):
     M_nu, omega_m, A_s9 = iparams
     fn='jobs/camb.sh'
-    if write=='w':
+    if write=='w':#SBATCH --ntasks-per-node=28 
         f = open(fn, 'w')
         scripttext='''#!/bin/bash 
 #SBATCH -N 4 # node count 
-#SBATCH --ntasks-per-node=28 
 #SBATCH -t 1:00:00 
 #SBATCH --array=1-102
 #SBATCH --ntasks=1
