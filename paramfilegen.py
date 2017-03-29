@@ -502,7 +502,7 @@ def outputs(iparams):
     savetxt(fn, sort(a_arr))
     #cosmo.comoving_distance(newz_arr).value/h/DC_arr-1
 
-def sbatch_camb(iparams, offset=0, write='w'):
+def sbatch_camb(iparams,  write='w'):
     M_nu, omega_m, A_s9 = iparams
     fn='jobs/camb.sh'
     if write=='w':
@@ -585,13 +585,9 @@ srun -N %i -n %i /tigress/jialiu/PipelineJL/Gadget-2.0.7/Gadget2/Gadget2_1800 /t
     f.close()
     
 sbatch_camb(range(3), write='w')
-#offset=-1
+
 for iparams in params:
     print iparams
-    offset+=1
-    #if offset > 55:
-        #sbatch_camb(iparams, write='wait')
-        #offset = 0
     M_nu, omega_m, A_s9 = iparams
     camb_gen(M_nu, omega_m, A_s9)
     ngenic_gen(M_nu, omega_m, A_s9)
@@ -599,6 +595,3 @@ for iparams in params:
     outputs(iparams)
     sbatch_gadget(iparams)
     sbatch_ngenic(iparams)
-    #sbatch_camb(iparams, offset=offset, write='a')
-    
-#sbatch_camb(iparams, write='wait')
