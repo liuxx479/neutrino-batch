@@ -544,7 +544,7 @@ module load hdf5
 export CC=icc
 export CXX=icpc
 
-srun -N 1 -n 1 /tigress/jialiu/PipelineJL/S-GenIC params/%i.param
+srun -N 1 -n 1 /tigress/jialiu/PipelineJL/S-GenIC params/%s.param
 '''%(filename)
     f.write(scripttext)
     f.close()
