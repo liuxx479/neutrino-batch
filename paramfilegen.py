@@ -103,7 +103,7 @@ helium_fraction    = 0.24
 
 massless_neutrinos = 0.046
 nu_mass_eigenstates = 3
-massive_neutrinos  = 3
+massive_neutrinos  = 1 1 1
 share_delta_neff = T
 nu_mass_fractions = %.5f %.5f %.5f
 nu_mass_degeneracies = 
@@ -512,15 +512,15 @@ def sbatch_camb(iparams, offset=0, write='w'):
 #SBATCH --ntasks-per-node=28 
 #SBATCH -t 1:00:00 
 #SBATCH --array=1-102
-#SBATCH --output=/tigress/jialiu/neutrino-batch/logs/camb.out
-#SBATCH --error=/tigress/jialiu/neutrino-batch/logs/camb.err
+#SBATCH --output=/tigress/jialiu/neutrino-batch/logs/camb_%A_%a.out
+#SBATCH --error=/tigress/jialiu/neutrino-batch/logs/camb_%A_%a.err
 #SBATCH --mail-type=begin 
 #SBATCH --mail-type=end 
 #SBATCH --mail-user=jia@astro.princeton.edu 
 
 # Load openmpi environment
-module load intel/17.0/64/17.0.0.098
-srun -n 1 /tigress/jialiu/PipelineJL/CAMB-Jan2017/camb $(ls /tigress/jialiu/neutrino-batch/params/camb* | sed -n ${SLURM_ARRAY_TASK_ID}p)
+module load intel
+/tigress/jialiu/PipelineJL/CAMB-Jan2017/camb $(ls /tigress/jialiu/neutrino-batch/params/camb* | sed -n ${SLURM_ARRAY_TASK_ID}p)
 '''
     elif write=='a':
         f = open(fn, 'a')
@@ -546,7 +546,7 @@ def sbatch_ngenic(params):
 #SBATCH --mail-user=jia@astro.princeton.edu 
 
 # Load openmpi environment
-module load intel/17.0/64/17.0.0.098
+module load intel
 module load fftw
 module load hdf5
 export CC=icc
