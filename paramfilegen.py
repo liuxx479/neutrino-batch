@@ -505,12 +505,11 @@ def outputs(iparams):
     savetxt(fn, sort(a_arr))
     #cosmo.comoving_distance(newz_arr).value/h/DC_arr-1
 
-def sbatch_camb(iparams,  write='w'):
+def sbatch_camb():
     M_nu, omega_m, A_s9 = iparams
     fn='jobs/camb.sh'
-    if write=='w':#SBATCH --ntasks-per-node=28 
-        f = open(fn, 'w')
-        scripttext='''#!/bin/bash 
+    f = open(fn, 'w')
+    scripttext='''#!/bin/bash 
 #SBATCH -N 4 # node count 
 #SBATCH -t 1:00:00 
 #SBATCH --array=1-104
@@ -525,25 +524,20 @@ def sbatch_camb(iparams,  write='w'):
 module load intel
 /tigress/jialiu/PipelineJL/CAMB-Jan2017/camb $(ls /tigress/jialiu/neutrino-batch/params/camb* | sed -n ${SLURM_ARRAY_TASK_ID}p)
 '''
-    elif write=='a':
-        f = open(fn, 'a')
-        filename = 'camb_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
-        scripttext='''\nsrun -n 1 /tigress/jialiu/PipelineJL/CAMB-Jan2017/camb /tigress/jialiu/neutrino-batch/params/%s.param &'''%(filename)
-    elif write=='wait':
-        f = open(fn, 'a')
-        scripttext='\nwait\n'
     f.write(scripttext)
     f.close()
 
-def sbatch_ngenic(params):
-    filename = 'ngenic_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
-    f = open('jobs/'+filename, 'w')
+def sbatch_ngenic():
+    fn = 'jobs/ngenic.sh'
+    f = open(fn, 'w')
     scripttext='''#!/bin/bash 
-#SBATCH -N 2 # node count 
+#SBATCH -N 34 # node count 
 #SBATCH --ntasks-per-node=1
-#SBATCH -t 1:00:00 
-#SBATCH --output=/tigress/jialiu/neutrino-batch/logs/%s.out
-#SBATCH --error=/tigress/jialiu/neutrino-batch/logs/%s.err
+#SBATCH --ntasks=28
+#SBATCH -t 2:00:00 
+#SBATCH --array=1-34
+#SBATCH --output=/tigress/jialiu/neutrino-batch/logs/ngenic_%A_%a.out
+#SBATCH --error=/tigress/jialiu/neutrino-batch/logs/ngenic_%A_%a.err
 #SBATCH --mail-type=begin 
 #SBATCH --mail-type=end 
 #SBATCH --mail-user=jia@astro.princeton.edu 
@@ -555,8 +549,8 @@ module load hdf5
 export CC=icc
 export CXX=icpc
 
-srun -N 1 -n 1 /tigress/jialiu/PipelineJL/S-GenIC params/%s.param
-'''%(filename,filename,filename)
+/tigress/jialiu/PipelineJL/S-GenIC $(ls /tigress/jialiu/neutrino-batch/params/ngen* | sed -n ${SLURM_ARRAY_TASK_ID}p)
+'''
     f.write(scripttext)
     f.close()
 
@@ -587,15 +581,16 @@ srun -N %i -n %i /tigress/jialiu/PipelineJL/Gadget-2.0.7/Gadget2/Gadget2_1800 /t
     f.write(scripttext)
     f.close()
     
-sbatch_camb(range(3), write='w')
+#sbatch_camb()
+#os.system('cp /tigress/jialiu/neutrino-batch/camb_mnv0.00000_om0.30000_As2.1000.param /tigress/jialiu/neutrino-batch/params')
 
+sbatch_ngenic()
 for iparams in params:
     print iparams
     M_nu, omega_m, A_s9 = iparams
-    camb_gen(M_nu, omega_m, A_s9)
+    #camb_gen(M_nu, omega_m, A_s9)
     #ngenic_gen(M_nu, omega_m, A_s9)
     #gadget_gen(M_nu, omega_m, A_s9)
     #outputs(iparams)
     #sbatch_gadget(iparams)
     #sbatch_ngenic(iparams)
-os.system('cp /tigress/jialiu/neutrino-batch/camb_mnv0.00000_om0.30000_As2.1000.param /tigress/jialiu/neutrino-batch/params')
