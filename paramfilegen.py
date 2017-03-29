@@ -548,7 +548,7 @@ module load hdf5
 export CC=icc
 export CXX=icpc
 
-/tigress/jialiu/PipelineJL/S-GenIC $(ls /tigress/jialiu/neutrino-batch/params/ngen* | sed -n ${SLURM_ARRAY_TASK_ID}p)
+/tigress/jialiu/PipelineJL/S-GenIC/N-GenIC $(ls /tigress/jialiu/neutrino-batch/params/ngen* | sed -n ${SLURM_ARRAY_TASK_ID}p)
 '''
     f.write(scripttext)
     f.close()
@@ -588,7 +588,7 @@ for iparams in params:
     print iparams
     M_nu, omega_m, A_s9 = iparams
     #camb_gen(M_nu, omega_m, A_s9)
-    #ngenic_gen(M_nu, omega_m, A_s9)
+    ngenic_gen(M_nu, omega_m, A_s9)
     #gadget_gen(M_nu, omega_m, A_s9)
     #outputs(iparams)
     #sbatch_gadget(iparams)
