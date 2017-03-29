@@ -533,7 +533,6 @@ def sbatch_ngenic():
     scripttext='''#!/bin/bash 
 #SBATCH -N 34 # node count 
 #SBATCH --ntasks-per-node=1
-#SBATCH --ntasks=28
 #SBATCH -t 2:00:00 
 #SBATCH --array=1-34
 #SBATCH --output=/tigress/jialiu/neutrino-batch/logs/ngenic_%A_%a.out
