@@ -2,6 +2,9 @@
 from scipy import *
 from scipy import optimize
 import os
+from scipy import stats
+from astropy.cosmology import FlatLambdaCDM
+import astropy.units as u
 
 os.system('mkdir -p /tigress/jialiu/neutrino-batch/params')
 os.system('mkdir -p /tigress/jialiu/neutrino-batch/camb')
@@ -30,6 +33,12 @@ Mmin_NH = sqrt(d21)+sqrt(d31N+d21/2)
 Mmin_IH = sqrt(d31I-0.5*d21) + sqrt(d31I+0.5*d21)
 m1min_IH = sqrt(d31I-0.5*d21)
 
+hubble = 70
+w = -1
+ns = 0.97
+pivot_scalar              = 0.05
+pivot_tensor              = 0.05
+
 def neutrino_mass_calc (M, split=1):
     '''split = 1, 2, 3 for normal, inverted, degenerate
     '''    
@@ -46,13 +55,17 @@ def neutrino_mass_calc (M, split=1):
         m1, m2, m3 = ones(3)*M/3.0
     return m1,m2,m3
 
-
+def Mnu2Omeganu(M_nu, omega_m):
+    mnu_arr = array(neutrino_mass_calc(M_nu)) * u.eV
+    cosmo = FlatLambdaCDM(H0=h*100, Om0=omega_m, m_nu=mnu_arr)
+    return cosmo.Onu0
+    
 def camb_gen(M_nu, omega_m, A_s9):
     '''M_nu: total mass of neutrinos in unit of eV
     A_s9 = A_s * 1e9
     modify omch2, omnuh2, scalar_amp(1)
     '''
-    omnuh2 = M_nu / 93.14
+    omnuh2 = Mnu2Omeganu(M_nu, omega_m)*h**2
     omch2 = omega_m*h**2 - omnuh2 - ombh2
     filename = 'camb_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
     m1, m2, m3 = neutrino_mass_calc (M_nu)
@@ -76,7 +89,7 @@ use_physical   = T
 ########## cosmological parameters (Planck 2015 TT,TE,EE+lowP+lensing+ext)
 ombh2          = 0.02230
 omch2          = %.5f ##### = 0.1188 Planck2015
-omnuh2         = %.5f ##### = M_nu / 93.14eV 
+omnuh2         = %.5f ##### = Mnu2Omeganu(M_nu, omega_m)eV 
 omk            = 0
 hubble         = 70
 w              = -1
@@ -189,9 +202,9 @@ halofit_version= 7
 number_of_threads       = 0
 high_accuracy_default=T
 
-accuracy_boost          = 1
-l_accuracy_boost        = 1
-l_sample_boost          = 1'''%(filename, omch2, omnuh2, m1/M_nu, m2/M_nu, m3/M_nu, A_s9)
+accuracy_boost          = 3
+l_accuracy_boost        = 3
+l_sample_boost          = 3'''%(filename, omch2, omnuh2, m1/M_nu, m2/M_nu, m3/M_nu, A_s9)
     
     f = open('params/%s.param'%(filename), 'w')
     f.write(paramtext)
@@ -200,7 +213,7 @@ l_sample_boost          = 1'''%(filename, omch2, omnuh2, m1/M_nu, m2/M_nu, m3/M_
 
 
 def ngenic_gen(M_nu, omega_m, A_s9):
-    omnuh2 = M_nu / 93.14
+    omnuh2 = Mnu2Omeganu(M_nu, omega_m)*h**2
     omch2 = omega_m*h**2 - omnuh2 - ombh2
     filename = 'ngenic_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
     fn_matter = 'camb_mnv%.5f_om%.5f_As%.4f_matterpow_99.dat'%(M_nu, omega_m, A_s9)
@@ -446,8 +459,74 @@ HybridNeutrinosOn           0  ;       Whether hybrid neutrinos are enabled.
     f.write(paramtext)
     f.close()
 
-camb_gen(M_nu, omega_m, A_s9)
-ngenic_gen(M_nu, omega_m, A_s9)
-gadget_gen(M_nu, omega_m, A_s9)
+###################################
+######## parameter design #########
+###################################
+design = 0
+if design:
+    lhd_gridcm_3d=loadtxt('lhd_gridcm_3d.txt')
+    lhd_gridcm = lhd_gridcm_3d[:,:-1]
+    lhd_gaus_cm = stats.distributions.norm(loc=0, scale=1).ppf(lhd_gridcm)
+    nu_rand_cm = stats.distributions.halfnorm(loc=0, scale=0.2).ppf(lhd_gridcm_3d[:,-1])+Mmin_NH
+    fidu_om, fidu_As = 0.3, 2.1 # Omega_m, A_s*1e9
+    #lhd_gaus_cm = norm(loc=0, scale=1).ppf(lhd_gridcm)
+    lhd_gaus_cm_tramsformed = zeros(shape=lhd_gaus_cm.shape)
+    lhd_gaus_cm_tramsformed.T[0] = lhd_gaus_cm.T[0]*fidu_om*0.15 + fidu_om
+    lhd_gaus_cm_tramsformed.T[1] = lhd_gaus_cm.T[1]*fidu_As*0.15 + fidu_As
 
-######## latin hyper cube to sample parameters ########
+    params = array([nu_rand_cm, lhd_gaus_cm_tramsformed.T[0], lhd_gaus_cm_tramsformed.T[1]]).T
+    params = append(params, [[0.1, 0.3, 2.1],[0.0, 0.3, 2.1]],axis=0)
+    savetxt('params.txt',params)
+
+params = loadtxt('params.txt')
+
+from scipy.interpolate import interp1d
+### out to z = 3.0, every 128 Mpc/h=182.857Mpc output, interpolation
+z_arr = linspace(0,3,301)
+def outputs(iparams):
+    M_nu, omega_m, A_s9 = iparams
+    omnu = Mnu2Omeganu(M_nu, omega_m)
+    omch2 = omega_m*h**2 - omnu*h**2 - ombh2
+    nu_masses = neutrino_mass_calc(M_nu) * u.eV
+    cosmo = FlatLambdaCDM(H0=70, Om0=0.3, m_nu = nu_masses)
+    DC_interp = interp1d(cosmo.comoving_distance(z_arr)/h, z_arr)
+    DC_arr = arange(0, (cosmo.comoving_distance(z_arr[-1]).value + 128)/h, 128/h)
+    newz_arr = DC_interp(DC_arr)
+    a_arr = 1.0/(1.0+newz_arr)
+    cosmo = 'mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
+    fn = '/tigress/jialiu/temp/%s/snapshots/outputx_%s.txt'%(cosmo, cosmo)
+    savetxt(fn, sort(a_arr))
+    #cosmo.comoving_distance(newz_arr).value/h/DC_arr-1
+
+def sbatch_gadget(params, N=40):
+    n=N*28
+    os.system('mkdir -pv jobs')
+    filename = 'gadget_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
+    scripttext='''#!/bin/bash 
+#SBATCH -N %i # node count 
+#SBATCH --ntasks-per-node=28 
+#SBATCH -t 15:00:00 
+# sends mail when process begins, and 
+# when it ends. Make sure you define your email 
+#SBATCH --mail-type=begin 
+#SBATCH --mail-type=end 
+#SBATCH --mail-user=jia@astro.princeton.edu 
+
+# Load openmpi environment
+module load intel/17.0/64/17.0.0.098 
+module load openmpi 
+
+srun -N %i -n %i /tigress/jialiu/PipelineJL/Gadget-2.0.7/Gadget2/Gadget2_1800 /tigress/jialiu/neutrino-batch/params/%s.param'''%(N, N, n, filename)
+    f = open('jobs/%s'%(fn), 'w')
+    f.write(scripttext)
+    f.close()
+    
+for iparams in params:
+    print iparams
+    M_nu, omega_m, A_s9 = iparams
+    camb_gen(M_nu, omega_m, A_s9)
+    ngenic_gen(M_nu, omega_m, A_s9)
+    gadget_gen(M_nu, omega_m, A_s9)
+    outputs(iparams)
+    
+    
