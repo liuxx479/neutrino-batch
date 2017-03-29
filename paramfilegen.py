@@ -8,6 +8,7 @@ import astropy.units as u
 
 os.system('mkdir -p /tigress/jialiu/neutrino-batch/params')
 os.system('mkdir -p /tigress/jialiu/neutrino-batch/camb')
+os.system('mkdir -p /tigress/jialiu/neutrino-batch/jobs')
 
 h = 0.7
 ombh2 = 0.0223
@@ -498,7 +499,59 @@ def outputs(iparams):
     savetxt(fn, sort(a_arr))
     #cosmo.comoving_distance(newz_arr).value/h/DC_arr-1
 
-def sbatch_gadget(params, N=40):
+def sbatch_camb(iparams, write='w'):
+    M_nu, omega_m, A_s9 = iparams
+    fn='jobs/camb.sh'
+    if write=='w':
+        f = open(fn, 'w')
+        scripttext='''#!/bin/bash 
+#SBATCH -N 2 # node count 
+#SBATCH --ntasks-per-node=28 
+#SBATCH -t 2:00:00 
+#SBATCH --mail-type=begin 
+#SBATCH --mail-type=end 
+#SBATCH --mail-user=jia@astro.princeton.edu 
+
+# Load openmpi environment
+module load intel/17.0/64/17.0.0.098
+
+'''
+    elif write=='a':
+        f = open(fn, 'a')
+        filename = 'camb_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
+        scripttext='''\nsrun -n 1 /tigress/jialiu/PipelineJL/CAMB-Jan2017/camb /tigress/jialiu/neutrino-batch/params/%s.param &'''%(filename)
+    elif write='wait':
+        f = open(fn, 'a')
+        scripttext='\n wait\n'
+    f.write(scripttext)
+    f.close()
+
+def sbatch_ngenic(params):
+    filename = 'ngenic_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
+    f = open(fn, 'w')
+    scripttext='''#!/bin/bash 
+#SBATCH -N 2 # node count 
+#SBATCH --ntasks-per-node=1
+#SBATCH -t 1:00:00 
+#SBATCH --mail-type=begin 
+#SBATCH --mail-type=end 
+#SBATCH --mail-user=jia@astro.princeton.edu 
+
+# Load openmpi environment
+module load intel/17.0/64/17.0.0.098
+module load fftw
+module load hdf5
+export CC=icc
+export CXX=icpc
+
+srun -N 1 -n 1 /tigress/jialiu/PipelineJL/S-GenIC params/%i
+'''%(filename)
+    f.write(scripttext)
+    f.close()
+
+
+def sbatch_gadget(iparams, N=40):
+    M_nu, omega_m, A_s9 = iparams
     n=N*28
     os.system('mkdir -pv jobs')
     filename = 'gadget_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
@@ -517,10 +570,11 @@ module load intel/17.0/64/17.0.0.098
 module load openmpi 
 
 srun -N %i -n %i /tigress/jialiu/PipelineJL/Gadget-2.0.7/Gadget2/Gadget2_1800 /tigress/jialiu/neutrino-batch/params/%s.param'''%(N, N, n, filename)
-    f = open('jobs/%s'%(fn), 'w')
+    f = open('jobs/%s.sh'%(filename), 'w')
     f.write(scripttext)
     f.close()
     
+sbatch_camb(iparams, write='w')
 for iparams in params:
     print iparams
     M_nu, omega_m, A_s9 = iparams
@@ -528,5 +582,8 @@ for iparams in params:
     ngenic_gen(M_nu, omega_m, A_s9)
     gadget_gen(M_nu, omega_m, A_s9)
     outputs(iparams)
+    sbatch_gadget(iparams)
+    sbatch_ngenic(iparams)
+    sbatch_camb(iparams, write='a')
     
-    
+sbatch_camb(iparams, write='wait')
