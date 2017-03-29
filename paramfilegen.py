@@ -574,7 +574,7 @@ srun -N %i -n %i /tigress/jialiu/PipelineJL/Gadget-2.0.7/Gadget2/Gadget2_1800 /t
     f.write(scripttext)
     f.close()
     
-sbatch_camb(iparams, write='w')
+sbatch_camb(range(3), write='w')
 for iparams in params:
     print iparams
     M_nu, omega_m, A_s9 = iparams
