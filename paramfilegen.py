@@ -44,16 +44,19 @@ def neutrino_mass_calc (M, split=1):
     '''split = 1, 2, 3 for normal, inverted, degenerate
     '''    
     #print M
-    if split == 1:
-        m1=optimize.bisect(root_NH, 0, M, args=(M,))       
-        m2=m2fcn(m1)
-        m3=m3_NH(m1)
-    elif split == 2:
-        m1=optimize.bisect(root_IH, m1min_IH, M, args=(M,))
-        m2=m2fcn(m1)
-        m3=m3_IH(m1)
-    elif split ==3:
-        m1, m2, m3 = ones(3)*M/3.0
+    if M==0:
+        m1,m2,m3=zeros(3)
+    else:
+        if split == 1:
+            m1=optimize.bisect(root_NH, 0, M, args=(M,))       
+            m2=m2fcn(m1)
+            m3=m3_NH(m1)
+        elif split == 2:
+            m1=optimize.bisect(root_IH, m1min_IH, M, args=(M,))
+            m2=m2fcn(m1)
+            m3=m3_IH(m1)
+        elif split ==3:
+            m1, m2, m3 = ones(3)*M/3.0
     return m1,m2,m3
 
 def Mnu2Omeganu(M_nu, omega_m):
