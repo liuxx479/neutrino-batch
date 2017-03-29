@@ -515,6 +515,7 @@ def sbatch_camb(iparams,  write='w'):
 #SBATCH --ntasks-per-node=28 
 #SBATCH -t 1:00:00 
 #SBATCH --array=1-102
+#SBATCH --ntasks=1
 #SBATCH --output=/tigress/jialiu/neutrino-batch/logs/camb_%A_%a.out
 #SBATCH --error=/tigress/jialiu/neutrino-batch/logs/camb_%A_%a.err
 #SBATCH --mail-type=begin 
@@ -598,3 +599,4 @@ for iparams in params:
     #outputs(iparams)
     #sbatch_gadget(iparams)
     #sbatch_ngenic(iparams)
+os.system('cp /tigress/jialiu/neutrino-batch/camb_mnv0.00000_om0.30000_As2.1000.param /tigress/jialiu/neutrino-batch/params')
