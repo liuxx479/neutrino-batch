@@ -584,7 +584,7 @@ for iparams in params:
     offset+=1
     if offset > 55:
         sbatch_camb(iparams, write='wait')
-        offset == 0
+        offset = 0
     M_nu, omega_m, A_s9 = iparams
     camb_gen(M_nu, omega_m, A_s9)
     ngenic_gen(M_nu, omega_m, A_s9)
