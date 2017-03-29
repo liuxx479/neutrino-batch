@@ -513,7 +513,7 @@ def sbatch_camb(iparams,  write='w'):
         scripttext='''#!/bin/bash 
 #SBATCH -N 4 # node count 
 #SBATCH -t 1:00:00 
-#SBATCH --array=1-102
+#SBATCH --array=1-104
 #SBATCH --ntasks=1
 #SBATCH --output=/tigress/jialiu/neutrino-batch/logs/camb_%A_%a.out
 #SBATCH --error=/tigress/jialiu/neutrino-batch/logs/camb_%A_%a.err
