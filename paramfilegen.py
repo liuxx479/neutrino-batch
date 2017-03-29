@@ -525,7 +525,7 @@ module load intel/17.0/64/17.0.0.098
         scripttext='''\nsrun -n 1 -o %i /tigress/jialiu/PipelineJL/CAMB-Jan2017/camb /tigress/jialiu/neutrino-batch/params/%s.param &'''%(offset, filename)
     elif write=='wait':
         f = open(fn, 'a')
-        scripttext='\n wait\n'
+        scripttext='\nwait\n'
     f.write(scripttext)
     f.close()
 
@@ -582,6 +582,9 @@ offset=-1
 for iparams in params:
     print iparams
     offset+=1
+    if offset > 55:
+        sbatch_camb(iparams, write='wait')
+        offset == 0
     M_nu, omega_m, A_s9 = iparams
     camb_gen(M_nu, omega_m, A_s9)
     ngenic_gen(M_nu, omega_m, A_s9)
