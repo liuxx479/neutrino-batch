@@ -511,6 +511,8 @@ def sbatch_camb(iparams, offset=0, write='w'):
 #SBATCH -N 2 # node count 
 #SBATCH --ntasks-per-node=28 
 #SBATCH -t 2:00:00 
+#SBATCH --output=camb_%j.out
+#SBATCH --error=camb_%j.err
 #SBATCH --mail-type=begin 
 #SBATCH --mail-type=end 
 #SBATCH --mail-user=jia@astro.princeton.edu 
@@ -536,6 +538,8 @@ def sbatch_ngenic(params):
 #SBATCH -N 2 # node count 
 #SBATCH --ntasks-per-node=1
 #SBATCH -t 1:00:00 
+#SBATCH --output=%s%j.out
+#SBATCH --error=%s%j.err
 #SBATCH --mail-type=begin 
 #SBATCH --mail-type=end 
 #SBATCH --mail-user=jia@astro.princeton.edu 
@@ -548,7 +552,7 @@ export CC=icc
 export CXX=icpc
 
 srun -N 1 -n 1 /tigress/jialiu/PipelineJL/S-GenIC params/%s.param
-'''%(filename)
+'''%(filename,filename,filename)
     f.write(scripttext)
     f.close()
 
@@ -562,8 +566,8 @@ def sbatch_gadget(iparams, N=40):
 #SBATCH -N %i # node count 
 #SBATCH --ntasks-per-node=28 
 #SBATCH -t 15:00:00 
-# sends mail when process begins, and 
-# when it ends. Make sure you define your email 
+#SBATCH --output=%s%j.out
+#SBATCH --error=%s%j.err
 #SBATCH --mail-type=begin 
 #SBATCH --mail-type=end 
 #SBATCH --mail-user=jia@astro.princeton.edu 
@@ -571,8 +575,10 @@ def sbatch_gadget(iparams, N=40):
 # Load openmpi environment
 module load intel/17.0/64/17.0.0.098 
 module load openmpi 
+module load fftw
+module load hdf5
 
-srun -N %i -n %i /tigress/jialiu/PipelineJL/Gadget-2.0.7/Gadget2/Gadget2_1800 /tigress/jialiu/neutrino-batch/params/%s.param'''%(N, N, n, filename)
+srun -N %i -n %i /tigress/jialiu/PipelineJL/Gadget-2.0.7/Gadget2/Gadget2_1800 /tigress/jialiu/neutrino-batch/params/%s.param'''%(N, filename, filename, N, n, filename)
     f = open('jobs/%s.sh'%(filename), 'w')
     f.write(scripttext)
     f.close()
