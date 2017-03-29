@@ -511,8 +511,8 @@ def sbatch_camb(iparams, offset=0, write='w'):
 #SBATCH -N 2 # node count 
 #SBATCH --ntasks-per-node=28 
 #SBATCH -t 2:00:00 
-#SBATCH --output=camb_%%j.out
-#SBATCH --error=camb_%%j.err
+#SBATCH --output=/tigress/jialiu/neutrino-batch/logs/camb_%%j.out
+#SBATCH --error=/tigress/jialiu/neutrino-batch/logs/camb_%%j.err
 #SBATCH --mail-type=begin 
 #SBATCH --mail-type=end 
 #SBATCH --mail-user=jia@astro.princeton.edu 
@@ -538,8 +538,8 @@ def sbatch_ngenic(params):
 #SBATCH -N 2 # node count 
 #SBATCH --ntasks-per-node=1
 #SBATCH -t 1:00:00 
-#SBATCH --output=%s%%j.out
-#SBATCH --error=%s%%j.err
+#SBATCH --output=/tigress/jialiu/neutrino-batch/logs/%s%%j.out
+#SBATCH --error=/tigress/jialiu/neutrino-batch/logs/%s%%j.err
 #SBATCH --mail-type=begin 
 #SBATCH --mail-type=end 
 #SBATCH --mail-user=jia@astro.princeton.edu 
@@ -566,8 +566,8 @@ def sbatch_gadget(iparams, N=40):
 #SBATCH -N %i # node count 
 #SBATCH --ntasks-per-node=28 
 #SBATCH -t 15:00:00 
-#SBATCH --output=%s%%j.out
-#SBATCH --error=%s%%j.err
+#SBATCH --output=/tigress/jialiu/neutrino-batch/logs/%s%%j.out
+#SBATCH --error=/tigress/jialiu/neutrino-batch/logs/%s%%j.err
 #SBATCH --mail-type=begin 
 #SBATCH --mail-type=end 
 #SBATCH --mail-user=jia@astro.princeton.edu 
