@@ -5,6 +5,7 @@ import os
 from scipy import stats
 from astropy.cosmology import FlatLambdaCDM
 import astropy.units as u
+import numpy as np
 
 machine = 'stampede'
 
@@ -578,7 +579,6 @@ export CXX=icpc
 def sbatch_gadget(iparams, N=40):
     M_nu, omega_m, A_s9 = iparams
     n=N*28
-    os.system('mkdir -pv jobs')
     filename = 'gadget_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
     scripttext='''#!/bin/bash 
 #SBATCH -N %i # node count 
@@ -595,7 +595,7 @@ module load openmpi
 module load fftw
 module load hdf5
 
-%s -N %i -n %i %s /tigress/jialiu/neutrino-batch/params/%s.param'''%(N, filename, filename, mpicc, N, n, Gadget_loc, filename)
+%s -N %i -n %i %s %sparams/%s.param'''%(N, filename, filename, mpicc, N, n, Gadget_loc, main_dir, filename)
     f = open('jobs/%s.sh'%(filename), 'w')
     f.write(scripttext)
     f.close()
