@@ -490,7 +490,7 @@ Vcrit                       500    ;    Critical velocity in the Fermi-Dirac dis
 NuPartTime                  0.3333   ;    Scale factor at which to 'turn on', ie, make active gravitators,
 
 HybridNeutrinosOn           0  ;       Whether hybrid neutrinos are enabled.
-'''%(fn_ICs, temp_dir+cosmo, cosmo, temp_dir, omega_m, 1.0-omega_m, ombh2*h**2, fn_transfer, ombh2*h**2, m1,m2,m3)
+'''%(fn_ICs, temp_dir+cosmo, temp_dir, cosmo, omega_m, 1.0-omega_m, ombh2*h**2, fn_transfer, ombh2*h**2, m1,m2,m3)
     f = open('params/%s.param'%(filename), 'w')
     f.write(paramtext)
     f.close()
