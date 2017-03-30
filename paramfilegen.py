@@ -615,12 +615,12 @@ module load hdf5
 #sbatch_camb()
 #os.system('cp /tigress/jialiu/neutrino-batch/camb_mnv0.00000_om0.30000_As2.1000.param /tigress/jialiu/neutrino-batch/params')
 
-sbatch_ngenic()
+#sbatch_ngenic()
 for iparams in params:
     print iparams
     M_nu, omega_m, A_s9 = iparams
     #camb_gen(M_nu, omega_m, A_s9)
-    ngenic_gen(M_nu, omega_m, A_s9)
+    #ngenic_gen(M_nu, omega_m, A_s9)
     gadget_gen(M_nu, omega_m, A_s9)
-    outputs(iparams)
+    #outputs(iparams)
     sbatch_gadget(iparams)
