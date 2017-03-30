@@ -584,6 +584,7 @@ def sbatch_gadget(iparams, N=Ncore):
     filename = 'gadget_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
     scripttext='''#!/bin/bash 
 #SBATCH -N %i # node count 
+#SBATCH -n %i
 #SBATCH --ntasks-per-node=%i 
 #SBATCH -t 15:00:00 
 #SBATCH --output=%slogs/%s.out
@@ -597,7 +598,7 @@ module load intel
 module load fftw
 module load hdf5
 
-%s  %s %sparams/%s.param'''%(N, nnodes, main_dir, filename, main_dir, filename, openmpi, mpicc,  Gadget_loc, main_dir, filename)
+%s  %s %sparams/%s.param'''%(N, n, nnodes, main_dir, filename, main_dir, filename, openmpi, mpicc,  Gadget_loc, main_dir, filename)
     f = open('jobs/%s.sh'%(filename), 'w')
     f.write(scripttext)
     f.close()
