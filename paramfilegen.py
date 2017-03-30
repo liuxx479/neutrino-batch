@@ -7,10 +7,7 @@ from astropy.cosmology import FlatLambdaCDM
 import astropy.units as u
 import numpy as np
 
-try:
-    machine=str(sys.argv[1])
-except Exception:
-    machine = 'stampede'
+machine = 'perseus'
 
 ########## perseus
 if machine =='stampede':
