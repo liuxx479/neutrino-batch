@@ -17,6 +17,7 @@ if machine =='stampede':
     Gadget_loc = '/work/02977/jialiu/PipelineJL/Gadget-2.0.7/Gadget2/Gadget2'
     mpicc = 'ibrun'
     Ncore, nnodes = 64, 16
+    openmpi = ''
 ######## stampede
 
 elif machine =='perseus':
@@ -26,6 +27,7 @@ elif machine =='perseus':
     Gadget_loc = '/tigress/jialiu/PipelineJL/Gadget-2.0.7/Gadget2/Gadget2_1800'
     mpicc = 'srun'
     Ncore, nnodes = 40, 28
+    openmpi = 'module load openmpi'
 
 #########################
 os.system('mkdir -p %sparams'%(main_dir))
@@ -584,18 +586,18 @@ def sbatch_gadget(iparams, N=Ncore):
 #SBATCH -N %i # node count 
 #SBATCH --ntasks-per-node=%i 
 #SBATCH -t 15:00:00 
-#SBATCH --output=/tigress/jialiu/neutrino-batch/logs/%s.out
-#SBATCH --error=/tigress/jialiu/neutrino-batch/logs/%s.err
+#SBATCH --output=%slogs/%s.out
+#SBATCH --error=%slogs/%s.err
 #SBATCH --mail-type=all
 #SBATCH --mail-user=jia@astro.princeton.edu 
 
 # Load openmpi environment
 module load intel
-module load openmpi 
+%s 
 module load fftw
 module load hdf5
 
-%s  %s %sparams/%s.param'''%(N, nnodes,filename, filename, mpicc,  Gadget_loc, main_dir, filename)
+%s  %s %sparams/%s.param'''%(N, nnodes, main_dir, filename, main_dir, filename, openmpi, mpicc,  Gadget_loc, main_dir, filename)
     f = open('jobs/%s.sh'%(filename), 'w')
     f.write(scripttext)
     f.close()
