@@ -612,4 +612,3 @@ for iparams in params:
     gadget_gen(M_nu, omega_m, A_s9)
     outputs(iparams)
     sbatch_gadget(iparams)
-    sbatch_ngenic(iparams)
