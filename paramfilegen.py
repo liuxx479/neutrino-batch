@@ -378,7 +378,7 @@ TimingsFile			timings.txt
 CpuFile			cpu.txt
 RestartFile			restart
 SnapshotFileBase			snapshot
-OutputListFilename		outputs_%s.txt
+OutputListFilename		outputx_%s.txt
 
 %%    cpu_timings
 
