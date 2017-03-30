@@ -587,6 +587,7 @@ def sbatch_gadget(iparams, N=Ncore):
 #SBATCH -n %i
 #SBATCH -J Gadget
 #SBATCH -A TG-AST140041
+#SBATCH -p normal
 #SBATCH --ntasks-per-node=%i 
 #SBATCH -t 15:00:00 
 #SBATCH --output=%slogs/%s.out
