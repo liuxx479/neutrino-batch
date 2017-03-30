@@ -364,7 +364,7 @@ ShapeGamma = 0.201
 def gadget_gen (M_nu, omega_m, A_s9):
     
     cosmo = 'mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
-    fn_ICs='%s%s/ICs/IC'%(temp_dir, cosmo)
+    fn_ICs='%s%s/ICs/ICs'%(temp_dir, cosmo)
     fn_transfer = '%scamb/camb_mnv%.5f_om%.5f_As%.4f_transfer_99.dat'%(main_dir,M_nu, omega_m, A_s9)
     filename = 'gadget_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
     os.system('mkdir -p %s/snapshots'%(temp_dir+cosmo))
