@@ -10,11 +10,11 @@ machine = 'stampede'
 
 ########## perseus
 if machine =='stampede':
-    main_dir = '/tigress/jialiu/neutrino-batch/'
-    temp_dir = '/tigress/jialiu/temp/'
-    NgenIC_loc = '/tigress/jialiu/PipelineJL/S-GenIC/N-GenIC'
-    Gadget_loc = '/tigress/jialiu/PipelineJL/Gadget-2.0.7/Gadget2/Gadget2_1800'
-    mpicc = 'srun'
+    main_dir = '/work/02977/jialiu/neutrino-batch/'
+    temp_dir = '/scratch/02977/jialiu/temp/'
+    NgenIC_loc = '/work/02977/jialiu/PipelineJL/S-GenIC/N-GenIC'
+    Gadget_loc = '/work/02977/jialiu/PipelineJL/Gadget-2.0.7/Gadget2/Gadget2'
+    mpicc = 'ibrun'
 
 ######## stampede
 
