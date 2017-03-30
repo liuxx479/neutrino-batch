@@ -557,8 +557,8 @@ def sbatch_ngenic():
 #SBATCH --ntasks-per-node=1
 #SBATCH -t 2:00:00 
 #SBATCH --array=1-34
-#SBATCH --output=%slogs/ngenic_%A_%a.out
-#SBATCH --error=%slogs/ngenic_%A_%a.err
+#SBATCH --output=%slogs/ngenic_%%A_%%a.out
+#SBATCH --error=%slogs/ngenic_%%A_%%a.err
 #SBATCH --mail-type=begin 
 #SBATCH --mail-type=end 
 #SBATCH --mail-user=jia@astro.princeton.edu 
