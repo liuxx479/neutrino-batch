@@ -33,6 +33,8 @@ elif machine =='perseus':
 os.system('mkdir -p %sparams'%(main_dir))
 os.system('mkdir -p %scamb'%(main_dir))
 os.system('mkdir -p %sjobs'%(main_dir))
+os.system('mkdir -p %slogs'%(main_dir))
+
 
 h = 0.7
 ombh2 = 0.0223
