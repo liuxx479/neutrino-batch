@@ -26,7 +26,7 @@ elif machine =='perseus':
     main_dir = '/tigress/jialiu/neutrino-batch/'
     temp_dir = '/tigress/jialiu/temp/'
     NgenIC_loc = '/tigress/jialiu/PipelineJL/S-GenIC/N-GenIC'
-    Gadget_loc = '/tigress/jialiu/PipelineJL/Gadget-2.0.7/Gadget2/Gadget2_1800'
+    Gadget_loc = '/tigress/jialiu/PipelineJL/Gadget-2.0.7/Gadget2/Gadget2-1800'
     mpicc = 'srun'
     Ncore, nnodes = 40, 28
     openmpi = 'module load openmpi'
