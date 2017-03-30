@@ -7,7 +7,10 @@ from astropy.cosmology import FlatLambdaCDM
 import astropy.units as u
 import numpy as np
 
-machine = 'stampede'
+try:
+    machine=str(sys.argv[1])
+except Exception:
+    machine = 'stampede'
 
 ########## perseus
 if machine =='stampede':
@@ -18,6 +21,8 @@ if machine =='stampede':
     mpicc = 'ibrun'
     Ncore, nnodes = 64, 16
     openmpi = ''
+    extracomments ='''#SBATCH -A TG-AST140041
+#SBATCH -p normal'''
 ######## stampede
 
 elif machine =='perseus':
@@ -588,14 +593,13 @@ def sbatch_gadget(iparams, N=Ncore):
 #SBATCH -N %i # node count 
 #SBATCH -n %i
 #SBATCH -J Gadget
-#SBATCH -A TG-AST140041
-#SBATCH -p normal
 #SBATCH --ntasks-per-node=%i 
-#SBATCH -t 15:00:00 
+#SBATCH -t 24:00:00 
 #SBATCH --output=%slogs/%s.out
 #SBATCH --error=%slogs/%s.err
 #SBATCH --mail-type=all
 #SBATCH --mail-user=jia@astro.princeton.edu 
+%s
 
 # Load openmpi environment
 module load intel
@@ -603,7 +607,7 @@ module load intel
 module load fftw
 module load hdf5
 
-%s  %s %sparams/%s.param'''%(N, n, nnodes, main_dir, filename, main_dir, filename, openmpi, mpicc,  Gadget_loc, main_dir, filename)
+%s  %s %sparams/%s.param'''%(N, n, extracomments, nnodes, main_dir, filename, main_dir, filename, openmpi, mpicc,  Gadget_loc, main_dir, filename)
     f = open('jobs/%s.sh'%(filename), 'w')
     f.write(scripttext)
     f.close()
