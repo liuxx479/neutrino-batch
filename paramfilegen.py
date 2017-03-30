@@ -6,9 +6,30 @@ from scipy import stats
 from astropy.cosmology import FlatLambdaCDM
 import astropy.units as u
 
-os.system('mkdir -p /tigress/jialiu/neutrino-batch/params')
-os.system('mkdir -p /tigress/jialiu/neutrino-batch/camb')
-os.system('mkdir -p /tigress/jialiu/neutrino-batch/jobs')
+machine = 'stampede'
+
+########## perseus
+if machine =='stampede':
+    main_dir = '/tigress/jialiu/neutrino-batch/'
+    temp_dir = '/tigress/jialiu/temp/'
+    NgenIC_loc = '/tigress/jialiu/PipelineJL/S-GenIC/N-GenIC'
+    Gadget_loc = '/tigress/jialiu/PipelineJL/Gadget-2.0.7/Gadget2/Gadget2_1800'
+    mpicc = 'srun'
+
+######## stampede
+
+elif machine =='perseus':
+    main_dir = '/tigress/jialiu/neutrino-batch/'
+    temp_dir = '/tigress/jialiu/temp/'
+    NgenIC_loc = '/tigress/jialiu/PipelineJL/S-GenIC/N-GenIC'
+    Gadget_loc = '/tigress/jialiu/PipelineJL/Gadget-2.0.7/Gadget2/Gadget2_1800'
+    mpicc = 'srun'
+
+
+#########################
+os.system('mkdir -p %sparams'%(main_dir))
+os.system('mkdir -p %scamb'%(main_dir))
+os.system('mkdir -p %sjobs'%(main_dir))
 
 h = 0.7
 ombh2 = 0.0223
@@ -80,7 +101,7 @@ def camb_gen(M_nu, omega_m, A_s9):
     paramtext='''#Parameters for CAMB
 
 #output_root is prefixed to output file names
-output_root = /tigress/jialiu/neutrino-batch/camb/%s
+output_root = %scamb/%s
 
 get_scalar_cls = F
 get_vector_cls = F
@@ -211,7 +232,7 @@ high_accuracy_default=T
 
 accuracy_boost          = 3
 l_accuracy_boost        = 3
-l_sample_boost          = 3'''%(filename, omch2, omnuh2, m1/M_nu, m2/M_nu, m3/M_nu, A_s9)
+l_sample_boost          = 3'''%(main_dir, filename, omch2, omnuh2, m1/M_nu, m2/M_nu, m3/M_nu, A_s9)
     
     f = open('params/%s.param'%(filename), 'w')
     f.write(paramtext)
@@ -223,10 +244,10 @@ def ngenic_gen(M_nu, omega_m, A_s9):
     omnuh2 = Mnu2Omeganu(M_nu, omega_m)*h**2
     omch2 = omega_m*h**2 - omnuh2 - ombh2
     filename = 'ngenic_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
-    fn_matter = 'camb_mnv%.5f_om%.5f_As%.4f_matterpow_99.dat'%(M_nu, omega_m, A_s9)
-    fn_transfer = 'camb_mnv%.5f_om%.5f_As%.4f_transfer_99.dat'%(M_nu, omega_m, A_s9)
+    fn_matter = '%scamb/camb_mnv%.5f_om%.5f_As%.4f_matterpow_99.dat'%(main_dir, M_nu, omega_m, A_s9)
+    fn_transfer = '%scamb/camb_mnv%.5f_om%.5f_As%.4f_transfer_99.dat'%(main_dir, M_nu, omega_m, A_s9)
     cosmo = 'mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
-    os.system('mkdir -p /tigress/jialiu/temp/%s/ICs'%(cosmo))
+    os.system('mkdir -p %s%s/ICs'%(temp_dir, cosmo))
     
     paramtext='''#==Required parameters==
 # This is the size of the FFT grid used to
@@ -242,7 +263,7 @@ Box = 256000
 # Base-filename of output files
 FileBase = ICs
 # Directory for storing output files
-OutputDir = /tigress/jialiu/temp/%s/ICs
+OutputDir = %s%s/ICs
 
 # Total matter density  (at z=0)
 Omega = %.5f
@@ -258,9 +279,9 @@ Redshift = 99
 #Number of files used in output snapshot set, for ICFormat < 4.
 NumFiles = 28
 # filename of tabulated MATTER powerspectrum from CAMB
-FileWithInputSpectrum = /tigress/jialiu/neutrino-batch/camb/%s
+FileWithInputSpectrum = %s
 # filename of transfer functions from CAMB
-FileWithTransfer = /tigress/jialiu/neutrino-batch/camb/%s
+FileWithTransfer = %s
 
 #==Optional Parameters==
 # (Cube root of) number of particles
@@ -326,7 +347,7 @@ NU_Vtherm_On = 1
 
 #Shape parameter, only for Efstathiou power spectrum
 ShapeGamma = 0.201
-    '''%(cosmo, omega_m, 1-omega_m, ombh2/h**2, fn_matter, fn_transfer, M_nu)
+    '''%(temp_dir, cosmo, omega_m, 1-omega_m, ombh2/h**2, fn_matter, fn_transfer, M_nu)
     f = open('params/%s.param'%(filename), 'w')
     f.write(paramtext)
     f.close()
@@ -335,14 +356,14 @@ ShapeGamma = 0.201
 def gadget_gen (M_nu, omega_m, A_s9):
     
     cosmo = 'mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
-    fn_ICs='/tigress/jialiu/temp/%s/ICs/IC'%(cosmo)
+    fn_ICs='%s%s/ICs/IC'%(temp_dir, cosmo)
     fn_transfer = '/tigress/jialiu/neutrino-batch/camb/camb_mnv%.5f_om%.5f_As%.4f_transfer_99.dat'%(M_nu, omega_m, A_s9)
     filename = 'gadget_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
-    os.system('mkdir -p /tigress/jialiu/temp/%s/snapshots'%(cosmo))
+    os.system('mkdir -p %s/snapshots'%(temp_dir+cosmo))
     m1, m2, m3 = neutrino_mass_calc(M_nu)
     
     paramtext='''InitCondFile		        %s
-OutputDir		        /tigress/jialiu/temp/%s/snapshots
+OutputDir		        %s/snapshots
 EnergyFile			energy.txt
 InfoFile			info.txt
 TimingsFile			timings.txt
@@ -461,7 +482,7 @@ Vcrit                       500    ;    Critical velocity in the Fermi-Dirac dis
 NuPartTime                  0.3333   ;    Scale factor at which to 'turn on', ie, make active gravitators,
 
 HybridNeutrinosOn           0  ;       Whether hybrid neutrinos are enabled.
-'''%(fn_ICs, cosmo, cosmo, omega_m, 1.0-omega_m, ombh2*h**2, fn_transfer, ombh2*h**2, m1,m2,m3)
+'''%(fn_ICs, temp_dir+cosmo, cosmo, omega_m, 1.0-omega_m, ombh2*h**2, fn_transfer, ombh2*h**2, m1,m2,m3)
     f = open('params/%s.param'%(filename), 'w')
     f.write(paramtext)
     f.close()
@@ -501,7 +522,7 @@ def outputs(iparams):
     newz_arr = DC_interp(DC_arr)
     a_arr = 1.0/(1.0+newz_arr)
     cosmo = 'mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
-    fn = '/tigress/jialiu/temp/%s/snapshots/outputx_%s.txt'%(cosmo, cosmo)
+    fn = '%s/snapshots/outputx_%s.txt'%(temp_dir+cosmo, cosmo)
     savetxt(fn, sort(a_arr))
     #cosmo.comoving_distance(newz_arr).value/h/DC_arr-1
 
@@ -535,8 +556,8 @@ def sbatch_ngenic():
 #SBATCH --ntasks-per-node=1
 #SBATCH -t 2:00:00 
 #SBATCH --array=1-34
-#SBATCH --output=/tigress/jialiu/neutrino-batch/logs/ngenic_%A_%a.out
-#SBATCH --error=/tigress/jialiu/neutrino-batch/logs/ngenic_%A_%a.err
+#SBATCH --output=%slogs/ngenic_%A_%a.out
+#SBATCH --error=%slogs/ngenic_%A_%a.err
 #SBATCH --mail-type=begin 
 #SBATCH --mail-type=end 
 #SBATCH --mail-user=jia@astro.princeton.edu 
@@ -548,8 +569,8 @@ module load hdf5
 export CC=icc
 export CXX=icpc
 
-/tigress/jialiu/PipelineJL/S-GenIC/N-GenIC $(ls /tigress/jialiu/neutrino-batch/params/ngen* | sed -n ${SLURM_ARRAY_TASK_ID}p)
-'''
+%s $(ls %sparams/ngen* | sed -n ${SLURM_ARRAY_TASK_ID}p)
+'''%(main_dir, main_dir, NgenIC_loc,main_dir)
     f.write(scripttext)
     f.close()
 
@@ -565,8 +586,7 @@ def sbatch_gadget(iparams, N=40):
 #SBATCH -t 15:00:00 
 #SBATCH --output=/tigress/jialiu/neutrino-batch/logs/%s.out
 #SBATCH --error=/tigress/jialiu/neutrino-batch/logs/%s.err
-#SBATCH --mail-type=begin 
-#SBATCH --mail-type=end 
+#SBATCH --mail-type=all
 #SBATCH --mail-user=jia@astro.princeton.edu 
 
 # Load openmpi environment
@@ -575,7 +595,7 @@ module load openmpi
 module load fftw
 module load hdf5
 
-srun -N %i -n %i /tigress/jialiu/PipelineJL/Gadget-2.0.7/Gadget2/Gadget2_1800 /tigress/jialiu/neutrino-batch/params/%s.param'''%(N, filename, filename, N, n, filename)
+%s -N %i -n %i %s /tigress/jialiu/neutrino-batch/params/%s.param'''%(N, filename, filename, mpicc, N, n, Gadget_loc, filename)
     f = open('jobs/%s.sh'%(filename), 'w')
     f.write(scripttext)
     f.close()
@@ -589,7 +609,7 @@ for iparams in params:
     M_nu, omega_m, A_s9 = iparams
     #camb_gen(M_nu, omega_m, A_s9)
     ngenic_gen(M_nu, omega_m, A_s9)
-    #gadget_gen(M_nu, omega_m, A_s9)
-    #outputs(iparams)
-    #sbatch_gadget(iparams)
-    #sbatch_ngenic(iparams)
+    gadget_gen(M_nu, omega_m, A_s9)
+    outputs(iparams)
+    sbatch_gadget(iparams)
+    sbatch_ngenic(iparams)
