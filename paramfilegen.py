@@ -378,7 +378,7 @@ TimingsFile			timings.txt
 CpuFile			cpu.txt
 RestartFile			restart
 SnapshotFileBase			snapshot
-OutputListFilename		outputx_%s.txt
+OutputListFilename		%sparams/outputs_%s.txt
 
 %%    cpu_timings
 
@@ -490,7 +490,7 @@ Vcrit                       500    ;    Critical velocity in the Fermi-Dirac dis
 NuPartTime                  0.3333   ;    Scale factor at which to 'turn on', ie, make active gravitators,
 
 HybridNeutrinosOn           0  ;       Whether hybrid neutrinos are enabled.
-'''%(fn_ICs, temp_dir+cosmo, cosmo, omega_m, 1.0-omega_m, ombh2*h**2, fn_transfer, ombh2*h**2, m1,m2,m3)
+'''%(fn_ICs, temp_dir+cosmo, cosmo, temp_dir, omega_m, 1.0-omega_m, ombh2*h**2, fn_transfer, ombh2*h**2, m1,m2,m3)
     f = open('params/%s.param'%(filename), 'w')
     f.write(paramtext)
     f.close()
@@ -530,7 +530,7 @@ def outputs(iparams):
     newz_arr = DC_interp(DC_arr)
     a_arr = 1.0/(1.0+newz_arr)
     cosmo = 'mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
-    fn = '%s/snapshots/outputx_%s.txt'%(temp_dir+cosmo, cosmo)
+    fn = '%sparams/outputs_%s.txt'%(temp_dir, cosmo)
     savetxt(fn, sort(a_arr))
     #cosmo.comoving_distance(newz_arr).value/h/DC_arr-1
 
