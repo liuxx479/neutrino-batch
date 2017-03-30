@@ -30,6 +30,7 @@ elif machine =='perseus':
     mpicc = 'srun'
     Ncore, nnodes = 40, 28
     openmpi = 'module load openmpi'
+    extracomments=''
 
 #########################
 os.system('mkdir -p %sparams'%(main_dir))
