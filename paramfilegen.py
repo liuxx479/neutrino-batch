@@ -16,7 +16,7 @@ if machine =='stampede':
     NgenIC_loc = '/work/02977/jialiu/PipelineJL/S-GenIC/N-GenIC'
     Gadget_loc = '/work/02977/jialiu/PipelineJL/Gadget-2.0.7/Gadget2/Gadget2'
     mpicc = 'ibrun'
-
+    Ncore, nnodes = 64, 16
 ######## stampede
 
 elif machine =='perseus':
@@ -25,7 +25,7 @@ elif machine =='perseus':
     NgenIC_loc = '/tigress/jialiu/PipelineJL/S-GenIC/N-GenIC'
     Gadget_loc = '/tigress/jialiu/PipelineJL/Gadget-2.0.7/Gadget2/Gadget2_1800'
     mpicc = 'srun'
-
+    Ncore, nnodes = 40, 28
 
 #########################
 os.system('mkdir -p %sparams'%(main_dir))
@@ -576,13 +576,13 @@ export CXX=icpc
     f.close()
 
 
-def sbatch_gadget(iparams, N=40):
+def sbatch_gadget(iparams, N=Ncore):
     M_nu, omega_m, A_s9 = iparams
-    n=N*28
+    n=N*nnodes
     filename = 'gadget_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
     scripttext='''#!/bin/bash 
 #SBATCH -N %i # node count 
-#SBATCH --ntasks-per-node=28 
+#SBATCH --ntasks-per-node=%i 
 #SBATCH -t 15:00:00 
 #SBATCH --output=/tigress/jialiu/neutrino-batch/logs/%s.out
 #SBATCH --error=/tigress/jialiu/neutrino-batch/logs/%s.err
@@ -595,7 +595,7 @@ module load openmpi
 module load fftw
 module load hdf5
 
-%s -N %i -n %i %s %sparams/%s.param'''%(N, filename, filename, mpicc, N, n, Gadget_loc, main_dir, filename)
+%s  %s %sparams/%s.param'''%(N, nnodes,filename, filename, mpicc,  Gadget_loc, main_dir, filename)
     f = open('jobs/%s.sh'%(filename), 'w')
     f.write(scripttext)
     f.close()
