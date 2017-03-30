@@ -607,7 +607,7 @@ module load intel
 module load fftw
 module load hdf5
 
-%s  %s %sparams/%s.param'''%(N, n, extracomments, nnodes, main_dir, filename, main_dir, filename, openmpi, mpicc,  Gadget_loc, main_dir, filename)
+%s  %s %sparams/%s.param'''%(N, n, nnodes, main_dir, filename, main_dir, filename, extracomments, openmpi, mpicc,  Gadget_loc, main_dir, filename)
     f = open('jobs/%s.sh'%(filename), 'w')
     f.write(scripttext)
     f.close()
