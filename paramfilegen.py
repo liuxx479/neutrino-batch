@@ -6,8 +6,9 @@ from scipy import stats
 from astropy.cosmology import FlatLambdaCDM
 import astropy.units as u
 import numpy as np
+import sys
 
-machine = 'perseus'
+machine = ['perseus','stampede'][int(sys.argv[1])]
 
 ########## perseus
 if machine =='stampede':
