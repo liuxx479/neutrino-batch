@@ -17,7 +17,7 @@ if machine =='stampede':
     NgenIC_loc = '/work/02977/jialiu/PipelineJL/S-GenIC/N-GenIC'
     Gadget_loc = '/work/02977/jialiu/PipelineJL/Gadget-2.0.7/Gadget2/Gadget2'
     mpicc = 'ibrun'
-    Ncore, nnodes = 64, 16
+    Ncore, nnodes = 64, 8
     openmpi = ''
     extracomments ='''#SBATCH -A TG-AST140041
 #SBATCH -p normal'''
@@ -29,7 +29,7 @@ elif machine =='perseus':
     NgenIC_loc = '/tigress/jialiu/PipelineJL/S-GenIC/N-GenIC'
     Gadget_loc = '/tigress/jialiu/PipelineJL/Gadget-2.0.7/Gadget2/Gadget2-1800'
     mpicc = 'srun'
-    Ncore, nnodes = 40, 28
+    Ncore, nnodes = 25, 28
     openmpi = 'module load openmpi'
     extracomments=''
 
