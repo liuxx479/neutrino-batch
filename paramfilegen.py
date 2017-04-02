@@ -18,9 +18,10 @@ if machine =='stampede':
     Gadget_loc = '/work/02977/jialiu/PipelineJL/Gadget-2.0.7/Gadget2/Gadget2'
     mpicc = 'ibrun'
     Ncore, nnodes = 64, 8
-    openmpi = ''
     extracomments ='''#SBATCH -A TG-AST140041
-#SBATCH -p normal'''
+#SBATCH -p normal
+
+module load fftw2'''
 ######## stampede
 
 elif machine =='perseus':
@@ -30,8 +31,8 @@ elif machine =='perseus':
     Gadget_loc = '/tigress/jialiu/PipelineJL/Gadget-2.0.7/Gadget2/Gadget2-1800'
     mpicc = 'srun'
     Ncore, nnodes = 25, 28
-    openmpi = 'module load openmpi'
-    extracomments=''
+    extracomments='''module load openmpi
+module load fftw'''
 
 #########################
 os.system('mkdir -p %sparams'%(main_dir))
@@ -602,11 +603,9 @@ def sbatch_gadget(iparams, N=Ncore):
 
 # Load openmpi environment
 module load intel
-%s 
-module load fftw
 module load hdf5
 
-%s  %s %sparams/%s.param'''%(N, n, nnodes, main_dir, filename, main_dir, filename, extracomments, openmpi, mpicc,  Gadget_loc, main_dir, filename)
+%s  %s %sparams/%s.param'''%(N, n, nnodes, main_dir, filename, main_dir, filename, extracomments,  mpicc,  Gadget_loc, main_dir, filename)
     f = open('jobs/%s.sh'%(filename), 'w')
     f.write(scripttext)
     f.close()
