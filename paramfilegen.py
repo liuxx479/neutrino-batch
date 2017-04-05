@@ -21,7 +21,8 @@ if machine =='stampede':
     extracomments ='''#SBATCH -A TG-AST140041
 #SBATCH -p normal
 
-module load fftw2'''
+module load fftw2
+module load gsl'''
 ######## stampede
 
 elif machine =='perseus':
