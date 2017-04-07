@@ -595,7 +595,7 @@ def sbatch_gadget(iparams, N=Ncore):
 #SBATCH -n %i
 #SBATCH -J Gadget
 #SBATCH --ntasks-per-node=%i 
-#SBATCH -t 24:00:00 
+#SBATCH -t 48:00:00 
 #SBATCH --output=%slogs/%s.out
 #SBATCH --error=%slogs/%s.err
 #SBATCH --mail-type=all
