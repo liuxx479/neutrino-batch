@@ -385,7 +385,7 @@ OutputListFilename		%sparams/outputs_%s.txt
 
 %%    cpu_timings
 
-TimeLimitCPU		86400.0
+TimeLimitCPU		172800.0
 ResubmitOn		0
 ResubmitCommand		my-scriptfile
 
@@ -419,7 +419,7 @@ TimeOfFirstSnapshot		0
 CpuTimeBetRestartFile		45000.0
 TimeBetStatistics		0.05
 NumFilesPerSnapshot		32
-NumFilesWrittenInParallel		1
+NumFilesWrittenInParallel		32
 
 
 %%     accuracy_time_integration
