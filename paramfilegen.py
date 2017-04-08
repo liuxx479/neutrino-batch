@@ -8,10 +8,9 @@ import astropy.units as u
 import numpy as np
 import sys
 
-machine = ['perseus','stampede'][int(sys.argv[1])]
+machine = ['perseus','KNL','stampede1'][int(sys.argv[1])]
 
-########## perseus
-if machine =='stampede':
+if machine =='KNL':
     main_dir = '/work/02977/jialiu/neutrino-batch/'
     temp_dir = '/scratch/02977/jialiu/temp/'
     NgenIC_loc = '/work/02977/jialiu/PipelineJL/S-GenIC/N-GenIC'
@@ -23,7 +22,19 @@ if machine =='stampede':
 
 module load fftw2
 module load gsl'''
-######## stampede
+
+elif machine =='stampede1':
+    main_dir = '/work/02977/jialiu/neutrino-batch/'
+    temp_dir = '/scratch/02977/jialiu/temp/'
+    NgenIC_loc = '/work/02977/jialiu/PipelineJL/S-GenIC/N-GenIC'
+    Gadget_loc = '/work/02977/jialiu/PipelineJL/Gadget-2.0.7-stampede1/Gadget2/Gadget2'
+    mpicc = 'ibrun'
+    Ncore, nnodes = 45, 16
+    extracomments ='''#SBATCH -A TG-AST140041
+#SBATCH -p normal
+
+module load fftw2
+module load gsl'''
 
 elif machine =='perseus':
     main_dir = '/tigress/jialiu/neutrino-batch/'
@@ -593,7 +604,7 @@ def sbatch_gadget(iparams, N=Ncore):
     scripttext='''#!/bin/bash 
 #SBATCH -N %i # node count 
 #SBATCH -n %i
-#SBATCH -J Gadget
+#SBATCH -J Gadget_mnv%.3f
 #SBATCH --ntasks-per-node=%i 
 #SBATCH -t 48:00:00 
 #SBATCH --output=%slogs/%s.out
@@ -601,13 +612,11 @@ def sbatch_gadget(iparams, N=Ncore):
 #SBATCH --mail-type=all
 #SBATCH --mail-user=jia@astro.princeton.edu 
 %s
-
-# Load openmpi environment
 module load intel
 module load hdf5
 
-%s  %s %sparams/%s.param'''%(N, n, nnodes, main_dir, filename, main_dir, filename, extracomments,  mpicc,  Gadget_loc, main_dir, filename)
-    f = open('jobs/%s.sh'%(filename), 'w')
+%s  %s %sparams/%s.param'''%(N, n, M_nu, nnodes, main_dir, filename, main_dir, filename, extracomments,  mpicc,  Gadget_loc, main_dir, filename)
+    f = open('jobs/%s_%s.sh'%(filename,machine), 'w')
     f.write(scripttext)
     f.close()
     
