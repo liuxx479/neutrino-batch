@@ -60,7 +60,7 @@ ombh2 = 0.0223
 omega_m = 0.2880
 A_s9 = 2.142
 M_nu = 0.1
-
+omb=ombh2/h**2
 #### delta m21^2=7.37e-5
 #### |delta m^2| = 2.5e-3 (normal) 2.46e-3 (inverted)
 d31N = 2.5e-3
@@ -369,7 +369,7 @@ NU_Vtherm_On = 1
 
 #Shape parameter, only for Efstathiou power spectrum
 ShapeGamma = 0.201
-    '''%(temp_dir, cosmo, omega_m, 1-omega_m, ombh2/h**2, fn_matter, fn_transfer, M_nu)
+    '''%(temp_dir, cosmo, omega_m, 1-omega_m, omb, fn_matter, fn_transfer, M_nu)
     f = open('params/%s.param'%(filename), 'w')
     f.write(paramtext)
     f.close()
@@ -504,7 +504,7 @@ Vcrit                       500    ;    Critical velocity in the Fermi-Dirac dis
 NuPartTime                  0.3333   ;    Scale factor at which to 'turn on', ie, make active gravitators,
 
 HybridNeutrinosOn           0  ;       Whether hybrid neutrinos are enabled.
-'''%(fn_ICs, temp_dir+cosmo, main_dir, cosmo, omega_m, 1.0-omega_m, ombh2*h**2, fn_transfer, ombh2*h**2, m1,m2,m3)
+'''%(fn_ICs, temp_dir+cosmo, main_dir, cosmo, omega_m, 1.0-omega_m, omb, fn_transfer, omb, m1,m2,m3)
     f = open('params/%s.param'%(filename), 'w')
     f.write(paramtext)
     f.close()
