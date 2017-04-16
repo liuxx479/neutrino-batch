@@ -495,7 +495,6 @@ SofteningBndryMaxPhys		0
 KspaceTransferFunction      %s ; File containing CAMB formatted output transfer functions.
 
 TimeTransfer                0.01  ;     Scale factor at which the CAMB transfer functions were generated.
-OmegaBaryonCAMB             %.5f  ;    OmegaBaryon used for the CAMB transfer functions.
 InputSpectrum_UnitLength_in_cm               3.085678e24  ; Units of the CAMB transfer function in cm. By default Mpc.
 MNue                        %.5f   ;    Mass of the lightest neutrino in eV.
 MNum                        %.5f   ;    Second neutrino mass in eV.
