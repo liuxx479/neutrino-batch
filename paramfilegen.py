@@ -540,7 +540,7 @@ def outputs(iparams):
     nu_masses = neutrino_mass_calc(M_nu) * u.eV
     cosmo = FlatLambdaCDM(H0=70, Om0=0.3, m_nu = nu_masses)
     DC_interp = interp1d(cosmo.comoving_distance(z_arr)/h, z_arr)
-    DC_arr = arange(0, cosmo.comoving_distance(z_arr[-1]).value /h, /h)
+    DC_arr = arange(0, cosmo.comoving_distance(z_arr[-1]).value /h, plane_thickness/h)
     newz_arr = DC_interp(DC_arr)
     a_arr = 1.0/(1.0+newz_arr)
     cosmo = 'mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
