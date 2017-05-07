@@ -574,7 +574,7 @@ def sbatch_ngenic():
         y=x+10
         if y==100:
             y+=1
-        fn = 'jobs/ngenic_%s_%s.sh'
+        fn = 'jobs/ngenic_%s_%s.sh'%(x,y)
         f = open(fn, 'w')
         scripttext='''#!/bin/bash 
     #SBATCH -N 1 # node count 
@@ -636,7 +636,7 @@ for iparams in params:
     print iparams
     M_nu, omega_m, A_s9 = iparams
     #camb_gen(M_nu, omega_m, A_s9)
-    ngenic_gen(M_nu, omega_m, A_s9)
+    #ngenic_gen(M_nu, omega_m, A_s9)
     #gadget_gen(M_nu, omega_m, A_s9)
     #outputs(iparams)
     #sbatch_gadget(iparams)
