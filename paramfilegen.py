@@ -16,7 +16,7 @@ if machine =='KNL':
     NgenIC_loc = '/work/02977/jialiu/PipelineJL/S-GenIC/N-GenIC'
     Gadget_loc = '/work/02977/jialiu/PipelineJL/Gadget-2.0.7/Gadget2/Gadget2'
     mpicc = 'ibrun'
-    Ncore, nnodes = 20, 34
+    Ncore, nnodes = 40, 17
     extracomments ='''#SBATCH -A TG-AST140041
 #SBATCH -p normal
 
@@ -280,7 +280,7 @@ Nmesh = 2048
 Seed = 10027	
 
 # Periodic box size of simulation
-Box = 256000
+Box = 512000
 
 # Base-filename of output files
 FileBase = ICs
@@ -326,7 +326,7 @@ ICFormat = 2
 # Note this is only formally derived for single-fluid (CDM) simulations.
 TWOLPT = 0
 #If 1, each mode will be scattered from the mean power to mimic cosmic variance
-RayleighScatter = 1
+RayleighScatter = 0
 #If true, do not include radiation (inc. massless neutrinos) 
 #when computing the Hubble function (for the velocity prefactor)
 NoRadiation = 0
@@ -421,7 +421,7 @@ Omega0			%.5f
 OmegaLambda			%.5f
 OmegaBaryon			%.5f
 HubbleParam			0.7
-BoxSize			256000.000000
+BoxSize			512000.000000
 
 %%    output_frequency
 
@@ -570,30 +570,39 @@ module load intel
     f.close()
 
 def sbatch_ngenic():
-    fn = 'jobs/ngenic.sh'
-    f = open(fn, 'w')
-    scripttext='''#!/bin/bash 
-#SBATCH -N 34 # node count 
-#SBATCH --ntasks-per-node=1
-#SBATCH -t 2:00:00 
-#SBATCH --array=1-34
-#SBATCH --output=%slogs/ngenic_%%A_%%a.out
-#SBATCH --error=%slogs/ngenic_%%A_%%a.err
-#SBATCH --mail-type=begin 
-#SBATCH --mail-type=end 
-#SBATCH --mail-user=jia@astro.princeton.edu 
+    for x in arange(1,101,10):
+        y=x+10
+        if y==100:
+            y+=1
+        fn = 'jobs/ngenic_%s_%s.sh'
+        f = open(fn, 'w')
+        scripttext='''#!/bin/bash 
+    #SBATCH -N 1 # node count 
+    #SBATCH --ntasks-per-node=28
+    #SBATCH -t 24:00:00 
+    #SBATCH --output=%slogs/ngenic_%i-%i_%%A.out
+    #SBATCH --error=%slogs/ngenic_%i-%i_%%A.err
+    #SBATCH --mail-type=begin 
+    #SBATCH --mail-type=end 
+    #SBATCH --mail-user=jia@astro.princeton.edu 
+    #SBATCH --mem 110000
 
-# Load openmpi environment
-module load intel
-module load fftw
-module load hdf5
-export CC=icc
-export CXX=icpc
+    # Load openmpi environment
+    module load intel
+    module load fftw
+    module load hdf5
+    export CC=icc
+    export CXX=icpc
 
-%s $(ls %sparams/ngen* | sed -n ${SLURM_ARRAY_TASK_ID}p)
-'''%(main_dir, main_dir, NgenIC_loc,main_dir)
-    f.write(scripttext)
-    f.close()
+    for i in {%i..%s}
+    do
+    echo $i
+    %s $(ls %sparams/ngen* | sed -n ${i}p) &
+    wait
+    done
+    '''%(main_dir, x,y,main_dir,x,y, x,y,NgenIC_loc,main_dir)
+        f.write(scripttext)
+        f.close()
 
 
 def sbatch_gadget(iparams, N=Ncore):
@@ -622,12 +631,12 @@ module load hdf5
 #sbatch_camb()
 #os.system('cp /tigress/jialiu/neutrino-batch/camb_mnv0.00000_om0.30000_As2.1000.param /tigress/jialiu/neutrino-batch/params')
 
-#sbatch_ngenic()
+sbatch_ngenic()
 for iparams in params:
     print iparams
     M_nu, omega_m, A_s9 = iparams
     #camb_gen(M_nu, omega_m, A_s9)
-    #ngenic_gen(M_nu, omega_m, A_s9)
+    ngenic_gen(M_nu, omega_m, A_s9)
     #gadget_gen(M_nu, omega_m, A_s9)
     #outputs(iparams)
-    sbatch_gadget(iparams)
+    #sbatch_gadget(iparams)
