@@ -577,30 +577,30 @@ def sbatch_ngenic():
         fn = 'jobs/ngenic_%s_%s.sh'%(x,y)
         f = open(fn, 'w')
         scripttext='''#!/bin/bash 
-    #SBATCH -N 1 # node count 
-    #SBATCH --ntasks-per-node=28
-    #SBATCH -t 24:00:00 
-    #SBATCH --output=%slogs/ngenic_%i-%i_%%A.out
-    #SBATCH --error=%slogs/ngenic_%i-%i_%%A.err
-    #SBATCH --mail-type=begin 
-    #SBATCH --mail-type=end 
-    #SBATCH --mail-user=jia@astro.princeton.edu 
-    #SBATCH --mem 110000
+#SBATCH -N 1 # node count 
+#SBATCH --ntasks-per-node=28
+#SBATCH -t 24:00:00 
+#SBATCH --output=%slogs/ngenic_%i-%i_%%A.out
+#SBATCH --error=%slogs/ngenic_%i-%i_%%A.err
+#SBATCH --mail-type=begin 
+#SBATCH --mail-type=end 
+#SBATCH --mail-user=jia@astro.princeton.edu 
+#SBATCH --mem 110000
 
-    # Load openmpi environment
-    module load intel
-    module load fftw
-    module load hdf5
-    export CC=icc
-    export CXX=icpc
+# Load openmpi environment
+module load intel
+module load fftw
+module load hdf5
+export CC=icc
+export CXX=icpc
 
-    for i in {%i..%s}
-    do
-    echo $i
-    %s $(ls %sparams/ngen* | sed -n ${i}p) &
-    wait
-    done
-    '''%(main_dir, x,y,main_dir,x,y, x,y,NgenIC_loc,main_dir)
+for i in {%i..%s}
+do
+echo $i
+%s $(ls %sparams/ngen* | sed -n ${i}p) &
+wait
+done
+'''%(main_dir, x,y,main_dir,x,y, x,y,NgenIC_loc,main_dir)
         f.write(scripttext)
         f.close()
 
