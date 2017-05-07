@@ -532,6 +532,7 @@ params = loadtxt('params.txt')
 from scipy.interpolate import interp1d
 ### out to z = 3.0, every 128 Mpc/h=182.857Mpc output, interpolation
 z_arr = linspace(0,3,301)
+plane_thickness = 512/3.0###128 Mpc/h
 def outputs(iparams):
     M_nu, omega_m, A_s9 = iparams
     omnu = Mnu2Omeganu(M_nu, omega_m)
@@ -539,7 +540,7 @@ def outputs(iparams):
     nu_masses = neutrino_mass_calc(M_nu) * u.eV
     cosmo = FlatLambdaCDM(H0=70, Om0=0.3, m_nu = nu_masses)
     DC_interp = interp1d(cosmo.comoving_distance(z_arr)/h, z_arr)
-    DC_arr = arange(0, cosmo.comoving_distance(z_arr[-1]).value /h, 128/h)
+    DC_arr = arange(0, cosmo.comoving_distance(z_arr[-1]).value /h, /h)
     newz_arr = DC_interp(DC_arr)
     a_arr = 1.0/(1.0+newz_arr)
     cosmo = 'mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
@@ -639,6 +640,6 @@ for iparams in params:
     M_nu, omega_m, A_s9 = iparams
     #camb_gen(M_nu, omega_m, A_s9)
     #ngenic_gen(M_nu, omega_m, A_s9)
-    gadget_gen(M_nu, omega_m, A_s9)
-    #outputs(iparams)
-    sbatch_gadget(iparams)
+    #gadget_gen(M_nu, omega_m, A_s9)
+    outputs(iparams)
+    #sbatch_gadget(iparams)
