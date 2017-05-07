@@ -14,7 +14,7 @@ if machine =='KNL':
     main_dir = '/work/02977/jialiu/neutrino-batch/'
     temp_dir = '/scratch/02977/jialiu/temp/'
     NgenIC_loc = '/work/02977/jialiu/PipelineJL/S-GenIC/N-GenIC'
-    Gadget_loc = '/work/02977/jialiu/PipelineJL/Gadget-2.0.7/Gadget2/Gadget2'
+    Gadget_loc = '/work/02977/jialiu/PipelineJL/Gadget-2.0.7/Gadget2/Gadget2_massive'
     mpicc = 'ibrun'
     Ncore, nnodes = 40, 17
     extracomments ='''#SBATCH -A TG-AST140041
@@ -27,7 +27,7 @@ elif machine =='stampede1':
     main_dir = '/work/02977/jialiu/neutrino-batch/'
     temp_dir = '/scratch/02977/jialiu/temp/'
     NgenIC_loc = '/work/02977/jialiu/PipelineJL/S-GenIC/N-GenIC'
-    Gadget_loc = '/work/02977/jialiu/PipelineJL/Gadget-2.0.7-stampede1/Gadget2/Gadget2'
+    Gadget_loc = '/work/02977/jialiu/PipelineJL/Gadget-2.0.7-stampede1/Gadget2/Gadget2_massive'
     mpicc = 'ibrun'
     Ncore, nnodes = 45, 16
     extracomments ='''#SBATCH -A TG-AST140041
@@ -40,7 +40,7 @@ elif machine =='perseus':
     main_dir = '/tigress/jialiu/neutrino-batch/'
     temp_dir = '/tigress/jialiu/temp/'
     NgenIC_loc = '/tigress/jialiu/PipelineJL/S-GenIC/N-GenIC'
-    Gadget_loc = '/tigress/jialiu/PipelineJL/Gadget-2.0.7/Gadget2/Gadget2-1800'
+    Gadget_loc = '/tigress/jialiu/PipelineJL/Gadget-2.0.7/Gadget2/Gadget2_massive'
     mpicc = 'srun'
     Ncore, nnodes = 25, 28
     extracomments='''module load openmpi
@@ -194,7 +194,7 @@ transfer_redshift(1) = 99
 transfer_filename(1) = transfer_99.dat
 transfer_matterpower(1) = matterpow_99.dat
 transfer_redshift(2) = 49.0
-transfer_filename(2) = transfer_49.0.dat
+transfer_filename(2) = transfer_49.dat
 transfer_matterpower(2) = matterpow_49.0.dat
 transfer_redshift(3) = 10.0
 transfer_filename(3) = transfer_10.dat
@@ -427,10 +427,10 @@ BoxSize			512000.000000
 
 TimeBetSnapshot		0.5
 TimeOfFirstSnapshot		0
-CpuTimeBetRestartFile		45000.0
+CpuTimeBetRestartFile		7200.0
 TimeBetStatistics		0.05
-NumFilesPerSnapshot		32
-NumFilesWrittenInParallel		32
+NumFilesPerSnapshot		28
+NumFilesWrittenInParallel		28
 
 
 %%     accuracy_time_integration
@@ -605,9 +605,11 @@ done
         f.close()
 
 
-def sbatch_gadget(iparams, N=Ncore):
+def sbatch_gadget(iparams, N=Ncore, job='j'):
     M_nu, omega_m, A_s9 = iparams
     n=N*nnodes
+    if machine=='perseus':
+        job='A'
     filename = 'gadget_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
     scripttext='''#!/bin/bash 
 #SBATCH -N %i # node count 
@@ -615,15 +617,15 @@ def sbatch_gadget(iparams, N=Ncore):
 #SBATCH -J Gadget_mnv%.3f
 #SBATCH --ntasks-per-node=%i 
 #SBATCH -t 48:00:00 
-#SBATCH --output=%slogs/%s.out
-#SBATCH --error=%slogs/%s.err
+#SBATCH --output=%slogs/%s_%%%s.out
+#SBATCH --error=%slogs/%s_%%%s.err
 #SBATCH --mail-type=all
 #SBATCH --mail-user=jia@astro.princeton.edu 
 %s
 module load intel
 module load hdf5
 
-%s  %s %sparams/%s.param'''%(N, n, M_nu, nnodes, main_dir, filename, main_dir, filename, extracomments,  mpicc,  Gadget_loc, main_dir, filename)
+%s  %s %sparams/%s.param'''%(N, n, M_nu, nnodes, main_dir, filename, job, main_dir, filename, job, extracomments,  mpicc,  Gadget_loc, main_dir, filename)
     f = open('jobs/%s_%s.sh'%(filename,machine), 'w')
     f.write(scripttext)
     f.close()
@@ -631,12 +633,12 @@ module load hdf5
 #sbatch_camb()
 #os.system('cp /tigress/jialiu/neutrino-batch/camb_mnv0.00000_om0.30000_As2.1000.param /tigress/jialiu/neutrino-batch/params')
 
-sbatch_ngenic()
+#sbatch_ngenic()
 for iparams in params:
     print iparams
     M_nu, omega_m, A_s9 = iparams
     #camb_gen(M_nu, omega_m, A_s9)
     #ngenic_gen(M_nu, omega_m, A_s9)
-    #gadget_gen(M_nu, omega_m, A_s9)
+    gadget_gen(M_nu, omega_m, A_s9)
     #outputs(iparams)
-    #sbatch_gadget(iparams)
+    sbatch_gadget(iparams)
