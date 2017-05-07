@@ -531,7 +531,7 @@ params = loadtxt('params.txt')
 
 from scipy.interpolate import interp1d
 ### out to z = 3.0, every 128 Mpc/h=182.857Mpc output, interpolation
-z_arr = linspace(0,3,301)
+z_arr = linspace(0,50.0,1001)
 plane_thickness = 512/3.0###128 Mpc/h
 def outputs(iparams):
     M_nu, omega_m, A_s9 = iparams
