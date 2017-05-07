@@ -571,7 +571,7 @@ module load intel
 
 def sbatch_ngenic():
     for x in arange(1,101,10):
-        y=x+10
+        y=x+9
         if y==100:
             y+=1
         fn = 'jobs/ngenic_%s_%s.sh'%(x,y)
