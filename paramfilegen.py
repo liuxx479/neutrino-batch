@@ -9,6 +9,7 @@ import numpy as np
 import sys
 
 machine = ['perseus','KNL','stampede1'][int(sys.argv[1])]
+plane_thickness = 512/3.0###128 Mpc/h
 
 if machine =='KNL':
     main_dir = '/work/02977/jialiu/neutrino-batch/'
@@ -532,7 +533,7 @@ params = loadtxt('params.txt')
 from scipy.interpolate import interp1d
 ### out to z = 3.0, every 128 Mpc/h=182.857Mpc output, interpolation
 z_arr = linspace(0,50.0,1001)
-plane_thickness = 512/3.0###128 Mpc/h
+
 def outputs(iparams):
     M_nu, omega_m, A_s9 = iparams
     omnu = Mnu2Omeganu(M_nu, omega_m)
@@ -640,6 +641,6 @@ for iparams in params:
     M_nu, omega_m, A_s9 = iparams
     #camb_gen(M_nu, omega_m, A_s9)
     #ngenic_gen(M_nu, omega_m, A_s9)
-    #gadget_gen(M_nu, omega_m, A_s9)
+    gadget_gen(M_nu, omega_m, A_s9)
     outputs(iparams)
-    #sbatch_gadget(iparams)
+    sbatch_gadget(iparams)
