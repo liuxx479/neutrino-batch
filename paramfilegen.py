@@ -109,6 +109,7 @@ def Mnu2Omeganu(M_nu, omega_m):
     return cosmo.Onu0
     
 def camb_gen(M_nu, omega_m, A_s9):
+    print 'generating CAMB parameter files'
     '''M_nu: total mass of neutrinos in unit of eV
     A_s9 = A_s * 1e9
     modify omch2, omnuh2, scalar_amp(1)
@@ -264,6 +265,7 @@ l_sample_boost          = 3'''%(main_dir, filename, omch2, omnuh2, m1/M_nu, m2/M
 
 
 def ngenic_gen(M_nu, omega_m, A_s9):
+    print 'generating NGENIC parameter files'
     omnuh2 = Mnu2Omeganu(M_nu, omega_m)*h**2
     omch2 = omega_m*h**2 - omnuh2 - ombh2
     filename = 'ngenic_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
@@ -377,7 +379,7 @@ ShapeGamma = 0.201
 
 
 def gadget_gen (M_nu, omega_m, A_s9):
-    
+    print 'generating GADGET parameter files'
     cosmo = 'mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
     fn_ICs='%s%s/ICs/ICs'%(temp_dir, cosmo)
     fn_transfer = '%scamb/camb_mnv%.5f_om%.5f_As%.4f_transfer_99.dat'%(main_dir,M_nu, omega_m, A_s9)
