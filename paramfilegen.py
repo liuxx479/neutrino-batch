@@ -428,7 +428,7 @@ BoxSize			512000.000000
 
 TimeBetSnapshot		0.5
 TimeOfFirstSnapshot		0
-CpuTimeBetRestartFile		7200.0
+CpuTimeBetRestartFile		28800.0
 TimeBetStatistics		0.05
 NumFilesPerSnapshot		28
 NumFilesWrittenInParallel		28
@@ -642,5 +642,5 @@ for iparams in params:
     #camb_gen(M_nu, omega_m, A_s9)
     #ngenic_gen(M_nu, omega_m, A_s9)
     gadget_gen(M_nu, omega_m, A_s9)
-    outputs(iparams)
-    sbatch_gadget(iparams)
+    #outputs(iparams)
+    #sbatch_gadget(iparams)
