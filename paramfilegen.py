@@ -430,7 +430,7 @@ BoxSize			512000.000000
 
 TimeBetSnapshot		0.5
 TimeOfFirstSnapshot		0
-CpuTimeBetRestartFile		28800.0
+CpuTimeBetRestartFile		7200.0
 TimeBetStatistics		0.05
 NumFilesPerSnapshot		28
 NumFilesWrittenInParallel		28
@@ -465,7 +465,7 @@ MinGasTemp		50.0
 %%     memory_allocation
 
 PartAllocFactor		1.5
-TreeAllocFactor		0.7
+TreeAllocFactor		1.5
 BufferSize		20.0
 
 
