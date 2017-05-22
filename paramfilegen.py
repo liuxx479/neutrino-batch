@@ -430,7 +430,7 @@ BoxSize			512000.000000
 
 TimeBetSnapshot		0.5
 TimeOfFirstSnapshot		0
-CpuTimeBetRestartFile		7200.0
+CpuTimeBetRestartFile		1800.0
 TimeBetStatistics		0.05
 NumFilesPerSnapshot		28
 NumFilesWrittenInParallel		28
