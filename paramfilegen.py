@@ -698,7 +698,7 @@ wait
 
 def sbatch_gadget_mult_restart(i, N=Ncore*2, job='j', nfiles = 8):
     M_nu, omega_m, A_s9 = params[i]
-    nnodes=nnodes/2
+    nnodes2 = nnodes/2
     n=N*nnodes
     if machine=='perseus':
         job='A'
@@ -719,7 +719,7 @@ module load hdf5
 
 %s  %s %sparams/%s.param &
 wait
-'''%(N, n, M_nu, nnodes, main_dir, filename, job, main_dir, filename, job, extracomments,  mpicc,  Gadget_loc, main_dir, filename)
+'''%(N, n, M_nu, nnodes2, main_dir, filename, job, main_dir, filename, job, extracomments,  mpicc,  Gadget_loc, main_dir, filename)
 
     for j in range(i+1, min(i+nfiles, len(params))):
         M_nu, omega_m, A_s9 = params[j]
