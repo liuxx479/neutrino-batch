@@ -8,8 +8,8 @@ import astropy.units as u
 import numpy as np
 import sys
 
-machine = ['perseus','KNL','stampede1'][int(sys.argv[1])]
-plane_thickness = 512/3.0###128 Mpc/h
+machine = ['perseus','KNL','stampede1','local'][int(sys.argv[1])]
+plane_thickness = 180#512/3.0###128 Mpc/h
 
 if machine =='KNL':
     main_dir = '/work/02977/jialiu/neutrino-batch/'
@@ -47,11 +47,21 @@ elif machine =='perseus':
     extracomments='''module load openmpi
 module load fftw'''
 
+elif machine == 'local':
+    main_dir = '/Users/jia/Documents/weaklensing/kspace_nu/neutrino-batch/'
+    temp_dir = None
+    NgenIC_loc = None
+    Gadget_loc = None
+    mpicc = None
+    Ncore, nnodes = 0, 0
+    extracomments=None
+
 #########################
-os.system('mkdir -p %sparams'%(main_dir))
-os.system('mkdir -p %scamb'%(main_dir))
-os.system('mkdir -p %sjobs'%(main_dir))
-os.system('mkdir -p %slogs'%(main_dir))
+if machine in ['perseus','KNL','stampede1']:
+    os.system('mkdir -p %sparams'%(main_dir))
+    os.system('mkdir -p %scamb'%(main_dir))
+    os.system('mkdir -p %sjobs'%(main_dir))
+    os.system('mkdir -p %slogs'%(main_dir))
 
 
 h = 0.7
@@ -532,24 +542,24 @@ if design:
 
 params = loadtxt('params.txt')
 
-from scipy.interpolate import interp1d
-### out to z = 3.0, every 128 Mpc/h=182.857Mpc output, interpolation
-z_arr = linspace(0,50.0,1001)
-
 def outputs(iparams):
     M_nu, omega_m, A_s9 = iparams
     omnu = Mnu2Omeganu(M_nu, omega_m)
-    #omch2 = omega_m*h**2 - omnu*h**2 - ombh2
     nu_masses = neutrino_mass_calc(M_nu) * u.eV
-    cosmo = FlatLambdaCDM(H0=70, Om0=0.3, m_nu = nu_masses)
-    DC_interp = interp1d(cosmo.comoving_distance(z_arr)/h, z_arr)
-    DC_arr = arange(0, cosmo.comoving_distance(z_arr[-1]).value /h, plane_thickness/h)
-    newz_arr = DC_interp(DC_arr)
+    ##cosmo = FlatLambdaCDM(H0=70, Om0=0.3, m_nu = nu_masses)
+    cosmo = FlatLambdaCDM(H0=70, Om0=omega_m-omnu, m_nu = nu_masses)
+    newz_arr=[0,]
+    DC_arr = arange(0, cosmo.comoving_distance(50.0).value, plane_thickness)
+    for iDC in DC_arr[1:]:
+        tempfun = lambda z: cosmo.comoving_distance(z).value - iDC
+        tempz = optimize.bisect(tempfun, 0.0, 50.0)
+        newz_arr.append(tempz)
+    newz_arr=array(newz_arr)
     a_arr = 1.0/(1.0+newz_arr)
-    cosmo = 'mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
-    fn = '%sparams/outputs_%s.txt'%(main_dir, cosmo)
+    cosmo_fn = 'mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
+    fn = '%sparams/outputs_%s.txt'%(main_dir, cosmo_fn)
     savetxt(fn, sort(a_arr))
-    #cosmo.comoving_distance(newz_arr).value/h/DC_arr-1
+    #print iparams, mean(cosmo.comoving_distance(newz_arr[1:]).value/DC_arr[1:]-1)
 
 def sbatch_camb():
     M_nu, omega_m, A_s9 = iparams
@@ -638,11 +648,90 @@ module load hdf5
 #os.system('cp /tigress/jialiu/neutrino-batch/camb_mnv0.00000_om0.30000_As2.1000.param /tigress/jialiu/neutrino-batch/params')
 
 #sbatch_ngenic()
-for iparams in params:
-    print iparams
-    M_nu, omega_m, A_s9 = iparams
+#for iparams in params:
+    #print iparams
+    #M_nu, omega_m, A_s9 = iparams
+    #onu0_astropy, onu0_num =   Mnu2Omeganu(M_nu, omega_m), M_nu/93.04/h**2
+    #print iparams, onu0_astropy, onu0_num, onu0_astropy/onu0_num-1.0
+    
     #camb_gen(M_nu, omega_m, A_s9)
     #ngenic_gen(M_nu, omega_m, A_s9)
     #gadget_gen(M_nu, omega_m, A_s9)
     #outputs(iparams)
     #sbatch_gadget(iparams)
+    
+def sbatch_gadget_mult(i, N=Ncore, job='j', nfiles = 3):
+    M_nu, omega_m, A_s9 = params[i]
+    n=N*nnodes
+    if machine=='perseus':
+        job='A'
+    filename = 'mult_gadget_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
+    scripttext='''#!/bin/bash 
+#SBATCH -N %i # node count 
+#SBATCH -n %i
+#SBATCH -J mnv%.3f
+#SBATCH --ntasks-per-node=%i 
+#SBATCH -t 48:00:00 
+#SBATCH --output=%slogs/%s_%%%s.out
+#SBATCH --error=%slogs/%s_%%%s.err
+#SBATCH --mail-type=all
+#SBATCH --mail-user=jia@astro.princeton.edu 
+%s
+module load intel
+module load hdf5
+
+%s  %s %sparams/%s.param &
+wait
+'''%(N, n, M_nu, nnodes, main_dir, filename, job, main_dir, filename, job, extracomments,  mpicc,  Gadget_loc, main_dir, filename)
+
+    for j in range(i+1, min(i+nfiles, len(params))):
+        M_nu, omega_m, A_s9 = params[j]
+        filename = 'mult_gadget_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
+        scripttext+='''
+%s  %s %sparams/%s.param &
+wait
+'''%(mpicc,  Gadget_loc, main_dir, filename)                      
+
+    f = open('jobs/%s_%s.sh'%(filename,machine), 'w')
+    f.write(scripttext)
+    f.close()
+
+def sbatch_gadget_mult_restart(i, N=Ncore*2, job='j', nfiles = 8):
+    M_nu, omega_m, A_s9 = params[i]
+    nnodes=nnodes/2
+    n=N*nnodes
+    if machine=='perseus':
+        job='A'
+    filename = 'mult_gadget_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
+    scripttext='''#!/bin/bash 
+#SBATCH -N %i # node count 
+#SBATCH -n %i
+#SBATCH -J mnv%.3f
+#SBATCH --ntasks-per-node=%i 
+#SBATCH -t 48:00:00 
+#SBATCH --output=%slogs/%s_%%%s.out
+#SBATCH --error=%slogs/%s_%%%s.err
+#SBATCH --mail-type=all
+#SBATCH --mail-user=jia@astro.princeton.edu 
+%s
+module load intel
+module load hdf5
+
+%s  %s %sparams/%s.param &
+wait
+'''%(N, n, M_nu, nnodes, main_dir, filename, job, main_dir, filename, job, extracomments,  mpicc,  Gadget_loc, main_dir, filename)
+
+    for j in range(i+1, min(i+nfiles, len(params))):
+        M_nu, omega_m, A_s9 = params[j]
+        filename = 'mult_restart_gadget_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
+        scripttext+='''
+%s  %s %sparams/%s.param &
+wait
+'''%(mpicc,  Gadget_loc, main_dir, filename)                      
+
+    f = open('jobs/%s_%s.sh'%(filename,machine), 'w')
+    f.write(scripttext)
+    f.close()
+
+map(sbatch_gadget_mult, range(i,len(params),3))
+map(sbatch_gadget_mult_restart, range(i,len(params),8))
