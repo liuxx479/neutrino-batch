@@ -541,6 +541,8 @@ if design:
     savetxt('params.txt',params)
 
 params = loadtxt('params.txt')
+m_nu_arr = params.T[0]
+params[:-2]=params[:-2][argsort(m_nu_arr[:-2])]
 
 def outputs(iparams):
     M_nu, omega_m, A_s9 = iparams
@@ -696,7 +698,7 @@ wait
     f.write(scripttext)
     f.close()
 
-def sbatch_gadget_mult_restart(i, N=Ncore*2, job='j', nfiles = 8):
+def sbatch_gadget_mult_restart(i, N=Ncore*2, job='j', nfiles = 9):
     M_nu, omega_m, A_s9 = params[i]
     nnodes2 = nnodes/2
     n=N*nnodes
@@ -734,4 +736,4 @@ wait
     f.close()
 
 map(sbatch_gadget_mult, range(0,len(params),3))
-map(sbatch_gadget_mult_restart, range(0,len(params),8))
+map(sbatch_gadget_mult_restart, range(0,len(params),9))
