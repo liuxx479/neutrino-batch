@@ -667,7 +667,7 @@ def sbatch_gadget_mult(i, N=Ncore, job='j', nfiles = 3):
     n=N*nnodes
     if machine=='perseus':
         job='A'
-    filename = 'mult_gadget_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
+    filename = 'gadget_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
     scripttext='''#!/bin/bash 
 #SBATCH -N %i # node count 
 #SBATCH -n %i
@@ -688,13 +688,13 @@ wait
 
     for j in range(i+1, min(i+nfiles, len(params))):
         M_nu, omega_m, A_s9 = params[j]
-        filename = 'mult_gadget_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
+        filename = 'gadget_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
         scripttext+='''
 %s  %s %sparams/%s.param &
 wait
 '''%(mpicc,  Gadget_loc, main_dir, filename)                      
 
-    f = open('jobs/%s_%s.sh'%(filename,machine), 'w')
+    f = open('jobs/mult_%s_%s.sh'%(filename,machine), 'w')
     f.write(scripttext)
     f.close()
 
@@ -704,7 +704,7 @@ def sbatch_gadget_mult_restart(i, N=Ncore*2, job='j', nfiles = 9):
     n=N*nnodes
     if machine=='perseus':
         job='A'
-    filename = 'mult_gadget_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
+    filename = 'gadget_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
     scripttext='''#!/bin/bash 
 #SBATCH -N %i # node count 
 #SBATCH -n %i
@@ -725,13 +725,13 @@ wait
 
     for j in range(i+1, min(i+nfiles, len(params))):
         M_nu, omega_m, A_s9 = params[j]
-        filename = 'mult_restart_gadget_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
+        filename = 'gadget_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
         scripttext+='''
 %s  %s %sparams/%s.param 1 &
 wait
 '''%(mpicc,  Gadget_loc, main_dir, filename)                      
 
-    f = open('jobs/%s_%s.sh'%(filename,machine), 'w')
+    f = open('jobs/mult_restart_%s_%s.sh'%(filename,machine), 'w')
     f.write(scripttext)
     f.close()
 
