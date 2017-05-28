@@ -719,7 +719,7 @@ def sbatch_gadget_mult_restart(i, N=Ncore*2, job='j', nfiles = 9):
 module load intel
 module load hdf5
 
-%s  %s %sparams/%s.param &
+%s  %s %sparams/%s.param 1 &
 wait
 '''%(N, n, M_nu, nnodes2, main_dir, filename, job, main_dir, filename, job, extracomments,  mpicc,  Gadget_loc, main_dir, filename)
 
@@ -727,7 +727,7 @@ wait
         M_nu, omega_m, A_s9 = params[j]
         filename = 'mult_restart_gadget_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
         scripttext+='''
-%s  %s %sparams/%s.param &
+%s  %s %sparams/%s.param 1 &
 wait
 '''%(mpicc,  Gadget_loc, main_dir, filename)                      
 
