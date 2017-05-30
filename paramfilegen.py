@@ -735,5 +735,5 @@ wait
     f.write(scripttext)
     f.close()
 
-map(sbatch_gadget_mult, range(0,len(params),3))
+#map(sbatch_gadget_mult, range(0,len(params),3))
 map(sbatch_gadget_mult_restart, range(0,len(params),9))
