@@ -701,7 +701,7 @@ wait
 def sbatch_gadget_mult_restart(i, N=Ncore*2, job='j', nfiles = 9):
     M_nu, omega_m, A_s9 = params[i]
     nnodes2 = nnodes/2
-    n=N*nnodes
+    n=N*nnodes2
     if machine=='perseus':
         job='A'
     filename = 'gadget_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
@@ -709,7 +709,7 @@ def sbatch_gadget_mult_restart(i, N=Ncore*2, job='j', nfiles = 9):
 #SBATCH -N %i # node count 
 #SBATCH -n %i
 #SBATCH -J mnv%.3f
-#SBATCH --ntasks-per-node=%i 
+####SBATCH --ntasks-per-node=%i 
 #SBATCH -t 48:00:00 
 #SBATCH --output=%slogs/%s_%%%s.out
 #SBATCH --error=%slogs/%s_%%%s.err
