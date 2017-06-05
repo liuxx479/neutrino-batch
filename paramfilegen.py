@@ -735,6 +735,6 @@ wait
     f.write(scripttext)
     f.close()
 
-failed = loadtxt('add cosmo_failed.txt')
+failed = loadtxt('cosmo_failed.txt')
 map(sbatch_gadget_mult, range(0, where(failed==0)[0],3))
 map(sbatch_gadget_mult_restart, where(failed==0)[0],3))
