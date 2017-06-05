@@ -719,7 +719,7 @@ def sbatch_gadget_mult_restart(i, N=Ncore*2, job='j', nfiles = 9):
 module load intel
 module load hdf5
 
-%s  %s %sparams/%s.param 1 &
+%s %s %sparams/%s.param 1 &
 wait
 '''%(N, n, M_nu, nnodes2, main_dir, filename, job, main_dir, filename, job, extracomments,  mpicc,  Gadget_loc, main_dir, filename)
 
@@ -735,5 +735,6 @@ wait
     f.write(scripttext)
     f.close()
 
-#map(sbatch_gadget_mult, range(0,len(params),3))
-map(sbatch_gadget_mult_restart, range(0,len(params),9))
+failed = loadtxt('add cosmo_failed.txt')
+map(sbatch_gadget_mult, range(0, where(failed==0)[0],3))
+map(sbatch_gadget_mult_restart, where(failed==0)[0],3))
