@@ -544,6 +544,9 @@ params = loadtxt('params.txt')
 m_nu_arr = params.T[0]
 params[:-2]=params[:-2][argsort(m_nu_arr[:-2])]
 
+failed = loadtxt('cosmo_failed.txt')
+params = params[failed==0]
+
 def outputs(iparams):
     M_nu, omega_m, A_s9 = iparams
     omnu = Mnu2Omeganu(M_nu, omega_m)
@@ -735,6 +738,6 @@ wait
     f.write(scripttext)
     f.close()
 
-failed = loadtxt('cosmo_failed.txt')
-map(sbatch_gadget_mult, where(failed==0)[0][::3])
-map(sbatch_gadget_mult_restart, where(failed==0)[0][::3])
+
+map(sbatch_gadget_mult, arange(0,len(params),3))
+map(sbatch_gadget_mult_restart, arange(0,len(params),3))
