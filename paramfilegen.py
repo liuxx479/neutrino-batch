@@ -698,7 +698,7 @@ wait
     f.write(scripttext)
     f.close()
 
-def sbatch_gadget_mult_restart(i, N=Ncore*2, job='j', nfiles = 9):
+def sbatch_gadget_mult_restart(i, N=Ncore*2, job='j', nfiles = 3):
     M_nu, omega_m, A_s9 = params[i]
     nnodes2 = nnodes/2
     n=N*nnodes2
@@ -736,5 +736,5 @@ wait
     f.close()
 
 failed = loadtxt('cosmo_failed.txt')
-map(sbatch_gadget_mult, where(failed==0)[0],3)
-map(sbatch_gadget_mult_restart, where(failed==0)[0],3)
+map(sbatch_gadget_mult, where(failed==0)[0][::3])
+map(sbatch_gadget_mult_restart, where(failed==0)[0][::3])
