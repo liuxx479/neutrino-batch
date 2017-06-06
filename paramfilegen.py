@@ -734,7 +734,7 @@ wait
 wait
 '''%(mpicc,  Gadget_loc, main_dir, filename)                      
 
-    f = open('jobs/mult_restart_%s_%s.sh'%(filename,machine), 'w')
+    f = open('jobs/mult_restart2_%s_%s.sh'%(filename,machine), 'w')
     f.write(scripttext)
     f.close()
 
