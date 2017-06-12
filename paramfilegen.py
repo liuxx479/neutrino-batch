@@ -8,8 +8,10 @@ import astropy.units as u
 import numpy as np
 import sys
 
+
 machine = ['perseus','KNL','stampede1','local'][int(sys.argv[1])]
 plane_thickness = 180#512/3.0###128 Mpc/h
+
 
 if machine =='KNL':
     main_dir = '/work/02977/jialiu/neutrino-batch/'
@@ -56,6 +58,9 @@ elif machine == 'local':
     Ncore, nnodes = 0, 0
     extracomments=None
 
+LT_home = main_dir+'lenstools_home/'
+LT_storage = main_dir+'lenstools_storage/'
+lenstools_storage_dir = LT_storage
 #########################
 if machine in ['perseus','KNL','stampede1']:
     os.system('mkdir -p %sparams'%(main_dir))
@@ -649,22 +654,7 @@ module load hdf5
     f.write(scripttext)
     f.close()
     
-#sbatch_camb()
-#os.system('cp /tigress/jialiu/neutrino-batch/camb_mnv0.00000_om0.30000_As2.1000.param /tigress/jialiu/neutrino-batch/params')
-
-#sbatch_ngenic()
-#for iparams in params:
-    #print iparams
-    #M_nu, omega_m, A_s9 = iparams
-    #onu0_astropy, onu0_num =   Mnu2Omeganu(M_nu, omega_m), M_nu/93.04/h**2
-    #print iparams, onu0_astropy, onu0_num, onu0_astropy/onu0_num-1.0
-    
-    #camb_gen(M_nu, omega_m, A_s9)
-    #ngenic_gen(M_nu, omega_m, A_s9)
-    #gadget_gen(M_nu, omega_m, A_s9)
-    #outputs(iparams)
-    #sbatch_gadget(iparams)
-    
+   
 def sbatch_gadget_mult(i, N=Ncore, job='j', nfiles = 3):
     M_nu, omega_m, A_s9 = params[i]
     n=N*nnodes
@@ -738,6 +728,115 @@ wait
     f.write(scripttext)
     f.close()
 
+sys.modules["mpi4py"] = None
+sys.modules["matplotlib"] = None
+import lenstools
+from lenstools import SimulationBatch
+from lenstools.pipeline.settings import EnvironmentSettings
+from lenstools.pipeline.simulation import LensToolsCosmology
+
+setup_planes_folders = 1
+
+if setup_planes_folders:    
+    os.system('rm -r %s/Om*'%(LT_home))
+    os.system('rm -r %s/*txt'%(LT_home))
+    os.system('rm -r %s/Om*'%(LT_storage))
+    os.system('mkdir -p %s/initfiles'%(LT_home))
+    
+    env_txt='''[EnvironmentSettings]
+
+home = %s
+storage = %s
+name2attr = {"Om":"Om0","Ode":"Ode0","w":"w0","wa":"wa","h":"h","Ob":"Ob0","si":"sigma8","As":"As","ns":"ns","mva":"mva","mvb":"mvb","mvc":"mvc"}
+cosmo_id_digits = 5'''%s(LT_home,LT_storage)
+    f=open(LT_home+'environment.ini','w')
+    f.write(env_txt)
+    f.close()
+    os.chdir(LT_home)
+    
+def prepare_planes (params):
+    '''Prepare for lenstool plane parameters, folders, sbatch script
+    '''
+    os.chdir(LT_home)
+    M_nu, omega_m, A_s9 = param
+    cosmo = 'mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
+    nu_masses= neutrino_mass_calc (M_nu)* u.eV
+    omnu = Mnu2Omeganu(M_nu, omega_m)
+    cosmoFlat = FlatLambdaCDM(H0=h*100, Om0=omega_m-omnu, m_nu = nu_masses)
+    cosmoLT =  LensToolsCosmology(H0=h*100, Om0=omega_m-omnu, m_nu=nu_masses, Ode0=cosmoFlat.Ode0, As=A_s9)
+    model = batch.newModel(cosmoLT,parameters=["Om","As","mva","mvb","mvc","h","Ode"])
+    collection = model.newCollection(box_size=512.0*model.Mpc_over_h,nside=1024)
+    collection.newRealization(seed=10027)
+    cosmo_apetri = 'Om%.5f_As%.5f_mva%.5f_mvb%.5f_mvc%.5f_h%.5f_Ode%.5f'%(omega_m-omnu, A_s9, m1,m2,m3,0.7,cosmoLT.Ode0)
+
+    os.system('rm -r %s%s/1024b512/ic1/snapshots'%(lenstools_storage_dir, cosmo_apetri))
+    os.system('ln -sf %s%s/snapshots %s%s/1024b512/ic1'%(temp_dir, cosmo, lenstools_storage_dir, cosmo_apetri))
+    nplanes = int(cosmoFlat.comoving_distance(50.0).value/180)
+    plane_txt ='''[PlaneSettings]
+
+directory_name = Planes
+override_with_local = False
+format = fits
+plane_resolution = 4096
+first_snapshot = 0
+last_snapshot = %i
+snapshot_handler = Gadget2SnapshotNu
+cut_points = 0.0, 180.0, 360.0, 540.0
+thickness = 180.0
+length_unit = Mpc
+normals = 0,1,2
+    '''%(nplanes)
+    f=open(LT_home+'initfiles/plane_mnv%.5f.ini'%(M_nu))
+    f.write(plane_txt)
+    
+    ############# directories
+    r = model.collections[0].realizations[0]
+    r.newPlaneSet(plane_settings)
+    print r.planesets
+    
+    
+    fn_job='%sjobs/planes_mnv%.5f.sh'%(main_dir, M_nu)
+    f = open(fn_job, 'w')
+    scripttext='''#!/bin/bash 
+#SBATCH -1  # node count 
+#SBATCH -28
+#SBATCH -J plane_mnv%.3f
+#SBATCH -t 4:00:00 
+#SBATCH --output=%slogs/plane%s_%%%j.out
+#SBATCH --error=%slogs/plane%s_%%%j.err
+#SBATCH --mail-type=all
+#SBATCH --mail-user=jia@astro.princeton.edu 
+%s
+module load intel
+module load hdf5
+
+ibrun -n 28 -o 0 lenstools.planes-mpi -e %s/environment.ini -c %s/initfiles/planes_mnv%.5f.ini "%s|1024b512" 
+'''%(M_nu,  main_dir, M_nu,  main_dir, M_nu, extracomments,  LT_home, LT_home, M_nu, cosmo_apetri)
+    f = open('jobs/%s_%s.sh'%(filename,machine), 'w')
+    f.write(scripttext)
+    f.close()
+
+    f.write(scripttext)
+    f.close()
 
 #map(sbatch_gadget_mult, arange(0,len(params),3))
-map(sbatch_gadget_mult_restart, arange(0,len(params),3))
+#map(sbatch_gadget_mult_restart, arange(0,len(params),3))
+
+#sbatch_camb()
+#os.system('cp /tigress/jialiu/neutrino-batch/camb_mnv0.00000_om0.30000_As2.1000.param /tigress/jialiu/neutrino-batch/params')
+
+#sbatch_ngenic()
+for iparams in params:
+    #print iparams
+    M_nu, omega_m, A_s9 = iparams
+    #onu0_astropy, onu0_num =   Mnu2Omeganu(M_nu, omega_m), M_nu/93.04/h**2
+    #print iparams, onu0_astropy, onu0_num, onu0_astropy/onu0_num-1.0
+    
+    #camb_gen(M_nu, omega_m, A_s9)
+    #ngenic_gen(M_nu, omega_m, A_s9)
+    #gadget_gen(M_nu, omega_m, A_s9)
+    #outputs(iparams)
+    #sbatch_gadget(iparams)
+    
+    prepare_planes (iparams)
+
