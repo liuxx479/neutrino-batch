@@ -731,7 +731,8 @@ wait
 sys.modules["mpi4py"] = None
 sys.modules["matplotlib"] = None
 import lenstools
-from lenstools import SimulationBatch
+#from lenstools import SimulationBatch
+from lenstools.pipeline import SimulationBatch
 from lenstools.pipeline.settings import EnvironmentSettings
 from lenstools.pipeline.simulation import LensToolsCosmology
 
