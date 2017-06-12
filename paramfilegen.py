@@ -739,9 +739,9 @@ from lenstools.pipeline.simulation import LensToolsCosmology
 setup_planes_folders = 1
 
 if setup_planes_folders:    
-    os.system('rm -r %s/Om*'%(LT_home))
-    os.system('rm -r %s/*txt'%(LT_home))
-    os.system('rm -r %s/Om*'%(LT_storage))
+    os.system('rm -r %sOm*'%(LT_home))
+    os.system('rm -r %s*txt'%(LT_home))
+    os.system('rm -r %sOm*'%(LT_storage))
     os.system('mkdir -p %s/initfiles'%(LT_home))
     
     env_txt='''[EnvironmentSettings]
