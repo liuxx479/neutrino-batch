@@ -759,6 +759,7 @@ def prepare_planes (param):
     '''Prepare for lenstool plane parameters, folders, sbatch script
     '''
     os.chdir(LT_home)
+    batch=SimulationBatch.current()
     M_nu, omega_m, A_s9 = param
     cosmo = 'mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
     nu_masses= neutrino_mass_calc (M_nu)* u.eV
