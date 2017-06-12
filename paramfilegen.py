@@ -827,7 +827,7 @@ ibrun -n 28 -o 0 lenstools.planes-mpi -e %s/environment.ini -c %s/initfiles/plan
 
 #sbatch_ngenic()
 for iparams in params:
-    #print iparams
+    print iparams
     M_nu, omega_m, A_s9 = iparams
     #onu0_astropy, onu0_num =   Mnu2Omeganu(M_nu, omega_m), M_nu/93.04/h**2
     #print iparams, onu0_astropy, onu0_num, onu0_astropy/onu0_num-1.0
