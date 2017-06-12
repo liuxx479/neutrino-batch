@@ -749,7 +749,7 @@ if setup_planes_folders:
 home = %s
 storage = %s
 name2attr = {"Om":"Om0","Ode":"Ode0","w":"w0","wa":"wa","h":"h","Ob":"Ob0","si":"sigma8","As":"As","ns":"ns","mva":"mva","mvb":"mvb","mvc":"mvc"}
-cosmo_id_digits = 5'''%s(LT_home,LT_storage)
+cosmo_id_digits = 5'''%(LT_home,LT_storage)
     f=open(LT_home+'environment.ini','w')
     f.write(env_txt)
     f.close()
