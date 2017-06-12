@@ -755,7 +755,7 @@ cosmo_id_digits = 5'''%(LT_home,LT_storage)
     f.close()
     os.chdir(LT_home)
     
-def prepare_planes (params):
+def prepare_planes (param):
     '''Prepare for lenstool plane parameters, folders, sbatch script
     '''
     os.chdir(LT_home)
