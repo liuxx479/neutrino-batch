@@ -9,17 +9,17 @@ import numpy as np
 import sys
 
 
-machine = ['perseus','KNL','stampede1','local'][int(sys.argv[1])]
+machine = ['perseus','stampede2','stampede1','local'][int(sys.argv[1])]
 plane_thickness = 180#512/3.0###128 Mpc/h
 
 
-if machine =='KNL':
+if machine =='stampede2':
     main_dir = '/work/02977/jialiu/neutrino-batch/'
     temp_dir = '/scratch/02977/jialiu/temp/'
     NgenIC_loc = '/work/02977/jialiu/PipelineJL/S-GenIC/N-GenIC'
-    Gadget_loc = '/work/02977/jialiu/PipelineJL/Gadget-2.0.7/Gadget2/Gadget2_massive'
+    Gadget_loc = '/work/02977/jialiu/PipelineJL/Gadget-2.0.7-stampede2/Gadget2/Gadget2_massive'
     mpicc = 'ibrun'
-    Ncore, nnodes = 40, 17
+    Ncore, nnodes = 11, 68
     extracomments ='''#SBATCH -A TG-AST140041
 #SBATCH -p normal
 
@@ -549,8 +549,8 @@ params = loadtxt('params.txt')
 m_nu_arr = params.T[0]
 params[:-2]=params[:-2][argsort(m_nu_arr[:-2])]
 
-#failed = loadtxt('cosmo_restart.txt')
-#params = params[failed==2]
+failed = loadtxt('cosmo_restart.txt')
+params = params[failed==1]
 
 def outputs(iparams):
     M_nu, omega_m, A_s9 = iparams
@@ -631,73 +631,10 @@ done
 
 def sbatch_gadget(iparams, N=Ncore, job='j'):
     M_nu, omega_m, A_s9 = iparams
-    n=N*nnodes
+    n=720#N*nnodes
     if machine=='perseus':
         job='A'
-    filename = 'gadget_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
-    scripttext='''#!/bin/bash 
-#SBATCH -N %i # node count 
-#SBATCH -n %i
-#SBATCH -J Gadget_mnv%.3f
-#SBATCH --ntasks-per-node=%i 
-#SBATCH -t 48:00:00 
-#SBATCH --output=%slogs/%s_%%%s.out
-#SBATCH --error=%slogs/%s_%%%s.err
-#SBATCH --mail-type=all
-#SBATCH --mail-user=jia@astro.princeton.edu 
-%s
-module load intel
-module load hdf5
-
-%s  %s %sparams/%s.param'''%(N, n, M_nu, nnodes, main_dir, filename, job, main_dir, filename, job, extracomments,  mpicc,  Gadget_loc, main_dir, filename)
-    f = open('jobs/%s_%s.sh'%(filename,machine), 'w')
-    f.write(scripttext)
-    f.close()
-    
-   
-def sbatch_gadget_mult(i, N=Ncore, job='j', nfiles = 3):
-    M_nu, omega_m, A_s9 = params[i]
-    n=N*nnodes
-    if machine=='perseus':
-        job='A'
-    filename = 'gadget_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
-    scripttext='''#!/bin/bash 
-#SBATCH -N %i # node count 
-#SBATCH -n %i
-#SBATCH -J mnv%.3f
-#SBATCH --ntasks-per-node=%i 
-#SBATCH -t 48:00:00 
-#SBATCH --output=%slogs/%s_%%%s.out
-#SBATCH --error=%slogs/%s_%%%s.err
-#SBATCH --mail-type=all
-#SBATCH --mail-user=jia@astro.princeton.edu 
-%s
-module load intel
-module load hdf5
-
-%s  %s %sparams/%s.param &
-wait
-'''%(N, n, M_nu, nnodes, main_dir, filename, job, main_dir, filename, job, extracomments,  mpicc,  Gadget_loc, main_dir, filename)
-
-    for j in range(i+1, min(i+nfiles, len(params))):
-        M_nu, omega_m, A_s9 = params[j]
-        filename = 'gadget_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
-        scripttext+='''
-%s  %s %sparams/%s.param &
-wait
-'''%(mpicc,  Gadget_loc, main_dir, filename)                      
-
-    f = open('jobs/mult_%s_%s.sh'%(filename,machine), 'w')
-    f.write(scripttext)
-    f.close()
-
-def sbatch_gadget_mult_restart(i, N=Ncore*2, job='j', nfiles = 3):
-    M_nu, omega_m, A_s9 = params[i]
-    nnodes2 = nnodes/2
-    n=N*nnodes2
-    if machine=='perseus':
-        job='A'
-    filename = 'gadget_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
+    filename = 'gadget_mnv%.5f_single_restart'%(M_nu)
     scripttext='''#!/bin/bash 
 #SBATCH -N %i # node count 
 #SBATCH -n %i
@@ -712,21 +649,13 @@ def sbatch_gadget_mult_restart(i, N=Ncore*2, job='j', nfiles = 3):
 module load intel
 module load hdf5
 
-%s %s %sparams/%s.param 1 &
-wait
-'''%(N, n, M_nu, nnodes2, main_dir, filename, job, main_dir, filename, job, extracomments,  mpicc,  Gadget_loc, main_dir, filename)
-
-    for j in range(i+1, min(i+nfiles, len(params))):
-        M_nu, omega_m, A_s9 = params[j]
-        filename = 'gadget_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
-        scripttext+='''
-%s  %s %sparams/%s.param 1 &
-wait
-'''%(mpicc,  Gadget_loc, main_dir, filename)                      
-
-    f = open('jobs/mult_restart2_%s_%s.sh'%(filename,machine), 'w')
+%s -n 720 -o 0 %s %sparams/%s.param 1'''%(N, n, M_nu, nnodes, main_dir, filename, job, main_dir, filename, job, extracomments,  mpicc,  Gadget_loc, main_dir, filename)
+    f = open('jobs/%s_%s.sh'%(filename,machine), 'w')
     f.write(scripttext)
     f.close()
+    
+   
+
 
 sys.modules["mpi4py"] = None
 sys.modules["matplotlib"] = None
@@ -836,7 +765,7 @@ for iparams in params:
     #ngenic_gen(M_nu, omega_m, A_s9)
     #gadget_gen(M_nu, omega_m, A_s9)
     #outputs(iparams)
-    #sbatch_gadget(iparams)
+    sbatch_gadget(iparams)
     
-    prepare_planes (iparams)
+    #prepare_planes (iparams)
 
