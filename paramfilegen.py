@@ -816,7 +816,6 @@ module load hdf5
 
 ibrun -n 28 -o 0 lenstools.planes-mpi -e %s/environment.ini -c %s/initfiles/planes_mnv%.5f.ini "%s|1024b512" 
 '''%(M_nu,  main_dir, M_nu,  main_dir, M_nu, extracomments,  LT_home, LT_home, M_nu, cosmo_apetri)
-    f = open('jobs/%s_%s.sh'%(filename,machine), 'w')
     f.write(scripttext)
     f.close()
 
