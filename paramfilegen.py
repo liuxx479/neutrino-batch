@@ -735,6 +735,7 @@ from lenstools import SimulationBatch
 #from lenstools.pipeline import SimulationBatch
 from lenstools.pipeline.settings import EnvironmentSettings
 from lenstools.pipeline.simulation import LensToolsCosmology
+from lenstools.pipeline.settings import PlaneSettings
 
 setup_planes_folders = 1
 
