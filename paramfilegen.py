@@ -634,7 +634,7 @@ def sbatch_gadget(iparams, N=Ncore, job='j'):
     n=720#N*nnodes
     if machine=='perseus':
         job='A'
-    filename = 'gadget_mnv%.5f_single_restart'%(M_nu)
+    filename = 'gadget_mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
     scripttext='''#!/bin/bash 
 #SBATCH -N %i # node count 
 #SBATCH -n %i
@@ -650,7 +650,7 @@ module load intel
 module load hdf5
 
 %s -n 720 -o 0 %s %sparams/%s.param 1'''%(N, n, M_nu, nnodes, main_dir, filename, job, main_dir, filename, job, extracomments,  mpicc,  Gadget_loc, main_dir, filename)
-    f = open('jobs/%s_%s.sh'%(filename,machine), 'w')
+    f = open('jobs/restart%s_%s.sh'%(filename,machine), 'w')
     f.write(scripttext)
     f.close()
     
