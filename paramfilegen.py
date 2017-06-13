@@ -649,8 +649,8 @@ def sbatch_gadget(iparams, N=Ncore, job='j'):
 module load intel
 module load hdf5
 
-%s -n 720 -o 0 %s %sparams/%s.param 1'''%(N, n, M_nu, nnodes, main_dir, filename, job, main_dir, filename, job, extracomments,  mpicc,  Gadget_loc, main_dir, filename)
-    f = open('jobs/restart%s_%s.sh'%(filename,machine), 'w')
+%s -n 720 -o 0 %s %sparams/%s.param 1'''%(N*2, n, M_nu, nnodes, main_dir, filename, job, main_dir, filename, job, extracomments,  mpicc,  Gadget_loc, main_dir, filename)
+    f = open('jobs/restart_double_%s_%s.sh'%(filename,machine), 'w')
     f.write(scripttext)
     f.close()
     
