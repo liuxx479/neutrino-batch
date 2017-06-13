@@ -772,7 +772,7 @@ def prepare_planes (param):
     collection = model.newCollection(box_size=512.0*model.Mpc_over_h,nside=1024)
     collection.newRealization(seed=10027)
     cosmo_apetri = 'Om%.5f_As%.5f_mva%.5f_mvb%.5f_mvc%.5f_h%.5f_Ode%.5f'%(omega_m-omnu, A_s9, m1,m2,m3,0.7,cosmoFlat.Ode0)
-
+    ######### plane setting files
     os.system('rm -r %s%s/1024b512/ic1/snapshots'%(lenstools_storage_dir, cosmo_apetri))
     os.system('ln -sf %s%s/snapshots %s%s/1024b512/ic1'%(temp_dir, cosmo, lenstools_storage_dir, cosmo_apetri))
     nplanes = int(cosmoFlat.comoving_distance(50.0).value/180)
@@ -793,14 +793,12 @@ normals = 0,1,2
     f=open(LT_home+'initfiles/plane_mnv%.5f.ini'%(M_nu),'w')
     f.write(plane_txt)
     f.close()
-    
-    ############## directories
+    ############## create directories
     plane_settings = PlaneSettings.read(LT_home+'initfiles/plane_mnv%.5f.ini'%(M_nu))
     r = model.collections[0].realizations[0]
     r.newPlaneSet(plane_settings)
     print r.planesets
-    
-    
+    ############ sbatch jobs
     fn_job='%sjobs/planes_mnv%.5f.sh'%(main_dir, M_nu)
     f = open(fn_job, 'w')
     scripttext='''#!/bin/bash 
@@ -808,8 +806,8 @@ normals = 0,1,2
 #SBATCH -28
 #SBATCH -J plane_mnv%.3f
 #SBATCH -t 4:00:00 
-#SBATCH --output=%slogs/plane%s_%%%j.out
-#SBATCH --error=%slogs/plane%s_%%%j.err
+#SBATCH --output=%slogs/plane%s_%%j.out
+#SBATCH --error=%slogs/plane%s_%%j.err
 #SBATCH --mail-type=all
 #SBATCH --mail-user=jia@astro.princeton.edu 
 %s
@@ -819,9 +817,6 @@ module load hdf5
 ibrun -n 28 -o 0 lenstools.planes-mpi -e %s/environment.ini -c %s/initfiles/planes_mnv%.5f.ini "%s|1024b512" 
 '''%(M_nu,  main_dir, M_nu,  main_dir, M_nu, extracomments,  LT_home, LT_home, M_nu, cosmo_apetri)
     f = open('jobs/%s_%s.sh'%(filename,machine), 'w')
-    f.write(scripttext)
-    f.close()
-
     f.write(scripttext)
     f.close()
 
