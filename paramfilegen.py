@@ -11,7 +11,7 @@ import sys
 
 machine = ['perseus','stampede2','stampede1','local'][int(sys.argv[1])]
 plane_thickness = 180#512/3.0###128 Mpc/h
-
+setup_planes_folders = 0
 
 if machine =='stampede2':
     main_dir = '/work/02977/jialiu/neutrino-batch/'
@@ -654,21 +654,18 @@ module load hdf5
     f.write(scripttext)
     f.close()
     
-   
 
-
-sys.modules["mpi4py"] = None
-sys.modules["matplotlib"] = None
-import lenstools
-from lenstools import SimulationBatch
-#from lenstools.pipeline import SimulationBatch
-from lenstools.pipeline.settings import EnvironmentSettings
-from lenstools.pipeline.simulation import LensToolsCosmology
-from lenstools.pipeline.settings import PlaneSettings
-
-setup_planes_folders = 1
 
 if setup_planes_folders:    
+    sys.modules["mpi4py"] = None
+    sys.modules["matplotlib"] = None
+    import lenstools
+    from lenstools import SimulationBatch
+    #from lenstools.pipeline import SimulationBatch
+    from lenstools.pipeline.settings import EnvironmentSettings
+    from lenstools.pipeline.simulation import LensToolsCosmology
+    from lenstools.pipeline.settings import PlaneSettings
+    
     os.system('rm -r %sOm*'%(LT_home))
     os.system('rm -r %s*txt'%(LT_home))
     os.system('rm -r %sOm*'%(LT_storage))
