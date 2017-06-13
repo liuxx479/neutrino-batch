@@ -789,7 +789,7 @@ thickness = 180.0
 length_unit = Mpc
 normals = 0,1,2
     '''%(nplanes)
-    f=open(LT_home+'initfiles/plane_mnv%.5f.ini'%(M_nu))
+    f=open(LT_home+'initfiles/plane_mnv%.5f.ini'%(M_nu),'w')
     f.write(plane_txt)
     
     
