@@ -549,8 +549,8 @@ params = loadtxt('params.txt')
 m_nu_arr = params.T[0]
 params[:-2]=params[:-2][argsort(m_nu_arr[:-2])]
 
-failed = loadtxt('cosmo_restart.txt')
-params = params[failed==2]
+#failed = loadtxt('cosmo_restart.txt')
+#params = params[failed==2]
 
 def outputs(iparams):
     M_nu, omega_m, A_s9 = iparams
@@ -731,8 +731,8 @@ wait
 sys.modules["mpi4py"] = None
 sys.modules["matplotlib"] = None
 import lenstools
-#from lenstools import SimulationBatch
-from lenstools.pipeline import SimulationBatch
+from lenstools import SimulationBatch
+#from lenstools.pipeline import SimulationBatch
 from lenstools.pipeline.settings import EnvironmentSettings
 from lenstools.pipeline.simulation import LensToolsCosmology
 
@@ -769,7 +769,7 @@ def prepare_planes (param):
     model = batch.newModel(cosmoLT,parameters=["Om","As","mva","mvb","mvc","h","Ode"])
     collection = model.newCollection(box_size=512.0*model.Mpc_over_h,nside=1024)
     collection.newRealization(seed=10027)
-    cosmo_apetri = 'Om%.5f_As%.5f_mva%.5f_mvb%.5f_mvc%.5f_h%.5f_Ode%.5f'%(omega_m-omnu, A_s9, m1,m2,m3,0.7,cosmoLT.Ode0)
+    cosmo_apetri = 'Om%.5f_As%.5f_mva%.5f_mvb%.5f_mvc%.5f_h%.5f_Ode%.5f'%(omega_m-omnu, A_s9, m1,m2,m3,0.7,cosmoFlat.Ode0)
 
     os.system('rm -r %s%s/1024b512/ic1/snapshots'%(lenstools_storage_dir, cosmo_apetri))
     os.system('ln -sf %s%s/snapshots %s%s/1024b512/ic1'%(temp_dir, cosmo, lenstools_storage_dir, cosmo_apetri))
@@ -791,7 +791,8 @@ normals = 0,1,2
     f=open(LT_home+'initfiles/plane_mnv%.5f.ini'%(M_nu))
     f.write(plane_txt)
     
-    ############# directories
+    
+    ############## directories
     r = model.collections[0].realizations[0]
     r.newPlaneSet(plane_settings)
     print r.planesets
