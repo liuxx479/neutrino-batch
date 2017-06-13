@@ -794,6 +794,7 @@ normals = 0,1,2
     
     
     ############## directories
+    plane_settings = PlaneSettings.read(LT_home+'initfiles/plane_mnv%.5f.ini'%(M_nu))
     r = model.collections[0].realizations[0]
     r.newPlaneSet(plane_settings)
     print r.planesets
