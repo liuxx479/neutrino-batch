@@ -792,7 +792,7 @@ normals = 0,1,2
     '''%(nplanes)
     f=open(LT_home+'initfiles/plane_mnv%.5f.ini'%(M_nu),'w')
     f.write(plane_txt)
-    
+    f.close()
     
     ############## directories
     plane_settings = PlaneSettings.read(LT_home+'initfiles/plane_mnv%.5f.ini'%(M_nu))
