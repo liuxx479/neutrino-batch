@@ -761,6 +761,7 @@ def prepare_planes (param):
     os.chdir(LT_home)
     batch=SimulationBatch.current()
     M_nu, omega_m, A_s9 = param
+    m1, m2, m3 = neutrino_mass_calc (M_nu)
     cosmo = 'mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
     nu_masses= neutrino_mass_calc (M_nu)* u.eV
     omnu = Mnu2Omeganu(M_nu, omega_m)
