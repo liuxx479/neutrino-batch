@@ -693,38 +693,38 @@ def prepare_planes (param):
     nu_masses= neutrino_mass_calc (M_nu)* u.eV
     omnu = Mnu2Omeganu(M_nu, omega_m)
     cosmoFlat = FlatLambdaCDM(H0=h*100, Om0=omega_m-omnu, m_nu = nu_masses)
-    #cosmoLT =  LensToolsCosmology(H0=h*100, Om0=omega_m-omnu, m_nu=nu_masses, Ode0=cosmoFlat.Ode0, As=A_s9)
-    #model = batch.newModel(cosmoLT,parameters=["Om","As","mva","mvb","mvc","h","Ode"])
-    #collection = model.newCollection(box_size=512.0*model.Mpc_over_h,nside=1024)
-    #collection.newRealization(seed=10027)
+    cosmoLT =  LensToolsCosmology(H0=h*100, Om0=omega_m-omnu, m_nu=nu_masses, Ode0=cosmoFlat.Ode0, As=A_s9)
+    model = batch.newModel(cosmoLT,parameters=["Om","As","mva","mvb","mvc","h","Ode"])
+    collection = model.newCollection(box_size=512.0*model.Mpc_over_h,nside=1024)
+    collection.newRealization(seed=10027)
     cosmo_apetri = 'Om%.5f_As%.5f_mva%.5f_mvb%.5f_mvc%.5f_h%.5f_Ode%.5f'%(omega_m-omnu, A_s9, m1,m2,m3,0.7,cosmoFlat.Ode0)
     ########## plane setting files
-    #os.system('rm -r %s%s/1024b512/ic1/snapshots'%(lenstools_storage_dir, cosmo_apetri))
-    #os.system('ln -sf %s%s/snapshots %s%s/1024b512/ic1'%(temp_dir, cosmo, lenstools_storage_dir, cosmo_apetri))
-    #nplanes = int(cosmoFlat.comoving_distance(50.0).value/180)
-    #plane_txt ='''[PlaneSettings]
+    os.system('rm -r %s%s/1024b512/ic1/snapshots'%(lenstools_storage_dir, cosmo_apetri))
+    os.system('ln -sf %s%s/snapshots %s%s/1024b512/ic1'%(temp_dir, cosmo, lenstools_storage_dir, cosmo_apetri))
+    nplanes = int(cosmoFlat.comoving_distance(50.0).value/180)
+    plane_txt ='''[PlaneSettings]
 
-#directory_name = Planes
-#override_with_local = False
-#format = fits
-#plane_resolution = 4096
-#first_snapshot = 0
-#last_snapshot = %i
-#snapshot_handler = Gadget2SnapshotNu
-#cut_points = 0.0, 180.0, 360.0, 540.0
-#thickness = 180.0
-#length_unit = Mpc
-#normals = 0,1,2
-    #'''%(nplanes)
-    #f=open(LT_home+'initfiles/plane_mnv%.5f.ini'%(M_nu),'w')
-    #f.write(plane_txt)
-    #f.close()
-    ############### create directories
-    #plane_settings = PlaneSettings.read(LT_home+'initfiles/plane_mnv%.5f.ini'%(M_nu))
-    #r = model.collections[0].realizations[0]
-    #r.newPlaneSet(plane_settings)
-    #print r.planesets
-    ############ sbatch jobs
+directory_name = Planes
+override_with_local = False
+format = fits
+plane_resolution = 4096
+first_snapshot = 0
+last_snapshot = %i
+snapshot_handler = Gadget2SnapshotNu
+cut_points = 0.0, 180.0, 360.0, 540.0
+thickness = 180.0
+length_unit = Mpc
+normals = 0,1,2
+    '''%(nplanes)
+    f=open(LT_home+'initfiles/plane_mnv%.5f.ini'%(M_nu),'w')
+    f.write(plane_txt)
+    f.close()
+    ############## create directories
+    plane_settings = PlaneSettings.read(LT_home+'initfiles/plane_mnv%.5f.ini'%(M_nu))
+    r = model.collections[0].realizations[0]
+    r.newPlaneSet(plane_settings)
+    print r.planesets
+    ########### sbatch jobs
     fn_job='%sjobs/planes%s_mnv%.5f.sh'%(main_dir,int(param not in param_restart), M_nu)
     f = open(fn_job, 'w')
     scripttext='''#!/bin/bash 
