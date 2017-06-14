@@ -716,7 +716,7 @@ thickness = 180.0
 length_unit = Mpc
 normals = 0,1,2
     '''%(nplanes)
-    f=open(LT_home+'initfiles/plane%s_mnv%.5f.ini'%(int(param in param_restart), M_nu),'w')
+    f=open(LT_home+'initfiles/plane_mnv%.5f.ini'%(M_nu),'w')
     f.write(plane_txt)
     f.close()
     ############## create directories
@@ -725,7 +725,7 @@ normals = 0,1,2
     r.newPlaneSet(plane_settings)
     print r.planesets
     ############ sbatch jobs
-    fn_job='%sjobs/planes_mnv%.5f.sh'%(main_dir, M_nu)
+    fn_job='%sjobs/planes%s_mnv%.5f.sh'%(main_dir,int(param not in param_restart), M_nu)
     f = open(fn_job, 'w')
     scripttext='''#!/bin/bash 
 ####SBATCH -N 2  # node count 
