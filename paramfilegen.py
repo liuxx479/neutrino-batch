@@ -11,7 +11,7 @@ import sys
 
 machine = ['perseus','stampede2','stampede1','local'][int(sys.argv[1])]
 plane_thickness = 180#512/3.0###128 Mpc/h
-setup_planes_folders = 1
+setup_planes_folders = 0
 
 if machine =='stampede2':
     main_dir = '/work/02977/jialiu/neutrino-batch/'
@@ -685,45 +685,45 @@ cosmo_id_digits = 5'''%(LT_home,LT_storage)
 def prepare_planes (param):
     '''Prepare for lenstool plane parameters, folders, sbatch script
     '''
-    os.chdir(LT_home)
-    batch=SimulationBatch.current()
-    M_nu, omega_m, A_s9 = param
-    m1, m2, m3 = neutrino_mass_calc (M_nu)
-    cosmo = 'mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
-    nu_masses= neutrino_mass_calc (M_nu)* u.eV
-    omnu = Mnu2Omeganu(M_nu, omega_m)
-    cosmoFlat = FlatLambdaCDM(H0=h*100, Om0=omega_m-omnu, m_nu = nu_masses)
-    cosmoLT =  LensToolsCosmology(H0=h*100, Om0=omega_m-omnu, m_nu=nu_masses, Ode0=cosmoFlat.Ode0, As=A_s9)
-    model = batch.newModel(cosmoLT,parameters=["Om","As","mva","mvb","mvc","h","Ode"])
-    collection = model.newCollection(box_size=512.0*model.Mpc_over_h,nside=1024)
-    collection.newRealization(seed=10027)
-    cosmo_apetri = 'Om%.5f_As%.5f_mva%.5f_mvb%.5f_mvc%.5f_h%.5f_Ode%.5f'%(omega_m-omnu, A_s9, m1,m2,m3,0.7,cosmoFlat.Ode0)
-    ######### plane setting files
-    os.system('rm -r %s%s/1024b512/ic1/snapshots'%(lenstools_storage_dir, cosmo_apetri))
-    os.system('ln -sf %s%s/snapshots %s%s/1024b512/ic1'%(temp_dir, cosmo, lenstools_storage_dir, cosmo_apetri))
-    nplanes = int(cosmoFlat.comoving_distance(50.0).value/180)
-    plane_txt ='''[PlaneSettings]
+    #os.chdir(LT_home)
+    #batch=SimulationBatch.current()
+    #M_nu, omega_m, A_s9 = param
+    #m1, m2, m3 = neutrino_mass_calc (M_nu)
+    #cosmo = 'mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
+    #nu_masses= neutrino_mass_calc (M_nu)* u.eV
+    #omnu = Mnu2Omeganu(M_nu, omega_m)
+    #cosmoFlat = FlatLambdaCDM(H0=h*100, Om0=omega_m-omnu, m_nu = nu_masses)
+    #cosmoLT =  LensToolsCosmology(H0=h*100, Om0=omega_m-omnu, m_nu=nu_masses, Ode0=cosmoFlat.Ode0, As=A_s9)
+    #model = batch.newModel(cosmoLT,parameters=["Om","As","mva","mvb","mvc","h","Ode"])
+    #collection = model.newCollection(box_size=512.0*model.Mpc_over_h,nside=1024)
+    #collection.newRealization(seed=10027)
+    #cosmo_apetri = 'Om%.5f_As%.5f_mva%.5f_mvb%.5f_mvc%.5f_h%.5f_Ode%.5f'%(omega_m-omnu, A_s9, m1,m2,m3,0.7,cosmoFlat.Ode0)
+    ########## plane setting files
+    #os.system('rm -r %s%s/1024b512/ic1/snapshots'%(lenstools_storage_dir, cosmo_apetri))
+    #os.system('ln -sf %s%s/snapshots %s%s/1024b512/ic1'%(temp_dir, cosmo, lenstools_storage_dir, cosmo_apetri))
+    #nplanes = int(cosmoFlat.comoving_distance(50.0).value/180)
+    #plane_txt ='''[PlaneSettings]
 
-directory_name = Planes
-override_with_local = False
-format = fits
-plane_resolution = 4096
-first_snapshot = 0
-last_snapshot = %i
-snapshot_handler = Gadget2SnapshotNu
-cut_points = 0.0, 180.0, 360.0, 540.0
-thickness = 180.0
-length_unit = Mpc
-normals = 0,1,2
-    '''%(nplanes)
-    f=open(LT_home+'initfiles/plane_mnv%.5f.ini'%(M_nu),'w')
-    f.write(plane_txt)
-    f.close()
-    ############## create directories
-    plane_settings = PlaneSettings.read(LT_home+'initfiles/plane_mnv%.5f.ini'%(M_nu))
-    r = model.collections[0].realizations[0]
-    r.newPlaneSet(plane_settings)
-    print r.planesets
+#directory_name = Planes
+#override_with_local = False
+#format = fits
+#plane_resolution = 4096
+#first_snapshot = 0
+#last_snapshot = %i
+#snapshot_handler = Gadget2SnapshotNu
+#cut_points = 0.0, 180.0, 360.0, 540.0
+#thickness = 180.0
+#length_unit = Mpc
+#normals = 0,1,2
+    #'''%(nplanes)
+    #f=open(LT_home+'initfiles/plane_mnv%.5f.ini'%(M_nu),'w')
+    #f.write(plane_txt)
+    #f.close()
+    ############### create directories
+    #plane_settings = PlaneSettings.read(LT_home+'initfiles/plane_mnv%.5f.ini'%(M_nu))
+    #r = model.collections[0].realizations[0]
+    #r.newPlaneSet(plane_settings)
+    #print r.planesets
     ############ sbatch jobs
     fn_job='%sjobs/planes%s_mnv%.5f.sh'%(main_dir,int(param not in param_restart), M_nu)
     f = open(fn_job, 'w')
@@ -732,15 +732,15 @@ normals = 0,1,2
 #SBATCH -n 28
 #SBATCH -J plane_mnv%.3f
 #SBATCH -t 3:00:00 
-#SBATCH --output=%slogs/plane%s_%%j.out
-#SBATCH --error=%slogs/plane%s_%%j.err
+#SBATCH --output=%slogs/plane%.3f_%%j.out
+#SBATCH --error=%slogs/plane%.3f_%%j.err
 #SBATCH --mail-type=all
 #SBATCH --mail-user=jia@astro.princeton.edu 
 %s
 module load intel
 module load hdf5
 
-ibrun -n 28 -o 0 lenstools.planes-mpi -e %senvironment.ini -c %sinitfiles/planes_mnv%.5f.ini "%s|1024b512|ic1" 
+ibrun -n 28 -o 0 lenstools.planes-mpi -e %senvironment.ini -c %sinitfiles/plane_mnv%.5f.ini "%s|1024b512|ic1" 
 '''%(M_nu,  main_dir, M_nu,  main_dir, M_nu, extracomments,  LT_home, LT_home, M_nu, cosmo_apetri)
     f.write(scripttext)
     f.close()
