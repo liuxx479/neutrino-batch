@@ -685,19 +685,19 @@ cosmo_id_digits = 5'''%(LT_home,LT_storage)
 def prepare_planes (param):
     '''Prepare for lenstool plane parameters, folders, sbatch script
     '''
-    #os.chdir(LT_home)
-    #batch=SimulationBatch.current()
-    #M_nu, omega_m, A_s9 = param
-    #m1, m2, m3 = neutrino_mass_calc (M_nu)
-    #cosmo = 'mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
-    #nu_masses= neutrino_mass_calc (M_nu)* u.eV
-    #omnu = Mnu2Omeganu(M_nu, omega_m)
-    #cosmoFlat = FlatLambdaCDM(H0=h*100, Om0=omega_m-omnu, m_nu = nu_masses)
+    os.chdir(LT_home)
+    batch=SimulationBatch.current()
+    M_nu, omega_m, A_s9 = param
+    m1, m2, m3 = neutrino_mass_calc (M_nu)
+    cosmo = 'mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
+    nu_masses= neutrino_mass_calc (M_nu)* u.eV
+    omnu = Mnu2Omeganu(M_nu, omega_m)
+    cosmoFlat = FlatLambdaCDM(H0=h*100, Om0=omega_m-omnu, m_nu = nu_masses)
     #cosmoLT =  LensToolsCosmology(H0=h*100, Om0=omega_m-omnu, m_nu=nu_masses, Ode0=cosmoFlat.Ode0, As=A_s9)
     #model = batch.newModel(cosmoLT,parameters=["Om","As","mva","mvb","mvc","h","Ode"])
     #collection = model.newCollection(box_size=512.0*model.Mpc_over_h,nside=1024)
     #collection.newRealization(seed=10027)
-    #cosmo_apetri = 'Om%.5f_As%.5f_mva%.5f_mvb%.5f_mvc%.5f_h%.5f_Ode%.5f'%(omega_m-omnu, A_s9, m1,m2,m3,0.7,cosmoFlat.Ode0)
+    cosmo_apetri = 'Om%.5f_As%.5f_mva%.5f_mvb%.5f_mvc%.5f_h%.5f_Ode%.5f'%(omega_m-omnu, A_s9, m1,m2,m3,0.7,cosmoFlat.Ode0)
     ########## plane setting files
     #os.system('rm -r %s%s/1024b512/ic1/snapshots'%(lenstools_storage_dir, cosmo_apetri))
     #os.system('ln -sf %s%s/snapshots %s%s/1024b512/ic1'%(temp_dir, cosmo, lenstools_storage_dir, cosmo_apetri))
