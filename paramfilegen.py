@@ -550,7 +550,7 @@ m_nu_arr = params.T[0]
 params[:-2]=params[:-2][argsort(m_nu_arr[:-2])]
 
 failed = loadtxt('cosmo_restart.txt')
-params = params[failed==1]
+param_restart = params[failed==1]
 
 def outputs(iparams):
     M_nu, omega_m, A_s9 = iparams
@@ -716,7 +716,7 @@ thickness = 180.0
 length_unit = Mpc
 normals = 0,1,2
     '''%(nplanes)
-    f=open(LT_home+'initfiles/plane_mnv%.5f.ini'%(M_nu),'w')
+    f=open(LT_home+'initfiles/plane%s_mnv%.5f.ini'%(int(param in param_restart), M_nu),'w')
     f.write(plane_txt)
     f.close()
     ############## create directories
