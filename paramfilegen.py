@@ -11,7 +11,7 @@ import sys
 
 machine = ['perseus','stampede2','stampede1','local'][int(sys.argv[1])]
 plane_thickness = 180#512/3.0###128 Mpc/h
-setup_planes_folders = 0
+setup_planes_folders = 1
 
 if machine =='stampede2':
     main_dir = '/work/02977/jialiu/neutrino-batch/'
@@ -649,8 +649,8 @@ def sbatch_gadget(iparams, N=Ncore, job='j'):
 module load intel
 module load hdf5
 
-%s -n 720 -o 0 %s %sparams/%s.param 1'''%(N*2, n, M_nu, nnodes, main_dir, filename, job, main_dir, filename, job, extracomments,  mpicc,  Gadget_loc, main_dir, filename)
-    f = open('jobs/restart_double_%s_%s.sh'%(filename,machine), 'w')
+%s -n 720 -o 0 %s %sparams/%s.param '''%(N, n, M_nu, nnodes, main_dir, filename, job, main_dir, filename, job, extracomments,  mpicc,  Gadget_loc, main_dir, filename)
+    f = open('jobs/restart_%s_%s.sh'%(filename,machine), 'w')
     f.write(scripttext)
     f.close()
     
@@ -728,10 +728,10 @@ normals = 0,1,2
     fn_job='%sjobs/planes_mnv%.5f.sh'%(main_dir, M_nu)
     f = open(fn_job, 'w')
     scripttext='''#!/bin/bash 
-#SBATCH -1  # node count 
-#SBATCH -28
+####SBATCH -N 2  # node count 
+#SBATCH -n 28
 #SBATCH -J plane_mnv%.3f
-#SBATCH -t 4:00:00 
+#SBATCH -t 3:00:00 
 #SBATCH --output=%slogs/plane%s_%%j.out
 #SBATCH --error=%slogs/plane%s_%%j.err
 #SBATCH --mail-type=all
@@ -740,7 +740,7 @@ normals = 0,1,2
 module load intel
 module load hdf5
 
-ibrun -n 28 -o 0 lenstools.planes-mpi -e %s/environment.ini -c %s/initfiles/planes_mnv%.5f.ini "%s|1024b512" 
+ibrun -n 28 -o 0 lenstools.planes-mpi -e %senvironment.ini -c %sinitfiles/planes_mnv%.5f.ini "%s|1024b512|ic1" 
 '''%(M_nu,  main_dir, M_nu,  main_dir, M_nu, extracomments,  LT_home, LT_home, M_nu, cosmo_apetri)
     f.write(scripttext)
     f.close()
@@ -762,7 +762,7 @@ for iparams in params:
     #ngenic_gen(M_nu, omega_m, A_s9)
     #gadget_gen(M_nu, omega_m, A_s9)
     #outputs(iparams)
-    sbatch_gadget(iparams)
-    
-    #prepare_planes (iparams)
+    #sbatch_gadget(iparams)
+    if setup_planes_folders:
+        prepare_planes (iparams)
 
