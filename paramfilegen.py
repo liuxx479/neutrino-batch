@@ -11,7 +11,7 @@ import sys
 
 machine = ['perseus','stampede2','stampede1','local'][int(sys.argv[1])]
 plane_thickness = 180#512/3.0###128 Mpc/h
-setup_planes_folders = 0
+setup_planes_folders = 1
 
 if machine =='stampede2':
     main_dir = '/work/02977/jialiu/neutrino-batch/'
