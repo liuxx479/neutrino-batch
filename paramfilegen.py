@@ -32,7 +32,7 @@ elif machine =='stampede1':
     NgenIC_loc = '/work/02977/jialiu/PipelineJL/S-GenIC/N-GenIC'
     Gadget_loc = '/work/02977/jialiu/PipelineJL/Gadget-2.0.7-stampede1/Gadget2/Gadget2_massive'
     mpicc = 'ibrun'
-    Ncore, nnodes = 45, 16
+    Ncore, nnodes = 90, 8#16
     extracomments ='''#SBATCH -A TG-AST140041
 #SBATCH -p normal
 
