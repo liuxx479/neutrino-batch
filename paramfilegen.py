@@ -3,8 +3,6 @@ from scipy import *
 from scipy import optimize
 import os
 from scipy import stats
-from astropy.cosmology import FlatLambdaCDM
-import astropy.units as u
 import numpy as np
 import sys
 
@@ -27,6 +25,8 @@ module load fftw2
 module load gsl'''
 
 elif machine =='stampede1':
+    from astropy.cosmology import FlatLambdaCDM
+    import astropy.units as u
     main_dir = '/work/02977/jialiu/neutrino-batch/'
     temp_dir = '/scratch/02977/jialiu/temp/'
     NgenIC_loc = '/work/02977/jialiu/PipelineJL/S-GenIC/N-GenIC'
@@ -40,6 +40,8 @@ module load fftw2
 module load gsl'''
 
 elif machine =='perseus':
+    from astropy.cosmology import FlatLambdaCDM
+    import astropy.units as u
     main_dir = '/tigress/jialiu/neutrino-batch/'
     temp_dir = '/tigress/jialiu/temp/'
     NgenIC_loc = '/tigress/jialiu/PipelineJL/S-GenIC/N-GenIC'
@@ -50,6 +52,8 @@ elif machine =='perseus':
 module load fftw'''
 
 elif machine == 'local':
+    from astropy.cosmology import FlatLambdaCDM
+    import astropy.units as u
     main_dir = '/Users/jia/Documents/weaklensing/kspace_nu/neutrino-batch/'
     temp_dir = None
     NgenIC_loc = None
