@@ -685,7 +685,7 @@ OUTBASE = "/scratch/02977/jialiu/temp/%s/rockstar"
 NUM_WRITERS = 12
 FORK_READERS_FROM_WRITERS = 1
 FORK_PROCESSORS_PER_MACHINE = 68
-'''%(cosmo,nplanes,cosmo)
+'''%(cosmo,nplanes+1,cosmo)
     fn_params='%sparams/rockstar_%s.cfg'%(main_dir, cosmo)
     f=open(fn_params,'w')
     f.write(paramtext)
