@@ -654,9 +654,11 @@ module load hdf5
     f.write(scripttext)
     f.close()
     
-def sbatch_rockstar (iparams):
+def sbatch_rockstar (param):
+    M_nu, omega_m, A_s9 = param
     m1, m2, m3 = neutrino_mass_calc (M_nu)
     nu_masses= neutrino_mass_calc (M_nu)* u.eV
+    omnu = Mnu2Omeganu(M_nu, omega_m)
     cosmoFlat = FlatLambdaCDM(H0=h*100, Om0=omega_m-omnu, m_nu = nu_masses)
     nplanes = int(cosmoFlat.comoving_distance(50.0).value/180)
     cosmo = 'mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
