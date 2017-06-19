@@ -752,7 +752,7 @@ ibrun -n 28 -o 0 lenstools.planes-mpi -e %senvironment.ini -c %sinitfiles/plane_
 #os.system('cp /tigress/jialiu/neutrino-batch/camb_mnv0.00000_om0.30000_As2.1000.param /tigress/jialiu/neutrino-batch/params')
 
 #sbatch_ngenic()
-for iparams in params:
+for iparams in param_restart:#params:
     print iparams
     M_nu, omega_m, A_s9 = iparams
     #onu0_astropy, onu0_num =   Mnu2Omeganu(M_nu, omega_m), M_nu/93.04/h**2
