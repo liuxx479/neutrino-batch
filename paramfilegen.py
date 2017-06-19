@@ -11,7 +11,7 @@ import sys
 
 machine = ['perseus','stampede2','stampede1','local'][int(sys.argv[1])]
 plane_thickness = 180#512/3.0###128 Mpc/h
-setup_planes_folders = 1
+setup_planes_folders = 0
 
 if machine =='stampede2':
     main_dir = '/work/02977/jialiu/neutrino-batch/'
@@ -19,7 +19,7 @@ if machine =='stampede2':
     NgenIC_loc = '/work/02977/jialiu/PipelineJL/S-GenIC/N-GenIC'
     Gadget_loc = '/work/02977/jialiu/PipelineJL/Gadget-2.0.7-stampede2/Gadget2/Gadget2_massive'
     mpicc = 'ibrun'
-    Ncore, nnodes = 11, 68
+    Ncore, nnodes = 22, 34#11, 68
     extracomments ='''#SBATCH -A TG-AST140041
 #SBATCH -p normal
 
@@ -649,7 +649,7 @@ def sbatch_gadget(iparams, N=Ncore, job='j'):
 module load intel
 module load hdf5
 
-%s -n 720 -o 0 %s %sparams/%s.param '''%(N, n, M_nu, nnodes, main_dir, filename, job, main_dir, filename, job, extracomments,  mpicc,  Gadget_loc, main_dir, filename)
+%s -n 720 -o 0 %s %sparams/%s.param 1'''%(N, n, M_nu, nnodes, main_dir, filename, job, main_dir, filename, job, extracomments,  mpicc,  Gadget_loc, main_dir, filename)
     f = open('jobs/restart_%s_%s.sh'%(filename,machine), 'w')
     f.write(scripttext)
     f.close()
@@ -762,7 +762,7 @@ for iparams in params:
     #ngenic_gen(M_nu, omega_m, A_s9)
     #gadget_gen(M_nu, omega_m, A_s9)
     #outputs(iparams)
-    #sbatch_gadget(iparams)
+    sbatch_gadget(iparams)
     if setup_planes_folders:
         prepare_planes (iparams)
 
