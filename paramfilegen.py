@@ -639,7 +639,7 @@ def sbatch_gadget(iparams, N=Ncore, job='j'):
 #SBATCH -N %i # node count 
 #SBATCH -n %i
 #SBATCH -J mnv%.3f
-####SBATCH --ntasks-per-node=%i 
+#SBATCH --ntasks-per-node=%i 
 #SBATCH -t 24:00:00 
 #SBATCH --output=%slogs/%s_%%%s.out
 #SBATCH --error=%slogs/%s_%%%s.err
