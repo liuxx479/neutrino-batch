@@ -683,9 +683,9 @@ STARTING_SNAP = 0
 NUM_SNAPS=%i
 NUM_BLOCKS=28
 OUTBASE = "/scratch/02977/jialiu/temp/%s/rockstar"
-NUM_WRITERS = 32
+NUM_WRITERS = 128
 FORK_READERS_FROM_WRITERS = 1
-FORK_PROCESSORS_PER_MACHINE = 68
+FORK_PROCESSORS_PER_MACHINE = 64
 '''%(cosmo,nplanes,cosmo)
     fn_params='%sparams/rockstar_%s.cfg'%(main_dir, cosmo)
     f=open(fn_params,'w')
