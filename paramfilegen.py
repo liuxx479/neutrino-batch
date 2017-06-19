@@ -653,14 +653,11 @@ module load hdf5
     f = open('jobs/init_%s_%s.sh'%(filename,machine), 'w')
     f.write(scripttext)
     f.close()
-    
-def sbatch_rockstar (param):
+
+nsnaps=genfromtxt('nsnaps.txt')    
+def sbatch_rockstar (param,i=0):
     M_nu, omega_m, A_s9 = param
-    m1, m2, m3 = neutrino_mass_calc (M_nu)
-    nu_masses= neutrino_mass_calc (M_nu)* u.eV
-    omnu = Mnu2Omeganu(M_nu, omega_m)
-    cosmoFlat = FlatLambdaCDM(H0=h*100, Om0=omega_m-omnu, m_nu = nu_masses)
-    nplanes = int(cosmoFlat.comoving_distance(50.0).value/180)
+    nplanes = nsnaps[i]
     cosmo = 'mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
     os.system('mkdir -p /scratch/02977/jialiu/temp/%s/rockstar'%(cosmo))
     paramtext='''FILE_FORMAT = "GADGET2" # or "ART" or "ASCII"
@@ -685,7 +682,7 @@ OUTBASE = "/scratch/02977/jialiu/temp/%s/rockstar"
 NUM_WRITERS = 12
 FORK_READERS_FROM_WRITERS = 1
 FORK_PROCESSORS_PER_MACHINE = 68
-'''%(cosmo,nplanes+1,cosmo)
+'''%(cosmo,nplanes,cosmo)
     fn_params='%sparams/rockstar_%s.cfg'%(main_dir, cosmo)
     f=open(fn_params,'w')
     f.write(paramtext)
@@ -818,6 +815,7 @@ ibrun -n 28 -o 0 lenstools.planes-mpi -e %senvironment.ini -c %sinitfiles/plane_
 #os.system('cp /tigress/jialiu/neutrino-batch/camb_mnv0.00000_om0.30000_As2.1000.param /tigress/jialiu/neutrino-batch/params')
 
 #sbatch_ngenic()
+i=0
 for iparams in params:#param_restart:#
     print iparams
     M_nu, omega_m, A_s9 = iparams
@@ -831,4 +829,5 @@ for iparams in params:#param_restart:#
     #sbatch_gadget(iparams)
     if setup_planes_folders:
         prepare_planes (iparams)
-    sbatch_rockstar(iparams)
+    sbatch_rockstar(iparams,i=i)
+    i+=1
