@@ -709,11 +709,11 @@ module load intel
 module load hdf5
 
 workdir=/scratch/02977/jialiu/temp/%s/rockstar
-exe=/home1/02977/jialiu/work/PipelineJL/rockstar/rockstar
+exe=/work/02977/jialiu/PipelineJL/rockstar/rockstar
 cd $workdir
 echo Entering $(pwd)
 
-rm auto-rockstar.cfg
+rm -f auto-rockstar.cfg
 $exe -c %s >& server.dat &
 perl -e 'sleep 1 while (!(-e "auto-rockstar.cfg"))'
 
