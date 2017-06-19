@@ -19,7 +19,7 @@ if machine =='stampede2':
     NgenIC_loc = '/work/02977/jialiu/PipelineJL/S-GenIC/N-GenIC'
     Gadget_loc = '/work/02977/jialiu/PipelineJL/Gadget-2.0.7-stampede2/Gadget2/Gadget2_massive'
     mpicc = 'ibrun'
-    Ncore, nnodes = 22, 34#11, 68
+    Ncore, nnodes = 11, 68#22, 34#
     extracomments ='''#SBATCH -A TG-AST140041
 #SBATCH -p normal
 
@@ -649,8 +649,8 @@ def sbatch_gadget(iparams, N=Ncore, job='j'):
 module load intel
 module load hdf5
 
-%s -n 720 -o 0 %s %sparams/%s.param 1'''%(N, n, M_nu, nnodes, main_dir, filename, job, main_dir, filename, job, extracomments,  mpicc,  Gadget_loc, main_dir, filename)
-    f = open('jobs/restart_%s_%s.sh'%(filename,machine), 'w')
+%s -n 720 -o 0 %s %sparams/%s.param'''%(N, n, M_nu, nnodes, main_dir, filename, job, main_dir, filename, job, extracomments,  mpicc,  Gadget_loc, main_dir, filename)
+    f = open('jobs/init_%s_%s.sh'%(filename,machine), 'w')
     f.write(scripttext)
     f.close()
     
