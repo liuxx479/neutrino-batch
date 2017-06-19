@@ -654,6 +654,71 @@ module load hdf5
     f.write(scripttext)
     f.close()
     
+def sbatch_rockstar (iparams):
+    m1, m2, m3 = neutrino_mass_calc (M_nu)
+    nu_masses= neutrino_mass_calc (M_nu)* u.eV
+    cosmoFlat = FlatLambdaCDM(H0=h*100, Om0=omega_m-omnu, m_nu = nu_masses)
+    nplanes = int(cosmoFlat.comoving_distance(50.0).value/180)
+    cosmo = 'mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
+    os.system('mkdir -p /scratch/02977/jialiu/temp/%s/rockstar')
+    paramtext='''FILE_FORMAT = "GADGET2" # or "ART" or "ASCII"
+PARTICLE_MASS = 0       # must specify (in Msun/h) for ART or ASCII
+MASS_DEFINITION = "mvir"
+SCALE_NOW = 1
+h0 = 0.7
+Ol = 0.7
+Om = 0.3
+GADGET_LENGTH_CONVERSION = 1e-3
+GADGET_MASS_CONVERSION = 1e+10
+GADGET_SKIP_NON_HALO_PARTICLES = 1
+FORCE_RES = 0.009 # softeninghalomaxphys=9kpc/h
+PARALLEL_IO=1
+PARALLEL_IO_SERVER_INTERFACE = "ib0"
+INBASE="/scratch/02977/jialiu/temp/%s/snapshots"
+FILENAME="snapshot_<snap>.<block>"
+STARTING_SNAP = 0
+NUM_SNAPS=%i
+NUM_BLOCKS=28
+OUTBASE = "/scratch/02977/jialiu/temp/%s/rockstar"
+NUM_WRITERS = 12
+FORK_READERS_FROM_WRITERS = 1
+FORK_PROCESSORS_PER_MACHINE = 68
+'''
+    fn_params='%srockstar_%s.cfg'%(main_dir, cosmo)
+    f=open(fn_params,'w')
+    f.write(paramtext)
+    f.close()
+    
+    ########### sbatch jobs
+    fn_job='%sjobs/rockstar_mnv%.5f.sh'%(main_dir, M_nu)
+    f = open(fn_job, 'w')
+    scripttext='''#!/bin/bash 
+#SBATCH -N 2  # node count 
+#SBATCH -n 2
+#SBATCH -J hf_mnv%.3f
+#SBATCH -t 24:00:00 
+#SBATCH --output=%slogs/rockstar%.3f_%%j.out
+#SBATCH --error=%slogs/rockstar%.3f_%%j.err
+#SBATCH --mail-type=all
+#SBATCH --mail-user=jia@astro.princeton.edu 
+%s
+module load intel
+module load hdf5
+
+workdir=/scratch/02977/jialiu/temp/%s/rockstar
+exe=/home1/02977/jialiu/work/PipelineJL/rockstar/rockstar
+cd $workdir
+echo Entering $(pwd)
+
+rm auto-rockstar.cfg
+$exe -c %s >& server.dat &
+perl -e 'sleep 1 while (!(-e "auto-rockstar.cfg"))'
+
+
+ibrun $exe -c auto-rockstar.cfg
+'''%(M_nu,  main_dir, M_nu,  main_dir, M_nu, extracomments, cosmo, fn_params)
+    f.write(scripttext)
+    f.close()
 
 
 if setup_planes_folders:    
@@ -666,10 +731,10 @@ if setup_planes_folders:
     from lenstools.pipeline.simulation import LensToolsCosmology
     from lenstools.pipeline.settings import PlaneSettings
     
-    os.system('rm -r %sOm*'%(LT_home))
-    os.system('rm -r %s*txt'%(LT_home))
-    os.system('rm -r %sOm*'%(LT_storage))
-    os.system('mkdir -p %s/initfiles'%(LT_home))
+    #os.system('rm -r %sOm*'%(LT_home))
+    #os.system('rm -r %s*txt'%(LT_home))
+    #os.system('rm -r %sOm*'%(LT_storage))
+    #os.system('mkdir -p %s/initfiles'%(LT_home))
     
     env_txt='''[EnvironmentSettings]
 
@@ -752,7 +817,7 @@ ibrun -n 28 -o 0 lenstools.planes-mpi -e %senvironment.ini -c %sinitfiles/plane_
 #os.system('cp /tigress/jialiu/neutrino-batch/camb_mnv0.00000_om0.30000_As2.1000.param /tigress/jialiu/neutrino-batch/params')
 
 #sbatch_ngenic()
-for iparams in param_restart:#params:
+for iparams in params:#param_restart:#
     print iparams
     M_nu, omega_m, A_s9 = iparams
     #onu0_astropy, onu0_num =   Mnu2Omeganu(M_nu, omega_m), M_nu/93.04/h**2
@@ -762,7 +827,7 @@ for iparams in param_restart:#params:
     #ngenic_gen(M_nu, omega_m, A_s9)
     #gadget_gen(M_nu, omega_m, A_s9)
     #outputs(iparams)
-    sbatch_gadget(iparams)
+    #sbatch_gadget(iparams)
     if setup_planes_folders:
         prepare_planes (iparams)
-
+    sbatch_rockstar(iparams)
