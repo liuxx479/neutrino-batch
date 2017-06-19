@@ -662,7 +662,7 @@ def sbatch_rockstar (param):
     cosmoFlat = FlatLambdaCDM(H0=h*100, Om0=omega_m-omnu, m_nu = nu_masses)
     nplanes = int(cosmoFlat.comoving_distance(50.0).value/180)
     cosmo = 'mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
-    os.system('mkdir -p /scratch/02977/jialiu/temp/%s/rockstar')
+    os.system('mkdir -p /scratch/02977/jialiu/temp/%s/rockstar'%(cosmo))
     paramtext='''FILE_FORMAT = "GADGET2" # or "ART" or "ASCII"
 PARTICLE_MASS = 0       # must specify (in Msun/h) for ART or ASCII
 MASS_DEFINITION = "mvir"
@@ -685,8 +685,8 @@ OUTBASE = "/scratch/02977/jialiu/temp/%s/rockstar"
 NUM_WRITERS = 12
 FORK_READERS_FROM_WRITERS = 1
 FORK_PROCESSORS_PER_MACHINE = 68
-'''
-    fn_params='%srockstar_%s.cfg'%(main_dir, cosmo)
+'''%(cosmo,nplanes)
+    fn_params='%sparams/rockstar_%s.cfg'%(main_dir, cosmo)
     f=open(fn_params,'w')
     f.write(paramtext)
     f.close()
@@ -715,7 +715,6 @@ echo Entering $(pwd)
 rm auto-rockstar.cfg
 $exe -c %s >& server.dat &
 perl -e 'sleep 1 while (!(-e "auto-rockstar.cfg"))'
-
 
 ibrun $exe -c auto-rockstar.cfg
 '''%(M_nu,  main_dir, M_nu,  main_dir, M_nu, extracomments, cosmo, fn_params)
