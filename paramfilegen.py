@@ -644,7 +644,7 @@ def sbatch_gadget(iparams, N=Ncore, job='j'):
 #SBATCH -n %i
 #SBATCH -J mnv%.3f
 #SBATCH --ntasks-per-node=%i 
-#SBATCH -t 24:00:00 
+#SBATCH -t 48:00:00 
 #SBATCH --output=%slogs/%s_%%%s.out
 #SBATCH --error=%slogs/%s_%%%s.err
 #SBATCH --mail-type=all
@@ -653,8 +653,8 @@ def sbatch_gadget(iparams, N=Ncore, job='j'):
 module load intel
 module load hdf5
 
-%s -n 720 -o 0 %s %sparams/%s.param'''%(N, n, M_nu, nnodes, main_dir, filename, job, main_dir, filename, job, extracomments,  mpicc,  Gadget_loc, main_dir, filename)
-    f = open('jobs/init_%s_%s.sh'%(filename,machine), 'w')
+%s -n 720 -o 0 %s %sparams/%s.param 1'''%(N, n, M_nu, nnodes, main_dir, filename, job, main_dir, filename, job, extracomments,  mpicc,  Gadget_loc, main_dir, filename)
+    f = open('jobs/restart_%s_%s.sh'%(filename,machine), 'w')
     f.write(scripttext)
     f.close()
 
@@ -688,9 +688,9 @@ FORK_READERS_FROM_WRITERS = 1
 FORK_PROCESSORS_PER_MACHINE = 64
 '''%(cosmo,nplanes,cosmo)
     fn_params='%sparams/rockstar_%s.cfg'%(main_dir, cosmo)
-    f=open(fn_params,'w')
-    f.write(paramtext)
-    f.close()
+    #f=open(fn_params,'w')
+    #f.write(paramtext)
+    #f.close()
     
     ########### sbatch jobs
     fn_job='%sjobs/rockstar_mnv%.5f.sh'%(main_dir, M_nu)
@@ -699,7 +699,7 @@ FORK_PROCESSORS_PER_MACHINE = 64
 #SBATCH -N 2  # node count 
 #SBATCH -n 2
 #SBATCH -J hf_mnv%.3f
-#SBATCH -t 24:00:00 
+#SBATCH -t 48:00:00 
 #SBATCH --output=%slogs/rockstar%.3f_%%j.out
 #SBATCH --error=%slogs/rockstar%.3f_%%j.err
 #SBATCH --mail-type=all
@@ -830,8 +830,8 @@ for iparams in params:#param_restart:#
     #ngenic_gen(M_nu, omega_m, A_s9)
     #gadget_gen(M_nu, omega_m, A_s9)
     #outputs(iparams)
-    #sbatch_gadget(iparams)
-    if setup_planes_folders:
-        prepare_planes (iparams)
+    sbatch_gadget(iparams)
+    #if setup_planes_folders:
+        #prepare_planes (iparams)
     sbatch_rockstar(iparams,i=i)
     i+=1
