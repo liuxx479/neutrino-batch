@@ -820,7 +820,7 @@ ibrun -n 28 -o 0 lenstools.planes-mpi -e %senvironment.ini -c %sinitfiles/plane_
 
 #sbatch_ngenic()
 i=0
-for iparams in params:#param_restart:#
+for iparams in param_restart:#params:#
     print iparams
     M_nu, omega_m, A_s9 = iparams
     #onu0_astropy, onu0_num =   Mnu2Omeganu(M_nu, omega_m), M_nu/93.04/h**2
@@ -833,5 +833,5 @@ for iparams in params:#param_restart:#
     sbatch_gadget(iparams)
     #if setup_planes_folders:
         #prepare_planes (iparams)
-    sbatch_rockstar(iparams,i=i)
+    #sbatch_rockstar(iparams,i=i)
     i+=1
