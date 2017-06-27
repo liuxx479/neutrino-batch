@@ -756,8 +756,8 @@ ibrun -n 28 -o 0 lenstools.planes-mpi -e %senvironment.ini -c %sinitfiles/plane_
 def sbatch_rockstar (param,i=0,init=0):
     M_nu, omega_m, A_s9 = param
     nplanes = nsnaps[i]
+    cosmo = 'mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
     if init:
-        cosmo = 'mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
         os.system('mkdir -p /scratch/02977/jialiu/temp/%s/rockstar'%(cosmo))
         paramtext='''FILE_FORMAT = "GADGET2" # or "ART" or "ASCII"
 PARTICLE_MASS = 0       # must specify (in Msun/h) for ART or ASCII
