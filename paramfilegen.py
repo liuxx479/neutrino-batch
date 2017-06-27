@@ -799,9 +799,9 @@ def sbatch_plane(param,i):
     fn_job='%sjobs/planes%s_mnv%.5f.sh'%(main_dir,int(param not in param_restart), M_nu)
     f = open(fn_job, 'w')
     scripttext='''#!/bin/bash 
-####SBATCH -N 1  # node count 
+#SBATCH -N 1  # node count 
 #SBATCH -n 28
-#SBATCH -J plane_mnv%.3f
+#SBATCH -J plm%.3f
 #SBATCH -t 24:00:00 
 #SBATCH --output=%slogs/plane%.3f_%%j.out
 #SBATCH --error=%slogs/plane%.3f_%%j.err
