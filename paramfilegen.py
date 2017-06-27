@@ -551,8 +551,9 @@ if design:
 
 params = loadtxt('params.txt')
 m_nu_arr = params.T[0]
-params[:-2]=params[:-2][argsort(m_nu_arr[:-2])]
-
+params=params[argsort(m_nu_arr)]
+#params[:-2]=params[:-2][argsort(m_nu_arr[:-2])]
+cosmo_apetri_arr = genfromtxt('cosmo_apetri_arr.txt',dtype='string')
 failed = loadtxt('cosmo_restart.txt')
 param_restart = params[failed==1]
 
@@ -791,14 +792,17 @@ normals = 0,1,2
     r = model.collections[0].realizations[0]
     r.newPlaneSet(plane_settings)
     print r.planesets
-    ########### sbatch jobs
+    
+########### sbatch jobs
+def sbatch_plane(param,i):
+    M_nu, omega_m, A_s9 = param
     fn_job='%sjobs/planes%s_mnv%.5f.sh'%(main_dir,int(param not in param_restart), M_nu)
     f = open(fn_job, 'w')
     scripttext='''#!/bin/bash 
-####SBATCH -N 2  # node count 
+####SBATCH -N 1  # node count 
 #SBATCH -n 28
 #SBATCH -J plane_mnv%.3f
-#SBATCH -t 3:00:00 
+#SBATCH -t 24:00:00 
 #SBATCH --output=%slogs/plane%.3f_%%j.out
 #SBATCH --error=%slogs/plane%.3f_%%j.err
 #SBATCH --mail-type=all
@@ -808,7 +812,7 @@ module load intel
 module load hdf5
 
 ibrun -n 28 -o 0 lenstools.planes-mpi -e %senvironment.ini -c %sinitfiles/plane_mnv%.5f.ini "%s|1024b512|ic1" 
-'''%(M_nu,  main_dir, M_nu,  main_dir, M_nu, extracomments,  LT_home, LT_home, M_nu, cosmo_apetri)
+'''%(M_nu,  main_dir, M_nu,  main_dir, M_nu, extracomments,  LT_home, LT_home, M_nu, cosmo_apetri_arr[i])
     f.write(scripttext)
     f.close()
 
@@ -820,7 +824,7 @@ ibrun -n 28 -o 0 lenstools.planes-mpi -e %senvironment.ini -c %sinitfiles/plane_
 
 #sbatch_ngenic()
 i=0
-for iparams in param_restart:#params:#
+for iparams in params:#param_restart:#
     print iparams
     M_nu, omega_m, A_s9 = iparams
     #onu0_astropy, onu0_num =   Mnu2Omeganu(M_nu, omega_m), M_nu/93.04/h**2
@@ -830,8 +834,10 @@ for iparams in param_restart:#params:#
     #ngenic_gen(M_nu, omega_m, A_s9)
     #gadget_gen(M_nu, omega_m, A_s9)
     #outputs(iparams)
-    sbatch_gadget(iparams)
+    #sbatch_gadget(iparams)
     #if setup_planes_folders:
         #prepare_planes (iparams)
     #sbatch_rockstar(iparams,i=i)
+    if iparams in param_restart:
+        sbatch_plane(iparams,i)
     i+=1
