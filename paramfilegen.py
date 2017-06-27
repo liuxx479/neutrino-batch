@@ -795,8 +795,20 @@ perl -e 'sleep 1 while (!(-e "auto-rockstar.cfg"))'
 
 ibrun $exe -c auto-rockstar.cfg'''%(fn_params)
     else:
-        command = '''ibrun $exe -c restart.cfg'''
-    fn_job='%sjobs/rockstar%s_mnv%.5f.sh'%(main_dir, ['_restart',''][init], M_nu)
+        #command = '''ibrun $exe -c restart.cfg'''
+        command = '''
+if [ -f out_0.list ]; then
+    echo restart run
+    ibrun $exe -c restart.cfg
+else
+    rm -f auto-rockstar.cfg
+    $exe -c %s >& server.dat &
+    perl -e 'sleep 1 while (!(-e "auto-rockstar.cfg"))'
+    ibrun $exe -c auto-rockstar.cfg
+fi
+'''
+    #fn_job='%sjobs/rockstar%s_mnv%.5f.sh'%(main_dir, ['_restart',''][init], M_nu)
+    fn_job='%sjobs/rockstars_mnv%.5f.sh'%(main_dir, M_nu)
     f = open(fn_job, 'w')
     scripttext='''#!/bin/bash 
 #SBATCH -N 2  # node count 
