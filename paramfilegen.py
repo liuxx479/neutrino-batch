@@ -789,21 +789,19 @@ FORK_PROCESSORS_PER_MACHINE = 64
         f.close()
     
     ########### sbatch jobs
-    command = '''
-if [ -f out_0.list ]; then
+    command = '''if [ -f out_0.list ]; then
     echo restart run
     $exe -c restart.cfg >& server.dat &
 else
     $exe -c %s >& server.dat &
-fi
-'''%(fn_params)
+fi'''%(fn_params)
     #fn_job='%sjobs/rockstar%s_mnv%.5f.sh'%(main_dir, ['_restart',''][init], M_nu)
     fn_job='%sjobs/rockstars_mnv%.5f.sh'%(main_dir, M_nu)
     f = open(fn_job, 'w')
     scripttext='''#!/bin/bash 
 #SBATCH -N 2  # node count 
 #SBATCH -n 2
-#SBATCH -J hf_mnv%.3f
+#SBATCH -J hf_%.3f
 #SBATCH -t 48:00:00 
 #SBATCH --output=%slogs/rockstar%.3f_%%j.out
 #SBATCH --error=%slogs/rockstar%.3f_%%j.err
@@ -824,6 +822,7 @@ rm -f auto-rockstar.cfg
 
 perl -e 'sleep 1 while (!(-e "auto-rockstar.cfg"))'
 ibrun $exe -c auto-rockstar.cfg
+
 '''%(M_nu,  main_dir, M_nu,  main_dir, M_nu, extracomments, cosmo, command)
     f.write(scripttext)
     f.close()
