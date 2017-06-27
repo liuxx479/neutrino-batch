@@ -660,69 +660,6 @@ module load hdf5
     f.close()
 
 nsnaps=genfromtxt('nsnaps.txt')    
-def sbatch_rockstar (param,i=0):
-    M_nu, omega_m, A_s9 = param
-    nplanes = nsnaps[i]
-    cosmo = 'mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
-    os.system('mkdir -p /scratch/02977/jialiu/temp/%s/rockstar'%(cosmo))
-    paramtext='''FILE_FORMAT = "GADGET2" # or "ART" or "ASCII"
-PARTICLE_MASS = 0       # must specify (in Msun/h) for ART or ASCII
-MASS_DEFINITION = "mvir"
-SCALE_NOW = 1
-h0 = 0.7
-Ol = 0.7
-Om = 0.3
-GADGET_LENGTH_CONVERSION = 1e-3
-GADGET_MASS_CONVERSION = 1e+10
-GADGET_SKIP_NON_HALO_PARTICLES = 1
-FORCE_RES = 0.009 # softeninghalomaxphys=9kpc/h
-PARALLEL_IO=1
-PARALLEL_IO_SERVER_INTERFACE = "ib0"
-INBASE="/scratch/02977/jialiu/temp/%s/snapshots"
-FILENAME="snapshot_<snap>.<block>"
-STARTING_SNAP = 0
-NUM_SNAPS=%i
-NUM_BLOCKS=28
-OUTBASE = "/scratch/02977/jialiu/temp/%s/rockstar"
-NUM_WRITERS = 128
-FORK_READERS_FROM_WRITERS = 1
-FORK_PROCESSORS_PER_MACHINE = 64
-'''%(cosmo,nplanes,cosmo)
-    fn_params='%sparams/rockstar_%s.cfg'%(main_dir, cosmo)
-    #f=open(fn_params,'w')
-    #f.write(paramtext)
-    #f.close()
-    
-    ########### sbatch jobs
-    fn_job='%sjobs/rockstar_mnv%.5f.sh'%(main_dir, M_nu)
-    f = open(fn_job, 'w')
-    scripttext='''#!/bin/bash 
-#SBATCH -N 2  # node count 
-#SBATCH -n 2
-#SBATCH -J hf_mnv%.3f
-#SBATCH -t 48:00:00 
-#SBATCH --output=%slogs/rockstar%.3f_%%j.out
-#SBATCH --error=%slogs/rockstar%.3f_%%j.err
-#SBATCH --mail-type=all
-#SBATCH --mail-user=jia@astro.princeton.edu 
-%s
-module load intel
-module load hdf5
-
-workdir=/scratch/02977/jialiu/temp/%s/rockstar
-exe=/work/02977/jialiu/PipelineJL/rockstar/rockstar
-cd $workdir
-echo Entering $(pwd)
-
-rm -f auto-rockstar.cfg
-$exe -c %s >& server.dat &
-perl -e 'sleep 1 while (!(-e "auto-rockstar.cfg"))'
-
-ibrun $exe -c auto-rockstar.cfg
-'''%(M_nu,  main_dir, M_nu,  main_dir, M_nu, extracomments, cosmo, fn_params)
-    f.write(scripttext)
-    f.close()
-
 
 if setup_planes_folders:    
     sys.modules["mpi4py"] = None
@@ -816,6 +753,75 @@ ibrun -n 28 -o 0 lenstools.planes-mpi -e %senvironment.ini -c %sinitfiles/plane_
     f.write(scripttext)
     f.close()
 
+def sbatch_rockstar (param,i=0,init=0):
+    M_nu, omega_m, A_s9 = param
+    nplanes = nsnaps[i]
+    if init:
+        cosmo = 'mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
+        os.system('mkdir -p /scratch/02977/jialiu/temp/%s/rockstar'%(cosmo))
+        paramtext='''FILE_FORMAT = "GADGET2" # or "ART" or "ASCII"
+PARTICLE_MASS = 0       # must specify (in Msun/h) for ART or ASCII
+MASS_DEFINITION = "mvir"
+SCALE_NOW = 1
+h0 = 0.7
+Ol = 0.7
+Om = 0.3
+GADGET_LENGTH_CONVERSION = 1e-3
+GADGET_MASS_CONVERSION = 1e+10
+GADGET_SKIP_NON_HALO_PARTICLES = 1
+FORCE_RES = 0.009 # softeninghalomaxphys=9kpc/h
+PARALLEL_IO=1
+PARALLEL_IO_SERVER_INTERFACE = "ib0"
+INBASE="/scratch/02977/jialiu/temp/%s/snapshots"
+FILENAME="snapshot_<snap>.<block>"
+STARTING_SNAP = 0
+NUM_SNAPS=%i
+NUM_BLOCKS=28
+OUTBASE = "/scratch/02977/jialiu/temp/%s/rockstar"
+NUM_WRITERS = 128
+FORK_READERS_FROM_WRITERS = 1
+FORK_PROCESSORS_PER_MACHINE = 64
+    '''%(cosmo,nplanes,cosmo)
+        fn_params='%sparams/rockstar_%s.cfg'%(main_dir, cosmo)
+        f=open(fn_params,'w')
+        f.write(paramtext)
+        f.close()
+    
+    ########### sbatch jobs
+    if init:
+        command = '''rm -f auto-rockstar.cfg
+$exe -c %s >& server.dat &
+perl -e 'sleep 1 while (!(-e "auto-rockstar.cfg"))'
+
+ibrun $exe -c auto-rockstar.cfg'''%(fn_params)
+    else:
+        command = '''ibrun $exe -c restart.cfg'''
+    fn_job='%sjobs/rockstar%s_mnv%.5f.sh'%(main_dir, ['_restart',''][init], M_nu)
+    f = open(fn_job, 'w')
+    scripttext='''#!/bin/bash 
+#SBATCH -N 2  # node count 
+#SBATCH -n 2
+#SBATCH -J hf_mnv%.3f
+#SBATCH -t 48:00:00 
+#SBATCH --output=%slogs/rockstar%.3f_%%j.out
+#SBATCH --error=%slogs/rockstar%.3f_%%j.err
+#SBATCH --mail-type=all
+#SBATCH --mail-user=jia@astro.princeton.edu 
+%s
+module load intel
+module load hdf5
+
+workdir=/scratch/02977/jialiu/temp/%s/rockstar
+exe=/work/02977/jialiu/PipelineJL/rockstar/rockstar
+cd $workdir
+echo Entering $(pwd)
+
+%s
+'''%(M_nu,  main_dir, M_nu,  main_dir, M_nu, extracomments, cosmo, command)
+    f.write(scripttext)
+    f.close()
+    
+    
 #map(sbatch_gadget_mult, arange(0,len(params),3))
 #map(sbatch_gadget_mult_restart, arange(0,len(params),3))
 
@@ -837,7 +843,7 @@ for iparams in params:#param_restart:#
     #sbatch_gadget(iparams)
     #if setup_planes_folders:
         #prepare_planes (iparams)
-    #sbatch_rockstar(iparams,i=i)
-    if iparams in param_restart:
-        sbatch_plane(iparams,i)
+    sbatch_rockstar(iparams,i=i,init=0)
+    #if iparams in param_restart:
+        #sbatch_plane(iparams,i)
     i+=1
