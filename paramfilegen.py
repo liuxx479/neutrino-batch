@@ -757,6 +757,7 @@ def sbatch_rockstar (param,i=0,init=0):
     M_nu, omega_m, A_s9 = param
     nplanes = nsnaps[i]
     cosmo = 'mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
+    fn_params='%sparams/rockstar_%s.cfg'%(main_dir, cosmo)
     if init:
         os.system('mkdir -p /scratch/02977/jialiu/temp/%s/rockstar'%(cosmo))
         paramtext='''FILE_FORMAT = "GADGET2" # or "ART" or "ASCII"
@@ -782,31 +783,20 @@ NUM_WRITERS = 128
 FORK_READERS_FROM_WRITERS = 1
 FORK_PROCESSORS_PER_MACHINE = 64
     '''%(cosmo,nplanes,cosmo)
-        fn_params='%sparams/rockstar_%s.cfg'%(main_dir, cosmo)
+        
         f=open(fn_params,'w')
         f.write(paramtext)
         f.close()
     
     ########### sbatch jobs
-    if init:
-        command = '''rm -f auto-rockstar.cfg
-$exe -c %s >& server.dat &
-perl -e 'sleep 1 while (!(-e "auto-rockstar.cfg"))'
-
-ibrun $exe -c auto-rockstar.cfg'''%(fn_params)
-    else:
-        #command = '''ibrun $exe -c restart.cfg'''
-        command = '''
+    command = '''
 if [ -f out_0.list ]; then
     echo restart run
-    ibrun $exe -c restart.cfg
+    $exe -c restart.cfg >& server.dat &
 else
-    rm -f auto-rockstar.cfg
     $exe -c %s >& server.dat &
-    perl -e 'sleep 1 while (!(-e "auto-rockstar.cfg"))'
-    ibrun $exe -c auto-rockstar.cfg
 fi
-'''
+'''%(fn_params)
     #fn_job='%sjobs/rockstar%s_mnv%.5f.sh'%(main_dir, ['_restart',''][init], M_nu)
     fn_job='%sjobs/rockstars_mnv%.5f.sh'%(main_dir, M_nu)
     f = open(fn_job, 'w')
@@ -821,14 +811,19 @@ fi
 #SBATCH --mail-user=jia@astro.princeton.edu 
 %s
 module load intel
-module load hdf5
+###module load hdf5
 
 workdir=/scratch/02977/jialiu/temp/%s/rockstar
 exe=/work/02977/jialiu/PipelineJL/rockstar/rockstar
 cd $workdir
 echo Entering $(pwd)
 
+rm -f auto-rockstar.cfg
+
 %s
+
+perl -e 'sleep 1 while (!(-e "auto-rockstar.cfg"))'
+ibrun $exe -c auto-rockstar.cfg
 '''%(M_nu,  main_dir, M_nu,  main_dir, M_nu, extracomments, cosmo, command)
     f.write(scripttext)
     f.close()
