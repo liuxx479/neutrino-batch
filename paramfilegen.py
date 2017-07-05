@@ -81,6 +81,13 @@ omega_m = 0.2880
 A_s9 = 2.142
 M_nu = 0.1
 omb=ombh2/h**2
+
+hubble = 70
+w = -1
+ns = 0.97
+pivot_scalar              = 0.05
+pivot_tensor              = 0.05
+
 #### delta m21^2=7.37e-5
 #### |delta m^2| = 2.5e-3 (normal) 2.46e-3 (inverted)
 d31N = 2.5e-3
@@ -96,12 +103,6 @@ root_IH = lambda m1, M: M-(m1+m2fcn(m1)+m3_IH(m1))
 Mmin_NH = sqrt(d21)+sqrt(d31N+d21/2)
 Mmin_IH = sqrt(d31I-0.5*d21) + sqrt(d31I+0.5*d21)
 m1min_IH = sqrt(d31I-0.5*d21)
-
-hubble = 70
-w = -1
-ns = 0.97
-pivot_scalar              = 0.05
-pivot_tensor              = 0.05
 
 def neutrino_mass_calc (M, split=1):
     '''split = 1, 2, 3 for normal, inverted, degenerate
@@ -744,12 +745,11 @@ def sbatch_plane(param,i):
 #SBATCH --error=%slogs/plane%.3f_%%j.err
 #SBATCH --mail-type=all
 #SBATCH --mail-user=jia@astro.princeton.edu 
-%s
-module load intel
-module load hdf5
+#SBATCH -A TG-AST140041
+#SBATCH -p normal
 
 ibrun -n 28 -o 0 lenstools.planes-mpi -e %senvironment.ini -c %sinitfiles/plane_mnv%.5f.ini "%s|1024b512|ic1" 
-'''%(M_nu,  main_dir, M_nu,  main_dir, M_nu, extracomments,  LT_home, LT_home, M_nu, cosmo_apetri_arr[i])
+'''%(M_nu,  main_dir, M_nu,  main_dir, M_nu, LT_home, LT_home, M_nu, cosmo_apetri_arr[i])
     f.write(scripttext)
     f.close()
 
@@ -849,7 +849,7 @@ for iparams in params:#param_restart:#
     #sbatch_gadget(iparams)
     #if setup_planes_folders:
         #prepare_planes (iparams)
-    sbatch_rockstar(iparams,i=i,init=0)
-    #if iparams in param_restart:
-        #sbatch_plane(iparams,i)
+    #sbatch_rockstar(iparams,i=i,init=0)
+    if iparams in param_restart:
+        sbatch_plane(iparams,i)
     i+=1
