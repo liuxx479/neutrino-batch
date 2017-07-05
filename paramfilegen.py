@@ -739,7 +739,7 @@ def sbatch_plane(param,i):
     scripttext='''#!/bin/bash 
 #SBATCH -N 1  # node count 
 #SBATCH -n 28
-#SBATCH -J plm%.3f
+#SBATCH -J plane_%.3f
 #SBATCH -t 24:00:00 
 #SBATCH --output=%slogs/plane%.3f_%%j.out
 #SBATCH --error=%slogs/plane%.3f_%%j.err
@@ -747,6 +747,8 @@ def sbatch_plane(param,i):
 #SBATCH --mail-user=jia@astro.princeton.edu 
 #SBATCH -A TG-AST140041
 #SBATCH -p normal
+
+export PYTHONPATH=/work/02977/jialiu/PipelineJL/anaconda2/lib/python2.7/site-packages
 
 ibrun -n 28 -o 0 lenstools.planes-mpi -e %senvironment.ini -c %sinitfiles/plane_mnv%.5f.ini "%s|1024b512|ic1" 
 '''%(M_nu,  main_dir, M_nu,  main_dir, M_nu, LT_home, LT_home, M_nu, cosmo_apetri_arr[i])
