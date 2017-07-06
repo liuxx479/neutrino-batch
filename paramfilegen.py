@@ -771,7 +771,10 @@ def create_plane_infotxt(iparams,i):
     iii=0
     for a in outputlist:
         iz = 1.0/a-1
-        itxt = 's=%i,d=%f Mpc,z=%f\n'%(iii, 180.0*(len(outputlist)-1-iii), iz)
+        if iii+1 == len(outputlist):
+            itxt = 's=%i,d=4.4408920985e-16 Mpc,z=%f\n'%(iii, iz)
+        else:
+            itxt = 's=%i,d=%f Mpc,z=%f\n'%(iii, 180.0*(len(outputlist)-1-iii), iz)
         f.write(itxt)
         iii+=1
     f.close()
@@ -919,7 +922,7 @@ export PYTHONPATH=/work/02977/jialiu/PipelineJL/anaconda2/lib/python2.7/site-pac
 '''%(M_nu,  main_dir, M_nu,  main_dir, M_nu)
     f.write(scripttext)
     for isource in source_arr:
-        iscript = '''ibrun -n 272 -o 0 lenstools.raytracing-mpi -e %senvironment.ini -c %s/params/rays%02d.ini "%s|1024b512" &
+        iscript = '''ibrun -n 250 -o 0 lenstools.raytracing-mpi -e %senvironment.ini -c %sparams/rays%02d.ini "%s|1024b512" &
 wait\n'''%(LT_home, main_dir, isource*10, cosmo_apetri_arr[i])
         f.write(iscript)
     f.close()
@@ -935,7 +938,7 @@ wait\n'''%(LT_home, main_dir, isource*10, cosmo_apetri_arr[i])
 
 i=0
 for iparams in params:#param_restart:#
-    #print iparams
+    print iparams
     #M_nu, omega_m, A_s9 = iparams
     #onu0_astropy, onu0_num =   Mnu2Omeganu(M_nu, omega_m), M_nu/93.04/h**2
     #print iparams, onu0_astropy, onu0_num, onu0_astropy/onu0_num-1.0
@@ -950,6 +953,6 @@ for iparams in params:#param_restart:#
     #sbatch_rockstar(iparams,i=i,init=0)
     #if iparams in param_restart:
         #sbatch_plane(iparams,i)
-    #create_plane_infotxt(iparams,i)
+    create_plane_infotxt(iparams,i)
     sbatch_rays(iparams,i)
     i+=1
