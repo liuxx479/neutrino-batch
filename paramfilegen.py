@@ -734,13 +734,13 @@ normals = 0,1,2
 ########### sbatch jobs
 def sbatch_plane(param,i):
     M_nu, omega_m, A_s9 = param
-    fn_job='%sjobs/planes%s_mnv%.5f.sh'%(main_dir,int(param not in param_restart), M_nu)
+    fn_job='%sjobs/planes%s_mnv%.5f_%s.sh'%(main_dir,int(param not in param_restart), M_nu,machine)
     f = open(fn_job, 'w')
     scripttext='''#!/bin/bash 
-#SBATCH -N 1  # node count 
+#SBATCH -N 2  # node count 
 #SBATCH -n 28
 #SBATCH -J plane_%.3f
-#SBATCH -t 24:00:00 
+#SBATCH -t 3:00:00 
 #SBATCH --output=%slogs/plane%.3f_%%j.out
 #SBATCH --error=%slogs/plane%.3f_%%j.err
 #SBATCH --mail-type=all
@@ -748,13 +748,32 @@ def sbatch_plane(param,i):
 #SBATCH -A TG-AST140041
 #SBATCH -p normal
 
-export PYTHONPATH=/work/02977/jialiu/PipelineJL/anaconda2/lib/python2.7/site-packages
+####export PYTHONPATH=/work/02977/jialiu/PipelineJL/anaconda2/lib/python2.7/site-packages
 
 ibrun -n 28 -o 0 lenstools.planes-mpi -e %senvironment.ini -c %sinitfiles/plane_mnv%.5f.ini "%s|1024b512|ic1" 
 '''%(M_nu,  main_dir, M_nu,  main_dir, M_nu, LT_home, LT_home, M_nu, cosmo_apetri_arr[i])
     f.write(scripttext)
     f.close()
 
+def create_plane_infotxt(iparams,i):
+    '''after I change lenstools.plane-mpi to be able to continue from where it broke, I also need to update info.txt to enable ray-tracing. here I assume perfect cut condition (180 thickness exact).
+    '''
+    M_nu, omega_m, A_s9 = iparams
+    cosmo_fn = 'mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
+    outputlist = genfromtxt('%sparams/outputs_%s.txt'%(main_dir, cosmo_fn))
+    Plane_dir = LT_storage+cosmo_apetri_arr[i]+'1024b512/ic1/Planes/'#info.txt
+    os.system('mv %sinfo.txt %sinfo_original.txt'%(Plane_dir, Plane_dir))
+    f=open(Plane_dir+'info.txt', 'a')
+    #s=0,d=11879.9623902 Mpc,z=42.7874346237
+    print 'create',Plane_dir+'info.txt'
+    iii=0
+    for a in outputlist:
+        iz = 1.0/a-1
+        itxt = 's=%i,d=%f Mpc,z=%f\n'%(iii, 180.0*iii, iz)
+        f.write(itxt)
+        iii+=1
+    f.close()
+    
 def sbatch_rockstar (param,i=0,init=0):
     M_nu, omega_m, A_s9 = param
     nplanes = nsnaps[i]
@@ -852,6 +871,7 @@ for iparams in params:#param_restart:#
     #if setup_planes_folders:
         #prepare_planes (iparams)
     #sbatch_rockstar(iparams,i=i,init=0)
-    if iparams in param_restart:
-        sbatch_plane(iparams,i)
+    #if iparams in param_restart:
+        #sbatch_plane(iparams,i)
+    create_plane_infotxt(iparams,i)
     i+=1
