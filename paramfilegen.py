@@ -761,7 +761,7 @@ def create_plane_infotxt(iparams,i):
     M_nu, omega_m, A_s9 = iparams
     cosmo_fn = 'mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
     outputlist = genfromtxt('%sparams/outputs_%s.txt'%(main_dir, cosmo_fn))
-    Plane_dir = LT_storage+cosmo_apetri_arr[i]+'1024b512/ic1/Planes/'#info.txt
+    Plane_dir = LT_storage+cosmo_apetri_arr[i]+'/1024b512/ic1/Planes/'#info.txt
     os.system('mv %sinfo.txt %sinfo_original.txt'%(Plane_dir, Plane_dir))
     f=open(Plane_dir+'info.txt', 'a')
     #s=0,d=11879.9623902 Mpc,z=42.7874346237
