@@ -772,7 +772,7 @@ def create_plane_infotxt(iparams,i):
     for a in outputlist:
         iz = 1.0/a-1
         if iii+1 == len(outputlist):
-            itxt = 's=%i,d=4.4408920985e-16 Mpc,z=%f\n'%(iii, iz)
+            itxt = 's=%i,d=0.0000 Mpc,z=4.4408920985e-16\n'%(iii)
         else:
             itxt = 's=%i,d=%f Mpc,z=%f\n'%(iii, 180.0*(len(outputlist)-1-iii), iz)
         f.write(itxt)
