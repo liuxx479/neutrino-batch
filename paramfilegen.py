@@ -9,7 +9,9 @@ import sys
 
 machine = ['perseus','stampede2','stampede1','local'][int(sys.argv[1])]
 plane_thickness = 180#512/3.0###128 Mpc/h
-setup_planes_folders = 0
+############# CAREFUL WITH BELOW 2 LINES ################
+setup_planes_folders = 0 ## (will delete current planes if set this to 1)
+setup_mapsets = 0
 
 if machine =='stampede2':
     main_dir = '/work/02977/jialiu/neutrino-batch/'
@@ -848,7 +850,81 @@ ibrun $exe -c auto-rockstar.cfg
     f.write(scripttext)
     f.close()
     
+def map_ini (z_source):
+    txt='''[MapSettings]
+
+directory_name = Maps%02d
+override_with_local = False
+format = fits
+map_resolution = 2048
+map_angle = 6.3
+angle_unit = deg
+source_redshift = %.1f
+
+#Random seed used to generate multiple map realizations
+seed = 10027
+
+#Set of lens planes to be used during ray tracing
+plane_set = Planes
+plane_format = fits
+plane_name_format = snap{0}_potentialPlane{1}_normal{2}.{3}
+
+#N-body simulation realizations that need to be mixed
+mix_nbody_realizations = 1
+mix_cut_points = 0,1,2,3
+mix_normals = 0,1,2
+lens_map_realizations = 1000
+first_realization = 1
+
+#Which lensing quantities do we need?
+convergence = True
+shear = False
+omega = False'''%(z_source*10, z_source)
+    f=open(main_dir+'params/rays%02d.ini'%(z_source*10),'w')
+    f.write(txt)
+    f.close()
+
+if setup_mapsets:
+    source_arr=(0.5, 1.0, 1.5, 2.0, 2.5)
+    #map(map_ini,source_arr)
+    from lenstools import SimulationBatch
+    #from lenstools.pipeline.settings import EnvironmentSettings
+    from lenstools.pipeline.settings import MapSettings
     
+    os.chdir(LT_home)
+    batch=SimulationBatch.current()
+    for isource in source_arr:
+        map_settings = MapSettings.read(main_dir+"params/rays%02d.ini"%(isource*10))
+        for model in batch.available:
+            collection = model.collections[0]
+            map_set = collection.newMapSet(map_settings)
+
+def sbatch_rays(iparams,i,source_arr=(0.5, 1.0, 1.5, 2.0, 2.5)):
+    M_nu, omega_m, A_s9 = iparams
+    fn_job='%sjobs/ray_mnv%.5f_%s.sh'%(main_dir,M_nu,machine)
+    f = open(fn_job, 'w')
+    scripttext='''#!/bin/bash 
+#SBATCH -N 4  # node count 
+#SBATCH -n 68
+#SBATCH -J ray_%.3f
+#SBATCH -t 24:00:00 
+#SBATCH --output=%slogs/ray%.3f_%%j.out
+#SBATCH --error=%slogs/ray%.3f_%%j.err
+#SBATCH --mail-type=all
+#SBATCH --mail-user=jia@astro.princeton.edu 
+#SBATCH -A TG-AST140041
+#SBATCH -p normal
+
+export PYTHONPATH=/work/02977/jialiu/PipelineJL/anaconda2/lib/python2.7/site-packages
+'''%(M_nu,  main_dir, M_nu,  main_dir, M_nu)
+    f.write(scripttext)
+    for isource in source_arr:
+        iscript = '''ibrun -n 272 -o 0 lenstools.raytracing-mpi -e %senvironment.ini -c %s/params/rays%02d.ini "%s|1024b512" &
+wait\n'''%(LT_home, main_dir, isource*10, cosmo_apetri_arr[i])
+        f.write(iscript)
+    f.close()
+##ibrun lenstools.raytracing-mpi -e /work/02977/jialiu/CMB_hopper/CMB_batch/environment.ini -c /work/02977/jialiu/CMB_hopper/CMB_batch/lens.ini "Om0.149_Ol0.851_w-1.000_si0.898|1024b600" 
+
 #map(sbatch_gadget_mult, arange(0,len(params),3))
 #map(sbatch_gadget_mult_restart, arange(0,len(params),3))
 
@@ -856,10 +932,11 @@ ibrun $exe -c auto-rockstar.cfg
 #os.system('cp /tigress/jialiu/neutrino-batch/camb_mnv0.00000_om0.30000_As2.1000.param /tigress/jialiu/neutrino-batch/params')
 
 #sbatch_ngenic()
+
 i=0
 for iparams in params:#param_restart:#
-    print iparams
-    M_nu, omega_m, A_s9 = iparams
+    #print iparams
+    #M_nu, omega_m, A_s9 = iparams
     #onu0_astropy, onu0_num =   Mnu2Omeganu(M_nu, omega_m), M_nu/93.04/h**2
     #print iparams, onu0_astropy, onu0_num, onu0_astropy/onu0_num-1.0
     
@@ -873,5 +950,6 @@ for iparams in params:#param_restart:#
     #sbatch_rockstar(iparams,i=i,init=0)
     #if iparams in param_restart:
         #sbatch_plane(iparams,i)
-    create_plane_infotxt(iparams,i)
+    #create_plane_infotxt(iparams,i)
+    sbatch_rays(iparams,i)
     i+=1
