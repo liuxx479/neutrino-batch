@@ -908,7 +908,7 @@ def sbatch_rays(iparams,i,source_arr=(0.5, 1.0, 1.5, 2.0, 2.5)):
     f = open(fn_job, 'w')
     scripttext='''#!/bin/bash 
 #SBATCH -N 4  # node count 
-#SBATCH -n 68
+#SBATCH -n 250
 #SBATCH -J ray_%.3f
 #SBATCH -t 24:00:00 
 #SBATCH --output=%slogs/ray%.3f_%%j.out
