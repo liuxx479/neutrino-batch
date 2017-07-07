@@ -953,6 +953,6 @@ for iparams in params:#param_restart:#
     #sbatch_rockstar(iparams,i=i,init=0)
     #if iparams in param_restart:
         #sbatch_plane(iparams,i)
-    create_plane_infotxt(iparams,i)
+    #create_plane_infotxt(iparams,i)
     sbatch_rays(iparams,i)
     i+=1
