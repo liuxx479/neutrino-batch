@@ -907,7 +907,7 @@ def sbatch_rays(iparams,i,source_arr=(0.5, 1.0, 1.5, 2.0, 2.5)):
     fn_job='%sjobs/ray_mnv%.5f_%s.sh'%(main_dir,M_nu,machine)
     f = open(fn_job, 'w')
     scripttext='''#!/bin/bash 
-#SBATCH -N 4  # node count 
+#SBATCH -N 8  # node count 
 #SBATCH -n 250
 #SBATCH -J ray_%.3f
 #SBATCH -t 24:00:00 
