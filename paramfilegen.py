@@ -949,7 +949,7 @@ wait
 
 perl /work/02977/jialiu/PipelineJL/consistent-trees/do_merger_tree.pl /scratch/02977/jialiu/temp/%s/rockstar/outputs/merger_tree.cfg
 
-'''%(M_nu,  main_dir, M_nu,  main_dir, M_nu, temp_dir, cosmo, cosmo)
+'''%(M_nu,  main_dir, M_nu,  main_dir, M_nu, cosmo, cosmo)
     f.write(scripttext)
     f.close()
 ##ibrun lenstools.raytracing-mpi -e /work/02977/jialiu/CMB_hopper/CMB_batch/environment.ini -c /work/02977/jialiu/CMB_hopper/CMB_batch/lens.ini "Om0.149_Ol0.851_w-1.000_si0.898|1024b600" 
