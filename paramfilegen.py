@@ -926,6 +926,32 @@ export PYTHONPATH=/work/02977/jialiu/PipelineJL/anaconda2/lib/python2.7/site-pac
 wait\n'''%(LT_home, main_dir, isource*10, cosmo_apetri_arr[i])
         f.write(iscript)
     f.close()
+
+def sbatch_mergertree(iparams):
+    M_nu, omega_m, A_s9 = iparams
+    cosmo = 'mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
+    fn_job='%sjobs/tree_mnv%.5f_%s.sh'%(main_dir,M_nu,machine)
+    f = open(fn_job, 'w')
+    scripttext='''#!/bin/bash 
+#SBATCH -N 1  # node count 
+#SBATCH -n 1
+#SBATCH -J tree_%.3f
+#SBATCH -t 24:00:00 
+#SBATCH --output=%slogs/tree%.3f_%%j.out
+#SBATCH --error=%slogs/tree%.3f_%%j.err
+#SBATCH --mail-type=all
+#SBATCH --mail-user=jia@astro.princeton.edu 
+#SBATCH -A TG-AST140041
+#SBATCH -p normal
+
+perl /work/02977/jialiu/PipelineJL/rockstar/scripts/gen_merger_cfg.pl /scratch/02977/jialiu/temp/%s/rockstar/rockstar.cfg & 
+wait
+
+perl /work/02977/jialiu/PipelineJL/consistent-trees/do_merger_tree.pl /scratch/02977/jialiu/temp/%s/rockstar/outputs/merger_tree.cfg
+
+'''%(M_nu,  main_dir, M_nu,  main_dir, M_nu, temp_dir, cosmo, cosmo)
+    f.write(scripttext)
+    f.close()
 ##ibrun lenstools.raytracing-mpi -e /work/02977/jialiu/CMB_hopper/CMB_batch/environment.ini -c /work/02977/jialiu/CMB_hopper/CMB_batch/lens.ini "Om0.149_Ol0.851_w-1.000_si0.898|1024b600" 
 
 #map(sbatch_gadget_mult, arange(0,len(params),3))
@@ -954,5 +980,6 @@ for iparams in params:#param_restart:#
     #if iparams in param_restart:
         #sbatch_plane(iparams,i)
     #create_plane_infotxt(iparams,i)
-    sbatch_rays(iparams,i)
+    #sbatch_rays(iparams,i)
+    sbatch_mergertree(iparams,i)
     i+=1
