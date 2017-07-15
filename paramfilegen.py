@@ -944,10 +944,12 @@ def sbatch_mergertree(iparams):
 #SBATCH -A TG-AST140041
 #SBATCH -p normal
 
+
 perl /work/02977/jialiu/PipelineJL/rockstar/scripts/gen_merger_cfg.pl /scratch/02977/jialiu/temp/%s/rockstar/rockstar.cfg & 
 wait
 
-perl /work/02977/jialiu/PipelineJL/consistent-trees/do_merger_tree.pl /scratch/02977/jialiu/temp/%s/rockstar/outputs/merger_tree.cfg
+cd /work/02977/jialiu/PipelineJL/consistent-trees/
+perl do_merger_tree.pl /scratch/02977/jialiu/temp/%s/rockstar/outputs/merger_tree.cfg
 
 '''%(M_nu,  main_dir, M_nu,  main_dir, M_nu, cosmo, cosmo)
     f.write(scripttext)
