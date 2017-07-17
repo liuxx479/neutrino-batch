@@ -11,7 +11,7 @@ machine = ['perseus','stampede2','stampede1','local'][int(sys.argv[1])]
 plane_thickness = 180#512/3.0###128 Mpc/h
 ############# CAREFUL WITH BELOW 2 LINES ################
 setup_planes_folders = 0 ## (will delete current planes if set this to 1)
-setup_mapsets = 0
+setup_mapsets = 1
 
 if machine =='stampede2':
     main_dir = '/work/02977/jialiu/neutrino-batch/'
@@ -764,18 +764,32 @@ def create_plane_infotxt(iparams,i):
     cosmo_fn = 'mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
     outputlist = genfromtxt('%sparams/outputs_%s.txt'%(main_dir, cosmo_fn))
     Plane_dir = LT_storage+cosmo_apetri_arr[i]+'/1024b512/ic1/Planes/'#info.txt
-    os.system('mv %sinfo.txt %sinfo_original.txt'%(Plane_dir, Plane_dir))
+    os.system('mv %sinfo.txt %sinfo_galonly.txt'%(Plane_dir, Plane_dir))
     f=open(Plane_dir+'info.txt', 'a')
     #s=0,d=11879.9623902 Mpc,z=42.7874346237
     print 'create',Plane_dir+'info.txt'
+    ####### symlink fake plane to each directory
+    for normal in [0,1,2]:
+        for cut_point in [0,1,2,3]:
+            os.system("ln -sf /scratch/02977/jialiu/snap100_potentialPlane0_normal0_1100.fits {2}/1024b512/ic1/Planes/snap100_potentialPlane{0}_normal{1}.fits".format(cut_point, normal, LT_storage+cosmo_apetri_arr[i]))
+    omnu = Mnu2Omeganu(M_nu, omega_m)
+    nu_masses = neutrino_mass_calc(M_nu) * u.eV
+    cosmo = FlatLambdaCDM(H0=70, Om0=omega_m-omnu, m_nu = nu_masses)
+    dc_1100 = cosmo.comoving_distance(1100.1).value ##### gives Mpc value
+    itxt1100 = 's=100,d=%f Mpc,z=1100.1\n'%(dc_1100)
+    f.write(itxt1100)
+    #################
     iii=0
     for a in outputlist:
         iz = 1.0/a-1
         if iii+1 == len(outputlist):
-            itxt = 's=%i,d=0.0000 Mpc,z=4.4408920985e-16\n'%(iii)
+            itxt = 's=%i,d=0.0000 Mpc,z=4.4408920985e-16\n'%(iii) ## maybe needs to be z=0
+            f.write(itxt)
         else:
-            itxt = 's=%i,d=%f Mpc,z=%f\n'%(iii, 180.0*(len(outputlist)-1-iii), iz)
-        f.write(itxt)
+            dc=180.0*(len(outputlist)-1-iii)
+            itxt = 's=%i,d=%f Mpc,z=%f\n'%(iii, dc, iz)
+            if 512.0/h/dc>=radians(3.5): ### 512.0/h / dc is the radians, check if angle is right
+                f.write(itxt)
         iii+=1
     f.close()
     
@@ -853,14 +867,14 @@ ibrun $exe -c auto-rockstar.cfg
     f.write(scripttext)
     f.close()
     
-def map_ini (z_source):
+def map_ini (z_source,map_angle=6.3):
     txt='''[MapSettings]
 
 directory_name = Maps%02d
 override_with_local = False
 format = fits
 map_resolution = 2048
-map_angle = 6.3
+map_angle = %.1f
 angle_unit = deg
 source_redshift = %.1f
 
@@ -882,14 +896,18 @@ first_realization = 1
 #Which lensing quantities do we need?
 convergence = True
 shear = False
-omega = False'''%(z_source*10, z_source)
+omega = False'''%(z_source*10, map_angle, z_source)
     f=open(main_dir+'params/rays%02d.ini'%(z_source*10),'w')
     f.write(txt)
     f.close()
 
 if setup_mapsets:
-    source_arr=(0.5, 1.0, 1.5, 2.0, 2.5)
-    #map(map_ini,source_arr)
+    ####### CMB lensing
+    source_arr=(1100,)
+    map_ini(1100, map_angle=3.5)
+    ######## galaxy lensing
+    #source_arr=(0.5, 1.0, 1.5, 2.0, 2.5)
+    #map(map_ini,source_arr)##### map angle = 6.3
     from lenstools import SimulationBatch
     #from lenstools.pipeline.settings import EnvironmentSettings
     from lenstools.pipeline.settings import MapSettings
@@ -904,7 +922,7 @@ if setup_mapsets:
 
 def sbatch_rays(iparams,i,source_arr=(0.5, 1.0, 1.5, 2.0, 2.5)):
     M_nu, omega_m, A_s9 = iparams
-    fn_job='%sjobs/ray_mnv%.5f_%s.sh'%(main_dir,M_nu,machine)
+    fn_job='%sjobs/rayCMB_mnv%.5f_%s.sh'%(main_dir,M_nu,machine)
     f = open(fn_job, 'w')
     scripttext='''#!/bin/bash 
 #SBATCH -N 8  # node count 
@@ -981,7 +999,8 @@ for iparams in params:#param_restart:#
     #sbatch_rockstar(iparams,i=i,init=0)
     #if iparams in param_restart:
         #sbatch_plane(iparams,i)
-    #create_plane_infotxt(iparams,i)
+    create_plane_infotxt(iparams,i)
     #sbatch_rays(iparams,i)
-    sbatch_mergertree(iparams)
+    sbatch_rays(iparams,i,source_arr=(1100,))
+    #sbatch_mergertree(iparams)
     i+=1
