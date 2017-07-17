@@ -11,9 +11,10 @@ machine = ['perseus','stampede2','stampede1','local'][int(sys.argv[1])]
 plane_thickness = 180#512/3.0###128 Mpc/h
 ############# CAREFUL WITH BELOW 2 LINES ################
 setup_planes_folders = 0 ## (will delete current planes if set this to 1)
-setup_mapsets = 1
+setup_mapsets = 0
 
 if machine =='stampede2':
+    import astropy.units as u
     main_dir = '/work/02977/jialiu/neutrino-batch/'
     temp_dir = '/scratch/02977/jialiu/temp/'
     NgenIC_loc = '/work/02977/jialiu/PipelineJL/S-GenIC/N-GenIC'
@@ -756,6 +757,12 @@ ibrun -n 28 -o 0 lenstools.planes-mpi -e %senvironment.ini -c %sinitfiles/plane_
 '''%(M_nu,  main_dir, M_nu,  main_dir, M_nu, LT_home, LT_home, M_nu, cosmo_apetri_arr[i])
     f.write(scripttext)
     f.close()
+########## in bash, save the old info.txt to into_gal.txt file
+#for i in /work/02977/jialiu/neutrino-batch/lenstools_storage/*
+#do echo $i;
+#cp $i/1024b512/ic1/Planes/info.txt info_galonly.txt
+#done
+##########
 
 def create_plane_infotxt(iparams,i):
     '''after I change lenstools.plane-mpi to be able to continue from where it broke, I also need to update info.txt to enable ray-tracing. here I assume perfect cut condition (180 thickness exact).
@@ -764,7 +771,7 @@ def create_plane_infotxt(iparams,i):
     cosmo_fn = 'mnv%.5f_om%.5f_As%.4f'%(M_nu, omega_m, A_s9)
     outputlist = genfromtxt('%sparams/outputs_%s.txt'%(main_dir, cosmo_fn))
     Plane_dir = LT_storage+cosmo_apetri_arr[i]+'/1024b512/ic1/Planes/'#info.txt
-    os.system('mv %sinfo.txt %sinfo_galonly.txt'%(Plane_dir, Plane_dir))
+    ###os.system('mv %sinfo.txt %sinfo_galonly.txt'%(Plane_dir, Plane_dir))
     f=open(Plane_dir+'info.txt', 'a')
     #s=0,d=11879.9623902 Mpc,z=42.7874346237
     print 'create',Plane_dir+'info.txt'
