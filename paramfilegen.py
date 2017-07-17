@@ -14,6 +14,7 @@ setup_planes_folders = 0 ## (will delete current planes if set this to 1)
 setup_mapsets = 0
 
 if machine =='stampede2':
+    from astropy.cosmology import FlatLambdaCDM
     import astropy.units as u
     main_dir = '/work/02977/jialiu/neutrino-batch/'
     temp_dir = '/scratch/02977/jialiu/temp/'
