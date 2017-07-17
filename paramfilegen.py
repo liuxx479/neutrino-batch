@@ -933,8 +933,8 @@ def sbatch_rays(iparams,i,source_arr=(0.5, 1.0, 1.5, 2.0, 2.5)):
     fn_job='%sjobs/rayCMB_mnv%.5f_%s.sh'%(main_dir,M_nu,machine)
     f = open(fn_job, 'w')
     scripttext='''#!/bin/bash 
-#SBATCH -N 8  # node count 
-#SBATCH -n 250
+#SBATCH -N 2  # node count 
+#SBATCH -n 50
 #SBATCH -J ray_%.3f
 #SBATCH -t 24:00:00 
 #SBATCH --output=%slogs/ray%.3f_%%j.out
@@ -948,7 +948,7 @@ export PYTHONPATH=/work/02977/jialiu/PipelineJL/anaconda2/lib/python2.7/site-pac
 '''%(M_nu,  main_dir, M_nu,  main_dir, M_nu)
     f.write(scripttext)
     for isource in source_arr:
-        iscript = '''ibrun -n 250 -o 0 lenstools.raytracing-mpi -e %senvironment.ini -c %sparams/rays%02d.ini "%s|1024b512" &
+        iscript = '''ibrun -n 50 -o 0 lenstools.raytracing-mpi -e %senvironment.ini -c %sparams/rays%02d.ini "%s|1024b512" &
 wait\n'''%(LT_home, main_dir, isource*10, cosmo_apetri_arr[i])
         f.write(iscript)
     f.close()
@@ -1007,8 +1007,8 @@ for iparams in params:#param_restart:#
     #sbatch_rockstar(iparams,i=i,init=0)
     #if iparams in param_restart:
         #sbatch_plane(iparams,i)
-    create_plane_infotxt(iparams,i)
+    #create_plane_infotxt(iparams,i)
     #sbatch_rays(iparams,i) ###### galaxy
-    #sbatch_rays(iparams,i,source_arr=(1100,)) ###### cmb
+    sbatch_rays(iparams,i,source_arr=(1100,)) ###### cmb
     #sbatch_mergertree(iparams)
     i+=1
