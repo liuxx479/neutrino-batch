@@ -773,7 +773,7 @@ def create_plane_infotxt(iparams,i):
     outputlist = genfromtxt('%sparams/outputs_%s.txt'%(main_dir, cosmo_fn))
     Plane_dir = LT_storage+cosmo_apetri_arr[i]+'/1024b512/ic1/Planes/'#info.txt
     ###os.system('mv %sinfo.txt %sinfo_galonly.txt'%(Plane_dir, Plane_dir))
-    f=open(Plane_dir+'info.txt', 'a')
+    f=open(Plane_dir+'info.txt', 'w')
     #s=0,d=11879.9623902 Mpc,z=42.7874346237
     print 'create',Plane_dir+'info.txt'
     ####### symlink fake plane to each directory
@@ -1008,7 +1008,7 @@ for iparams in params:#param_restart:#
     #if iparams in param_restart:
         #sbatch_plane(iparams,i)
     create_plane_infotxt(iparams,i)
-    #sbatch_rays(iparams,i)
-    sbatch_rays(iparams,i,source_arr=(1100,))
+    #sbatch_rays(iparams,i) ###### galaxy
+    #sbatch_rays(iparams,i,source_arr=(1100,)) ###### cmb
     #sbatch_mergertree(iparams)
     i+=1
