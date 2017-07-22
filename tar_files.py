@@ -15,11 +15,12 @@ def create_targz(i):
     cosmo_jia = cosmo_jia_arr[i]
     cosmo_apetri =cosmo_apetri_arr[i]
     bash_command='''
-tar -cvzf /scratch/02977/jialiu/neutrino_sims/rockstar/rockstar_{0}.tar.gz /scratch/02977/jialiu/temp/{0}/rockstar/out_*.list 
 tar -cvzf /scratch/02977/jialiu/neutrino_sims/trees/trees_{0}.tar.gz /scratch/02977/jialiu/temp/{0}/rockstar/trees
 tar -cvzf /scratch/02977/jialiu/neutrino_sims/convergence_maps/convergence_{0}.tar.gz /scratch/02977/jialiu/lenstools_storage/{1}/1024b512/Maps??
 '''.format(cosmo_jia, cosmo_apetri)
-    #print bash_command
+    if not os.path.isfile('/scratch/02977/jialiu/neutrino_sims/trees/trees_{0}.tar.gz'):
+        bash_rockstar = 'tar -cvzf /scratch/02977/jialiu/neutrino_sims/rockstar/rockstar_{0}.tar.gz /scratch/02977/jialiu/temp/{0}/rockstar/out_*.list'.format(cosmo_jia) 
+        os.system(bash_rockstar)
     os.system(bash_command)
     
 pool=MPIPool()
