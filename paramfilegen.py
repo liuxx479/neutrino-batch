@@ -789,13 +789,13 @@ def create_plane_infotxt(iparams,i):
     #################
     iii=0
     for a in outputlist:
-        if a==1:
-            continue
-        iz = 1.0/a-1
         #if iii+1 == len(outputlist):
             #itxt = 's=%i,d=0.0000 Mpc,z=4.4408920985e-16\n'%(iii) ## maybe needs to be z=0
             #f.write(itxt)
+        if a==1:
+            continue
         else:
+            iz = 1.0/a-1
             dc=180.0*(len(outputlist)-1-iii)
             itxt = 's=%i,d=%f Mpc,z=%f\n'%(iii, dc, iz)
             if 512.0/h/dc>=radians(3.5): ### 512.0/h / dc is the radians, check if angle is right
