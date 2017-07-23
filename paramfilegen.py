@@ -773,13 +773,15 @@ def create_plane_infotxt(iparams,i):
     outputlist = genfromtxt('%sparams/outputs_%s.txt'%(main_dir, cosmo_fn))
     Plane_dir = LT_storage+cosmo_apetri_arr[i]+'/1024b512/ic1/Planes/'#info.txt
     ###os.system('mv %sinfo.txt %sinfo_galonly.txt'%(Plane_dir, Plane_dir))
+    os.system('rm %sinfo*txt'%(Plane_dir))
     f=open(Plane_dir+'info.txt', 'w')
     #s=0,d=11879.9623902 Mpc,z=42.7874346237
     print 'create',Plane_dir+'info.txt'
     ####### symlink fake plane to each directory
     for normal in [0,1,2]:
         for cut_point in [0,1,2,3]:
-            os.system("ln -sf /scratch/02977/jialiu/snap100_potentialPlane0_normal0_1100.fits {2}/1024b512/ic1/Planes/snap100_potentialPlane{0}_normal{1}.fits".format(cut_point, normal, LT_storage+cosmo_apetri_arr[i]))
+            os.system("cp /scratch/02977/jialiu/snap100_potentialPlane0_normal0_1100.fits {2}/1024b512/ic1/Planes/snap100_potentialPlane{0}_normal{1}.fits".format(cut_point, normal, LT_storage+cosmo_apetri_arr[i]))
+            #os.system("ln -sf /scratch/02977/jialiu/snap100_potentialPlane0_normal0_1100.fits {2}/1024b512/ic1/Planes/snap100_potentialPlane{0}_normal{1}.fits".format(cut_point, normal, LT_storage+cosmo_apetri_arr[i]))
     omnu = Mnu2Omeganu(M_nu, omega_m)
     nu_masses = neutrino_mass_calc(M_nu) * u.eV
     cosmo = FlatLambdaCDM(H0=70, Om0=omega_m-omnu, m_nu = nu_masses)
