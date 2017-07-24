@@ -559,8 +559,8 @@ m_nu_arr = params.T[0]
 params=params[argsort(m_nu_arr)]
 #params[:-2]=params[:-2][argsort(m_nu_arr[:-2])]
 cosmo_apetri_arr = genfromtxt('cosmo_apetri_arr.txt',dtype='string')
-failed = loadtxt('cosmo_restart.txt')
-param_restart = params[failed==1]
+#failed = loadtxt('cosmo_restart.txt')
+#param_restart = params[failed==1]
 
 def outputs(iparams):
     M_nu, omega_m, A_s9 = iparams
