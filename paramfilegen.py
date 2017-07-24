@@ -778,10 +778,10 @@ def create_plane_infotxt(iparams,i):
     #s=0,d=11879.9623902 Mpc,z=42.7874346237
     print 'create',Plane_dir+'info.txt'
     ####### symlink fake plane to each directory
-    for normal in [0,1,2]:
-        for cut_point in [0,1,2,3]:
-            os.system("cp /scratch/02977/jialiu/snap100_potentialPlane0_normal0_1100.fits {2}/1024b512/ic1/Planes/snap100_potentialPlane{0}_normal{1}.fits".format(cut_point, normal, LT_storage+cosmo_apetri_arr[i]))
-            #os.system("ln -sf /scratch/02977/jialiu/snap100_potentialPlane0_normal0_1100.fits {2}/1024b512/ic1/Planes/snap100_potentialPlane{0}_normal{1}.fits".format(cut_point, normal, LT_storage+cosmo_apetri_arr[i]))
+    #for normal in [0,1,2]:
+        #for cut_point in [0,1,2,3]:
+            #os.system("cp /scratch/02977/jialiu/snap100_potentialPlane0_normal0_1100.fits {2}/1024b512/ic1/Planes/snap100_potentialPlane{0}_normal{1}.fits".format(cut_point, normal, LT_storage+cosmo_apetri_arr[i]))
+            #####os.system("ln -sf /scratch/02977/jialiu/snap100_potentialPlane0_normal0_1100.fits {2}/1024b512/ic1/Planes/snap100_potentialPlane{0}_normal{1}.fits".format(cut_point, normal, LT_storage+cosmo_apetri_arr[i]))
     omnu = Mnu2Omeganu(M_nu, omega_m)
     nu_masses = neutrino_mass_calc(M_nu) * u.eV
     cosmo = FlatLambdaCDM(H0=70, Om0=omega_m-omnu, m_nu = nu_masses)
@@ -937,10 +937,10 @@ def sbatch_rays(iparams,i,source_arr=(0.5, 1.0, 1.5, 2.0, 2.5)):
     fn_job='%sjobs/rayCMB_mnv%.5f_%s.sh'%(main_dir,M_nu,machine)
     f = open(fn_job, 'w')
     scripttext='''#!/bin/bash 
-#SBATCH -N 2  # node count 
-#SBATCH -n 50
+#SBATCH -N 8  # node count 
+#SBATCH -n 125
 #SBATCH -J ray_%.3f
-#SBATCH -t 24:00:00 
+#SBATCH -t 2:00:00 
 #SBATCH --output=%slogs/ray%.3f_%%j.out
 #SBATCH --error=%slogs/ray%.3f_%%j.err
 #SBATCH --mail-type=all
@@ -952,7 +952,7 @@ export PYTHONPATH=/work/02977/jialiu/PipelineJL/anaconda2/lib/python2.7/site-pac
 '''%(M_nu,  main_dir, M_nu,  main_dir, M_nu)
     f.write(scripttext)
     for isource in source_arr:
-        iscript = '''ibrun -n 50 -o 0 lenstools.raytracing-mpi -e %senvironment.ini -c %sparams/rays%02d.ini "%s|1024b512" &
+        iscript = '''ibrun -n 125 -o 0 lenstools.raytracing-mpi -e %senvironment.ini -c %sparams/rays%02d.ini "%s|1024b512" &
 wait\n'''%(LT_home, main_dir, isource*10, cosmo_apetri_arr[i])
         f.write(iscript)
     f.close()
@@ -1011,8 +1011,8 @@ for iparams in params:#param_restart:#
     #sbatch_rockstar(iparams,i=i,init=0)
     #if iparams in param_restart:
         #sbatch_plane(iparams,i)
-    create_plane_infotxt(iparams,i)
+    #create_plane_infotxt(iparams,i)
     #sbatch_rays(iparams,i) ###### galaxy
-    #sbatch_rays(iparams,i,source_arr=(1100,)) ###### cmb
+    sbatch_rays(iparams,i,source_arr=(1100,)) ###### cmb
     #sbatch_mergertree(iparams)
     i+=1
