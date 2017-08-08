@@ -997,7 +997,7 @@ perl do_merger_tree.pl /scratch/02977/jialiu/temp/%s/rockstar/outputs/merger_tre
 i=0
 for iparams in params:#param_restart:#
     print iparams
-    #M_nu, omega_m, A_s9 = iparams
+    M_nu, omega_m, A_s9 = iparams
     #onu0_astropy, onu0_num =   Mnu2Omeganu(M_nu, omega_m), M_nu/93.04/h**2
     #print iparams, onu0_astropy, onu0_num, onu0_astropy/onu0_num-1.0
     
