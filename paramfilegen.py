@@ -1013,6 +1013,6 @@ for iparams in params:#param_restart:#
         #sbatch_plane(iparams,i)
     #create_plane_infotxt(iparams,i)
     #sbatch_rays(iparams,i) ###### galaxy
-    sbatch_rays(iparams,i,source_arr=(1100,)) ###### cmb
+    #sbatch_rays(iparams,i,source_arr=(1100,)) ###### cmb
     #sbatch_mergertree(iparams)
     i+=1
