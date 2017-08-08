@@ -1001,7 +1001,7 @@ for iparams in params:#param_restart:#
     #onu0_astropy, onu0_num =   Mnu2Omeganu(M_nu, omega_m), M_nu/93.04/h**2
     #print iparams, onu0_astropy, onu0_num, onu0_astropy/onu0_num-1.0
     
-    #camb_gen(M_nu, omega_m, A_s9)
+    camb_gen(M_nu, omega_m, A_s9)
     #ngenic_gen(M_nu, omega_m, A_s9)
     #gadget_gen(M_nu, omega_m, A_s9)
     #outputs(iparams)
