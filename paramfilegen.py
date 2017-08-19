@@ -829,6 +829,7 @@ if setup_planes_folders:
     from lenstools.pipeline.simulation import LensToolsCosmology
     from lenstools.pipeline.settings import PlaneSettings
     
+    ####### remove all the lenstools_home Om folders, be carefule to do this
     #os.system('rm -r %sOm*'%(LT_home))
     #os.system('rm -r %s*txt'%(LT_home))
     #os.system('rm -r %sOm*'%(LT_storage))
@@ -874,7 +875,7 @@ plane_resolution = 4096
 first_snapshot = 0
 last_snapshot = %i
 snapshot_handler = Gadget2SnapshotNu
-cut_points = 0.0, 180.0, 360.0, 540.0
+cut_points = 90.0, 270.0, 450.0, 630.0 
 thickness = 180.0
 length_unit = Mpc
 normals = 0,1,2
@@ -1165,6 +1166,7 @@ for iparams in params:#param_restart:#
     #sbatch_rockstar(iparams,i=i,init=0)
     #if iparams in param_restart:
         #sbatch_plane(iparams,i)
+    prepare_planes (iparams)
     sbatch_plane(iparams,i)
     #create_plane_infotxt(iparams,i)
     #sbatch_rays(iparams,i) ###### galaxy
