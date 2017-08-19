@@ -1155,7 +1155,7 @@ for iparams in params:#param_restart:#
     #print iparams, onu0_astropy, onu0_num, onu0_astropy/onu0_num-1.0
     
     #camb_gen(M_nu, omega_m, A_s9)
-    camb_gen_quick(M_nu, omega_m, A_s9)
+    #camb_gen_quick(M_nu, omega_m, A_s9)
     #ngenic_gen(M_nu, omega_m, A_s9)
     #gadget_gen(M_nu, omega_m, A_s9)
     #outputs(iparams)
@@ -1165,6 +1165,7 @@ for iparams in params:#param_restart:#
     #sbatch_rockstar(iparams,i=i,init=0)
     #if iparams in param_restart:
         #sbatch_plane(iparams,i)
+    sbatch_plane(iparams,i)
     #create_plane_infotxt(iparams,i)
     #sbatch_rays(iparams,i) ###### galaxy
     #sbatch_rays(iparams,i,source_arr=(1100,)) ###### cmb
