@@ -891,7 +891,7 @@ normals = 0,1,2
 ########### sbatch jobs
 def sbatch_plane(param,i):
     M_nu, omega_m, A_s9 = param
-    fn_job='%sjobs/planes%s_mnv%.5f_%s.sh'%(main_dir,int(param not in param_restart), M_nu,machine)
+    fn_job='%sjobs/planes_mnv%.5f_%s.sh'%(main_dir, M_nu,machine)
     f = open(fn_job, 'w')
     scripttext='''#!/bin/bash 
 #SBATCH -N 2  # node count 
