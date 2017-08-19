@@ -10,7 +10,7 @@ import sys
 machine = ['perseus','stampede2','stampede1','local'][int(sys.argv[1])]
 plane_thickness = 180#512/3.0###128 Mpc/h
 ############# CAREFUL WITH BELOW 2 LINES ################
-setup_planes_folders = 0 ## (will delete current planes if set this to 1)
+setup_planes_folders = 1 ## (will delete current planes if set this to 1)
 setup_mapsets = 0
 
 if machine =='stampede2':
@@ -841,9 +841,9 @@ home = %s
 storage = %s
 name2attr = {"Om":"Om0","Ode":"Ode0","w":"w0","wa":"wa","h":"h","Ob":"Ob0","si":"sigma8","As":"As","ns":"ns","mva":"mva","mvb":"mvb","mvc":"mvc"}
 cosmo_id_digits = 5'''%(LT_home,LT_storage)
-    f=open(LT_home+'environment.ini','w')
-    f.write(env_txt)
-    f.close()
+    #f=open(LT_home+'environment.ini','w')
+    #f.write(env_txt)
+    #f.close()
     os.chdir(LT_home)
     
 def prepare_planes (param):
