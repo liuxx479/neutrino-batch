@@ -1166,9 +1166,9 @@ for iparams in params:#param_restart:#
     #sbatch_rockstar(iparams,i=i,init=0)
     #if iparams in param_restart:
         #sbatch_plane(iparams,i)
-    prepare_planes (iparams)
-    sbatch_plane(iparams,i)
-    #create_plane_infotxt(iparams,i)
+    #prepare_planes (iparams)
+    #sbatch_plane(iparams,i)
+    create_plane_infotxt(iparams,i)
     #sbatch_rays(iparams,i) ###### galaxy
     #sbatch_rays(iparams,i,source_arr=(1100,)) ###### cmb
     #sbatch_mergertree(iparams)
