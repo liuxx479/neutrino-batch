@@ -10,7 +10,7 @@ import sys
 machine = ['perseus','stampede2','stampede1','local'][int(sys.argv[1])]
 plane_thickness = 180#512/3.0###128 Mpc/h
 ############# CAREFUL WITH BELOW 2 LINES ################
-setup_planes_folders = 1 ## (will delete current planes if set this to 1)
+setup_planes_folders = 0 ## (will delete current planes if set this to 1)
 setup_mapsets = 0
 
 if machine =='stampede2':
