@@ -8,7 +8,7 @@ import sys
 
 
 machine = ['perseus','stampede2','stampede1','local'][int(sys.argv[1])]
-plane_thickness = 180#512/3.0###128 Mpc/h
+plane_thickness = 180.0 #512/3.0###128 Mpc/h
 ############# CAREFUL WITH BELOW 2 LINES ################
 setup_planes_folders = 0 ## (will delete current planes if set this to 1)
 setup_mapsets = 0
@@ -1033,7 +1033,7 @@ ibrun $exe -c auto-rockstar.cfg
     f.write(scripttext)
     f.close()
     
-def map_ini (z_source,map_angle=6.3):
+def map_ini (z_source,map_angle=3.5):
     txt='''[MapSettings]
 
 directory_name = Maps%02d
@@ -1070,21 +1070,21 @@ omega = False'''%(z_source*10, map_angle, z_source)
 if setup_mapsets:
     ####### CMB lensing
     source_arr=(1100,)
-    map_ini(1100, map_angle=3.5)
+    #map_ini(1100, map_angle=3.5)
     ######## galaxy lensing
     #source_arr=(0.5, 1.0, 1.5, 2.0, 2.5)
     #map(map_ini,source_arr)##### map angle = 6.3
-    from lenstools import SimulationBatch
-    #from lenstools.pipeline.settings import EnvironmentSettings
-    from lenstools.pipeline.settings import MapSettings
+    #from lenstools import SimulationBatch
+    ##from lenstools.pipeline.settings import EnvironmentSettings
+    #from lenstools.pipeline.settings import MapSettings
     
-    os.chdir(LT_home)
-    batch=SimulationBatch.current()
-    for isource in source_arr:
-        map_settings = MapSettings.read(main_dir+"params/rays%02d.ini"%(isource*10))
-        for model in batch.available:
-            collection = model.collections[0]
-            map_set = collection.newMapSet(map_settings)
+    #os.chdir(LT_home)
+    #batch=SimulationBatch.current()
+    #for isource in source_arr:
+        #map_settings = MapSettings.read(main_dir+"params/rays%02d.ini"%(isource*10))
+        #for model in batch.available:
+            #collection = model.collections[0]
+            #map_set = collection.newMapSet(map_settings)
 
 def sbatch_rays(iparams,i,source_arr=(0.5, 1.0, 1.5, 2.0, 2.5)):
     M_nu, omega_m, A_s9 = iparams
@@ -1172,4 +1172,8 @@ for iparams in params:#param_restart:#
     #sbatch_rays(iparams,i) ###### galaxy
     #sbatch_rays(iparams,i,source_arr=(1100,)) ###### cmb
     #sbatch_mergertree(iparams)
+    source_arr=(0.5, 1.0, 1.5, 2.0, 2.5)
+    ###### make galaxy lensing maps 3.5 deg^2 and correlated with CMB lensing maps
+    map(map_ini,source_arr)
+    map_ini(1100, map_angle=3.5)
     i+=1
