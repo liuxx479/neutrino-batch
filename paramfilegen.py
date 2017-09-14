@@ -1086,7 +1086,7 @@ if setup_mapsets:
             #collection = model.collections[0]
             #map_set = collection.newMapSet(map_settings)
 
-def sbatch_rays(iparams,i,source_arr=(0.5, 1.0, 1.5, 2.0, 2.5)):
+def sbatch_rays(iparams,i,source_arr=(0.5, 1.0, 1.5, 2.0, 2.5, 1100.0)):
     M_nu, omega_m, A_s9 = iparams
     fn_job='%sjobs/rayCMB_mnv%.5f_%s.sh'%(main_dir,M_nu,machine)
     f = open(fn_job, 'w')
@@ -1094,7 +1094,7 @@ def sbatch_rays(iparams,i,source_arr=(0.5, 1.0, 1.5, 2.0, 2.5)):
 #SBATCH -N 8  # node count 
 #SBATCH -n 125
 #SBATCH -J ray_%.3f
-#SBATCH -t 2:00:00 
+#SBATCH -t 4:00:00 
 #SBATCH --output=%slogs/ray%.3f_%%j.out
 #SBATCH --error=%slogs/ray%.3f_%%j.err
 #SBATCH --mail-type=all
@@ -1168,12 +1168,12 @@ for iparams in params:#param_restart:#
         #sbatch_plane(iparams,i)
     #prepare_planes (iparams)
     #sbatch_plane(iparams,i)
-    create_plane_infotxt(iparams,i)
-    #sbatch_rays(iparams,i) ###### galaxy
+    #create_plane_infotxt(iparams,i)
+    sbatch_rays(iparams,i) ###### galaxy
     #sbatch_rays(iparams,i,source_arr=(1100,)) ###### cmb
     #sbatch_mergertree(iparams)
-    source_arr=(0.5, 1.0, 1.5, 2.0, 2.5)
+    #source_arr=(0.5, 1.0, 1.5, 2.0, 2.5)
     ###### make galaxy lensing maps 3.5 deg^2 and correlated with CMB lensing maps
-    map(map_ini,source_arr)
-    map_ini(1100, map_angle=3.5)
+    #map(map_ini,source_arr)
+    #map_ini(1100, map_angle=3.5)
     i+=1
