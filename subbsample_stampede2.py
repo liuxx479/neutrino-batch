@@ -11,12 +11,11 @@ def subsample(jjj):
     cosmo = cosmo_arr[jjj]
     cosmo_dir = '/scratch/02977/jialiu/temp/'+cosmo
     nsnaps = nsnaps_arr[jjj]
-    for isnap in arange(nsnaps):
+    for isnap in arange(nsnaps)[::-1]:
         print cosmo, isnap
         INPUT_FILENAME = cosmo_dir + 'snapshots/snapshot_%03d'%(isnap)
         OUTPUT_DIR = cosmo_dir + 'snapshots_subsample/'
-        iargv = INPUT_FILENAME+'  '+OUTPUT_DIR
-        subsample_gadget_snapshot.main(iargv)
+        os.system('python subsample_gadget_snapshot %s %s' % (INPUT_FILENAME, OUTPUT_DIR))
 
 pool=MPIPool()
 if not pool.is_master():
