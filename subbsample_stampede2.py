@@ -15,7 +15,8 @@ def subsample(jjj):
         print cosmo, isnap
         INPUT_FILENAME = cosmo_dir + 'snapshots/snapshot_%03d'%(isnap)
         OUTPUT_DIR = cosmo_dir + 'snapshots_subsample/'
-        subsample_gadget_snapshot.main(INPUT_FILENAME,OUTPUT_DIR)
+        iargv = INPUT_FILENAME+'  '+OUTPUT_DIR
+        subsample_gadget_snapshot.main(iargv)
 
 pool=MPIPool()
 if not pool.is_master():
