@@ -11,7 +11,7 @@ plot_pmatter = 0
 plot_pmatterall = 0
 plot_pmatter_evolve = 0
 plot_sample_maps_include_reconstructed = 0
-plot_sample_maps = 1
+plot_sample_maps = 0
 plot_hmf = 0
 plot_merger_tree = 0
 plot_mass_accretion = 0
@@ -62,9 +62,83 @@ if plot_design:
     #plt.subplots_adjust(wspace=0.35, left=0.07, right=0.97,bottom=0.18)
     savefig('plots/plot_design.pdf')
     close()
+
+
+
+def savitzky_golay(y, window_size, order, deriv=0, rate=1):
+    r"""Smooth (and optionally differentiate) data with a Savitzky-Golay filter.
+    The Savitzky-Golay filter removes high frequency noise from data.
+    It has the advantage of preserving the original shape and
+    features of the signal better than other types of filtering
+    approaches, such as moving averages techniques.
+    Parameters
+    ----------
+    y : array_like, shape (N,)
+        the values of the time history of the signal.
+    window_size : int
+        the length of the window. Must be an odd integer number.
+    order : int
+        the order of the polynomial used in the filtering.
+        Must be less then `window_size` - 1.
+    deriv: int
+        the order of the derivative to compute (default = 0 means only smoothing)
+    Returns
+    -------
+    ys : ndarray, shape (N)
+        the smoothed signal (or it's n-th derivative).
+    Notes
+    -----
+    The Savitzky-Golay is a type of low-pass filter, particularly
+    suited for smoothing noisy data. The main idea behind this
+    approach is to make for each point a least-square fit with a
+    polynomial of high order over a odd-sized window centered at
+    the point.
+    Examples
+    --------
+    t = np.linspace(-4, 4, 500)
+    y = np.exp( -t**2 ) + np.random.normal(0, 0.05, t.shape)
+    ysg = savitzky_golay(y, window_size=31, order=4)
+    import matplotlib.pyplot as plt
+    plt.plot(t, y, label='Noisy signal')
+    plt.plot(t, np.exp(-t**2), 'k', lw=1.5, label='Original signal')
+    plt.plot(t, ysg, 'r', label='Filtered signal')
+    plt.legend()
+    plt.show()
+    References
+    ----------
+    .. [1] A. Savitzky, M. J. E. Golay, Smoothing and Differentiation of
+       Data by Simplified Least Squares Procedures. Analytical
+       Chemistry, 1964, 36 (8), pp 1627-1639.
+    .. [2] Numerical Recipes 3rd Edition: The Art of Scientific Computing
+       W.H. Press, S.A. Teukolsky, W.T. Vetterling, B.P. Flannery
+       Cambridge University Press ISBN-13: 9780521880688
+    """
+    import numpy as np
+    from math import factorial
     
+    try:
+        window_size = np.abs(np.int(window_size))
+        order = np.abs(np.int(order))
+    except ValueError, msg:
+        raise ValueError("window_size and order have to be of type int")
+    if window_size % 2 != 1 or window_size < 1:
+        raise TypeError("window_size size must be a positive odd number")
+    if window_size < order + 2:
+        raise TypeError("window_size is too small for the polynomials order")
+    order_range = range(order+1)
+    half_window = (window_size -1) // 2
+    # precompute coefficients
+    b = np.mat([[k**i for i in order_range] for k in range(-half_window, half_window+1)])
+    m = np.linalg.pinv(b).A[deriv] * rate**deriv * factorial(deriv)
+    # pad the signal at the extremes with
+    # values taken from the signal itself
+    firstvals = y[0] - np.abs( y[1:half_window+1][::-1] - y[0] )
+    lastvals = y[-1] + np.abs(y[-half_window-1:-1][::-1] - y[-1])
+    y = np.concatenate((firstvals, y, lastvals))
+    return np.convolve( m[::-1], y, mode='valid')    
     
 if plot_pmatter:
+    
     kcamb1, Pcamb1 = np.loadtxt('camb/camb_mnv0.10000_om0.30000_As2.1000_matterpow_0.dat').T
     kcamb0, Pcamb0 = np.loadtxt('camb/camb_mnv0.00000_om0.30000_As2.1000_matterpow_0.dat').T
 
@@ -77,8 +151,12 @@ if plot_pmatter:
     ktaka0, Ptaka0 = np.loadtxt('camb-fidu/camb_mnv0.00000_om0.30000_As2.1000-halofit_matterpow_0.dat').T
     
     ####### sims
-    knb0_1024, Pnb0_1024 = np.loadtxt('matterpower/mnv0.00000_om0.30000_As2.1000/powerspec_tot_067.txt').T
-    knb1_1024, Pnb1_1024 = np.loadtxt('matterpower/mnv0.10000_om0.30000_As2.1000/powerspec_tot_067.txt').T
+    knb0_1024, Pnb0_1024 = np.loadtxt('matterpower/mnv0.00000_om0.30000_As2.1000/powerspec_tot_065.txt').T
+    knb1_1024, Pnb1_1024 = np.loadtxt('matterpower/mnv0.10000_om0.30000_As2.1000/powerspec_tot_065.txt').T
+    
+    knb0_256, Pnb0_256 = np.loadtxt('matterpower/mnv0.00000_om0.30000_As2.1000/256Mpc/powerspec_tot_065.txt').T * array([1e3, 1e-9]).reshape(2,-1)
+    knb1_256, Pnb1_256 = np.loadtxt('matterpower/mnv0.10000_om0.30000_As2.1000/256Mpc/powerspec_tot_065.txt').T * array([1e3, 1e-9]).reshape(2,-1)
+    
     knb0_1024 *= 1e3
     knb1_1024 *= 1e3
     Pnb0_1024 *= 1e-9
@@ -101,6 +179,9 @@ if plot_pmatter:
 
     ax1.plot(knb0_1024, Pnb0_1024, 'g--', lw=2.5,label=r'${\rm Simulation}\; (M_\nu = 0\; {\rm eV})$'  )
     ax1.plot(knb1_1024, Pnb1_1024, 'g-',  lw=1.5,label=r'${\rm Simulation}\; (M_\nu = 0.1\; {\rm eV})$')
+    
+    #ax1.plot(knb0_256, Pnb0_256, 'r--', lw=2.5,label=r'${\rm Simulation}\; (M_\nu = 0\; {\rm eV})$'  )
+    #ax1.plot(knb1_256, Pnb1_256, 'r-',  lw=1.5,label=r'${\rm Simulation}\; (M_\nu = 0.1\; {\rm eV})$')
 
     #ax.plot((0.2,0.2), (0.1,1e5),'k--')
     ax1.set_ylabel('$P_{mm}(k)$',fontsize=18)
@@ -116,9 +197,14 @@ if plot_pmatter:
     ax2.plot(k_arr,Pcamb1_interp/Pcamb0_interp-1,'k-',lw=2, label=r'${\rm Linear\; Theory}$')
     ax2.plot(k_arr,Pbird1_interp/Pbird0_interp-1,'--',color='orange',lw=2.0, label=r'${\rm Halofit\; (Bird2012)}$')
     ax2.plot(k_arr,Ptaka1_interp/Ptaka0_interp-1,'--',color='purple',lw=1.0, label=r'${\rm Halofit\; (Smith2003+Takahashi2012)}$')
-    ax2.plot(knb0_1024,Pnb1_1024/Pnb0_1024-1,'g-',lw=1, label=r'${\rm Simulation}$')
     
+    idx_stable = where(Pnb1_256/Pnb0_256-1 < -0.03)
+    knb0_256,pnb_diff_256 = knb0_256 [idx_stable], (Pnb1_256/Pnb0_256-1) [idx_stable]
+    
+    ax2.plot(knb0_256,pnb_diff_256,'-',color='peru',lw=0.5, label=r'${\rm Simulation\; (256\;Mpc}/h)$')
+    ax2.plot(knb0_1024,Pnb1_1024/Pnb0_1024-1,'g-',lw=1, label=r'${\rm Simulation\; (512\;Mpc}/h)$')
     ax2.legend(frameon=0,fontsize=12,ncol=1,loc=0)
+    
     ax2.set_xscale('log')
     ax2.set_xlim(1e-2, 10)
     ax2.set_ylim(-0.09,0.0)
@@ -199,7 +285,7 @@ if plot_pmatter_evolve:
     z_arr = 1.0/a_arr - 1.0
     f=figure(figsize=(8,5.5))
     ax=f.add_subplot(111)
-    for nsnap in range(10,67):
+    for nsnap in range(10,66):
         ell0, delta_P = pmatter_evolve(nsnap)
         ax.plot(ell0*1e3, delta_P, c=cm.jet(a_arr[nsnap]))
     ax.set_xscale('log')
@@ -263,18 +349,19 @@ if plot_sample_maps:
     
     #conv_gal0, conv_gal1, conv_cmb0, conv_cmb1 = [WLanalysis.smooth(img, img.shape[0]/60/3.5) for img in [conv_gal0, conv_gal1, conv_cmb0, conv_cmb1]]
     
+    titles=[r'$\kappa_{\rm galaxy}^{0\;eV}(z_s=2)$', 
+            r'$\kappa_{\rm galaxy}^{0.1\;eV}-\kappa_{\rm galaxy}^{0\;eV}$',
+            r'$\kappa_{\rm CMB}^{0\;eV}(z_s=1100)$', 
+            r'$\kappa_{\rm CMB}^{0.1\;eV}-\kappa_{\rm CMB}^{0\;eV}$',]
     f=figure(figsize=(8,6))
     iii=0
     for img in [conv_gal0, conv_gal1-conv_gal0, conv_cmb0, conv_cmb1-conv_cmb0]:
         ax=f.add_subplot(2,2,iii+1)
-        if iii%2:
-            imgs=img.copy()
-            
-        else:
-            imgs=WLanalysis.smooth(img, img.shape[0]/60/3.5)#
+        #imgs=img.copy()
+        imgs=WLanalysis.smooth(img, img.shape[0]/60/3.5)
         istd = std(imgs)
         imshow(imgs,origin='lower', extent=[0,3.5,0,3.5], vmin=-3*istd, vmax=3*istd,cmap='jet')
-        #title(fns[i])
+        ax.text(0.05,0.08,titles[iii],transform=ax.transAxes,color='k',bbox={'facecolor':'w','alpha':0.8, 'edgecolor':'k','pad':2, 'linewidth':1})
         icb=colorbar()
         tick_locator = matplotlib.ticker.MaxNLocator(nbins=6)
         icb.locator = tick_locator
