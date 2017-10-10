@@ -13,8 +13,8 @@ def subsample(jjj):
     nsnaps = nsnaps_arr[jjj]
     for isnap in arange(nsnaps)[::-1]:
         print cosmo, isnap
-        INPUT_FILENAME = cosmo_dir + 'snapshots/snapshot_%03d'%(isnap)
-        OUTPUT_DIR = cosmo_dir + 'snapshots_subsample/'
+        INPUT_FILENAME = cosmo_dir + '/snapshots/snapshot_%03d'%(isnap)
+        OUTPUT_DIR = cosmo_dir + '/snapshots_subsample/'
         os.system('python subsample_gadget_snapshot.py %s %s' % (INPUT_FILENAME, OUTPUT_DIR))
 
 pool=MPIPool()
@@ -22,7 +22,7 @@ if not pool.is_master():
     pool.wait()
     sys.exit(0)
 
-pool.map(subsample, range(101))
+pool.map(subsample, range(1,101))
 pool.close()
 
 print 'done-done-done'
