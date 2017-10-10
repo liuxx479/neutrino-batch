@@ -22,7 +22,7 @@ if not pool.is_master():
     pool.wait()
     sys.exit(0)
 
-pool.map(subsample, range(1,101))
+pool.map(subsample, range(101)[::-1])
 pool.close()
 
 print 'done-done-done'
