@@ -1,5 +1,8 @@
 from scipy import *
 import subsample_gadget_snapshot
+from emcee.utils import MPIPool 
+import sys
+import os
 
 cosmo_arr = genfromtxt('cosmo_jia_arr.txt',dtype='string')
 nsnaps_arr = loadtxt('nsnaps.txt')
