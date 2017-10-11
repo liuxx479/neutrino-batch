@@ -43,6 +43,7 @@ def subsample_bysnap(input3):
     INPUT_FILENAME, OUTPUT_DIR, isnap = input3
     out_fn = OUTPUT_DIR+'snapshot_%03d_idmod_101_0.hdf5'%(isnap)
     if not os.path.isfile(out_fn):
+        print 'subsampling:::',out_fn
         os.system('python /work/02977/jialiu/neutrino-batch/subsample_gadget_snapshot.py %s %s' % (INPUT_FILENAME, OUTPUT_DIR))
 
 pool=MPIPool()
