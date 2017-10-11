@@ -37,7 +37,7 @@ for cosmo in cosmo_arr:
     for isnap in arange(nsnaps):
         INPUT_FILENAME = cosmo_dir + '/snapshots/snapshot_%03d'%(isnap)
         OUTPUT_DIR = cosmo_dir + '/snapshots_subsample/'
-        all_snaps.append[[INPUT_FILENAME, OUTPUT_DIR, isnap]]
+        all_snaps.append([INPUT_FILENAME, OUTPUT_DIR, isnap])
 
 def subsample_bysnap(input3):
     INPUT_FILENAME, OUTPUT_DIR, isnap = input3
