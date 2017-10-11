@@ -17,7 +17,7 @@ def subsample(jjj):
         OUTPUT_DIR = cosmo_dir + '/snapshots_subsample/'
         out_fn = OUTPUT_DIR+'snapshot_%03d_idmod_101_0.hdf5'%(isnap)
         if not os.path.isfile(out_fn):
-            os.system('python subsample_gadget_snapshot.py %s %s' % (INPUT_FILENAME, OUTPUT_DIR))
+            os.system('python /work/02977/jialiu/neutrino-batch/subsample_gadget_snapshot.py %s %s' % (INPUT_FILENAME, OUTPUT_DIR))
 
 pool=MPIPool()
 if not pool.is_master():
