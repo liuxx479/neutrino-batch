@@ -45,6 +45,8 @@ def subsample_bysnap(input3):
     if not os.path.isfile(out_fn):
         print 'subsampling:::',out_fn
         os.system('python /work/02977/jialiu/neutrino-batch/subsample_gadget_snapshot.py %s %s' % (INPUT_FILENAME, OUTPUT_DIR))
+    else:
+        print 'skip:::',out_fn
 
 pool=MPIPool()
 if not pool.is_master():
