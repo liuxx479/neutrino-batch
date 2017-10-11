@@ -4,8 +4,8 @@ from emcee.utils import MPIPool
 import sys
 import os
 
-cosmo_arr = genfromtxt('cosmo_jia_arr.txt',dtype='string')
-nsnaps_arr = loadtxt('nsnaps_cosmo_jia.txt')
+cosmo_arr = genfromtxt('/work/02977/jialiu/neutrino-batch/cosmo_jia_arr.txt',dtype='string')
+nsnaps_arr = loadtxt('/work/02977/jialiu/neutrino-batch/nsnaps_cosmo_jia.txt')
 
 def subsample(jjj):
     cosmo = cosmo_arr[jjj]
