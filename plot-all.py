@@ -15,6 +15,9 @@ plot_sample_maps = 0
 plot_hmf = 0
 plot_merger_tree = 0
 plot_mass_accretion = 0
+test_pmatter_noise = 0
+plot_kernels = 0
+plot_pkappa = 1
 
 h=0.7
 k_arr = logspace(-2,1.5,100)
@@ -532,4 +535,148 @@ if plot_mass_accretion:
     savefig('plots/plot_most_massive_progenitor.pdf')
     close()
         
+if test_pmatter_noise:
+    kcamb1, Pcamb1 = np.loadtxt('camb/camb_mnv0.10000_om0.30000_As2.1000_matterpow_0.dat').T
+    kcamb0, Pcamb0 = np.loadtxt('camb/camb_mnv0.00000_om0.30000_As2.1000_matterpow_0.dat').T
+
+    ####### bird halofit
+    kbird1, Pbird1 = np.loadtxt('camb-fidu/camb_mnv0.10000_om0.30000_As2.1000-bird_matterpow_0.dat').T
+    kbird0, Pbird0 = np.loadtxt('camb-fidu/camb_mnv0.00000_om0.30000_As2.1000-bird_matterpow_0.dat').T
+
+    ####### takahashi halofit
+    ktaka1, Ptaka1 = np.loadtxt('camb-fidu/camb_mnv0.10000_om0.30000_As2.1000-halofit_matterpow_0.dat').T
+    ktaka0, Ptaka0 = np.loadtxt('camb-fidu/camb_mnv0.00000_om0.30000_As2.1000-halofit_matterpow_0.dat').T
+    
+    ####### sims
+    knb0_1024, Pnb0_1024 = np.loadtxt('matterpower/mnv0.00000_om0.30000_As2.1000/powerspec_tot_066.txt').T
+    knb1_1024, Pnb1_1024 = np.loadtxt('matterpower/mnv0.10000_om0.30000_As2.1000/powerspec_tot_066.txt').T
+
+    
+    knb0_1024 *= 1e3
+    knb1_1024 *= 1e3
+    Pnb0_1024 *= 1e-9
+    Pnb1_1024 *= 1e-9
+    ####### interpolation
+    Pcamb1_interp = interp1d(kcamb1, Pcamb1)(k_arr)
+    Pcamb0_interp = interp1d(kcamb0, Pcamb0)(k_arr)
+    Pbird1_interp = interp1d(kbird1, Pbird1)(k_arr)
+    Pbird0_interp = interp1d(kbird0, Pbird0)(k_arr)
+    Ptaka1_interp = interp1d(ktaka1, Ptaka1)(k_arr)
+    Ptaka0_interp = interp1d(ktaka0, Ptaka0)(k_arr)
+    Pnb0_interp =  interp1d(knb0_1024, Pnb0_1024,fill_value='extrapolate')(k_arr)
+    Pnb1_interp =  interp1d(knb1_1024, Pnb1_1024,fill_value='extrapolate')(k_arr)
+    
+    f=figure()
+    ax=f.add_subplot(111)
+    ax.plot(k_arr, Pnb1_interp/Ptaka1_interp,label='massless')    
+    ax.plot(k_arr, Pnb0_interp/Ptaka0_interp,label='massive')
+    ax.plot(k_arr,ones(len(k_arr)),'k--')
+    ax.set_xlabel('k (h/Mpc)')
+    ax.set_ylabel('P_nbody / P_takahashi')
+    ax.set_xlim(1e-2,10)
+    ax.set_xscale('log')
+    ax.set_ylim(0.5,1.2)
+    ax.legend(loc=0)
+    savefig('plots/test_pmatter_noise.jpg')
+    close()
+
+if plot_kernels:
+    from scipy.integrate import quad
+    zs_arr=[0.5, 1.0, 1.5, 2.0, 2.5, 1100]
+    OmegaM=0.3
+    OmegaV=1-OmegaM
+    H0=100*h
+    c = 299792.458#km/s
+    H_inv = lambda z: 1.0/(H0*sqrt(OmegaM*(1+z)**3+OmegaV))
+    DC = lambda z: c*quad(H_inv, 0, z)[0] 
+    W_source = lambda z, z_ls: 1.5*OmegaM*H0**2*(1+z)*H_inv(z)*DC(z)/c*(1-DC(z)/DC(z_ls))
+    z_arr = linspace(0,6, 1000)
+    W_arr = array([[W_source(iz, iz_ls) for iz in z_arr] for iz_ls in zs_arr])
+    #save('W_arr.npy',W_arr)
+    
+    seed(103)#seed(2018)
+    f=figure(figsize=(8,4))
+    ax=f.add_subplot(111)
+    for iii in range(1,6):
+        #rand(2)
+        iW=W_arr[iii]
+        izs=zs_arr[iii]
+        iW/=amax(iW)
+        idx=where(z_arr<=izs)
+        ax.plot(z_arr[idx]+1, iW[idx], lw=4, alpha=0.8, color=rand(3), label=r'$z_s=%s$'%(zs_arr[iii]))
+    ax.set_xscale('log')
+    ax.set_xticks(arange(1,7))
+
+    a=ax.get_xticks().tolist()
+    anew = [str(int(ia-1)) for ia in a]
+    ax.set_xticklabels(anew)
+    [i.set_linewidth(1.5) for i in ax.spines.itervalues()]
+    ax.legend(fontsize=16,loc=0,frameon=0,title=r'${\rm Source\;\; Redshift}$')
+    ax.tick_params(which='both', labelsize=18, width=1.5)
+    ax.set_xlim(1,7)
+    ax.set_ylim(0,1.05)
+    ax.locator_params(axis = 'y', nbins = 6)
+    ax.set_xlabel(r'$z$',fontsize=22)
+    ax.set_ylabel(r'$W \; {\rm (rescaled)}$',fontsize=22)
+    plt.tight_layout()
+    savefig('plots/plot_kernels.pdf')
+    close()
+
+if plot_pkappa:
+    zs_arr=[1.0, 1.5, 2.0, 2.5, 1100]
+    def pkappa_gen (zs):
+        ps0_all = load('/Users/jia/Documents/weaklensing/kspace_nu/neutrino-batch/sample_maps/jose/Om0.29997_As2.10000_mva0.00000_mvb0.00000_mvc0.00000_h0.70000_Ode0.69995/1024b512/Maps%02d/PS_50.npy'%(zs*10))
+        ps1_all = load('/Users/jia/Documents/weaklensing/kspace_nu/neutrino-batch/sample_maps/jose/Om0.29780_As2.10000_mva0.02175_mvb0.02338_mvc0.05486_h0.70000_Ode0.69995/1024b512/Maps%02d/PS_50.npy'%(zs*10))
+        ps0TH_all = load('/Users/jia/Documents/weaklensing/kspace_nu/neutrino-batch/sample_maps/jose/Om0.29997_As2.10000_mva0.00000_mvb0.00000_mvc0.00000_h0.70000_Ode0.69995/1024b512/Maps%02d/PS_50_TH.npy'%(zs*10))
+        ps1TH_all = load('/Users/jia/Documents/weaklensing/kspace_nu/neutrino-batch/sample_maps/jose/Om0.29780_As2.10000_mva0.02175_mvb0.02338_mvc0.05486_h0.70000_Ode0.69995/1024b512/Maps%02d/PS_50_TH.npy'%(zs*10))
+        ##[None,'original','bird','peacock','takahashi','mead','halomodel','casarini']
+        ps0 = mean(ps0_all[1:],axis=0)
+        idx=where(ps0>0)[0]
+        ell = ps0_all[0][idx]
+        ps0 = mean(ps0_all[1:],axis=0)[idx]
+        ps1 = mean(ps1_all[1:],axis=0)[idx]
+        pstd0 = std(ps0_all[1:],axis=0)[idx]
+        pstd1 = std(ps1_all[1:],axis=0)[idx]
+        pcamb0 = ps0TH_all[[1,3,5],:][:,idx]
+        pcamb1 = ps1TH_all[[1,3,5],:][:,idx]
+        return ell, ps0, ps1, pstd0, pstd1, pcamb0, pcamb1
+    
+    ############  plots
+    f=figure(figsize=(8,8))
+    ax1=f.add_subplot(211)
+    ax2=f.add_subplot(212)
+    
+    
+    seed(103)
+    for izs in zs_arr:
+        icolor=rand(3)
+        #colors.pop(0)
+        ell, ps0, ps1, pstd0, pstd1, pcamb0, pcamb1 = pkappa_gen(izs)
+        ie=ell*(1+ell)/2/pi
+        ax1.plot(ell, ie*pcamb0[2], '--',color=icolor,lw=2, alpha=0.8, label=r'$z_s=%s$'%(izs)  )
+        ax1.plot(ell,ie*ps0,'-',color=icolor, lw=3)#ie*pstd0/sqrt(1000.)
         
+        ax2.plot(ell,pcamb1[2]/pcamb0[2]-1,'--',color=icolor,lw=2)
+        ax2.plot(ell,ps1/ps0-1,'-',color=icolor,lw=3, alpha=0.8, label=r'$z_s=%s$'%(izs))
+
+
+    ax1.set_ylabel(r'$\frac{\ell(\ell+1)}{2\pi}P_{\kappa\kappa}^{0 eV}(\ell)$',fontsize=22)
+    ax1.set_xscale('log')
+    ax1.set_yscale('log')
+    ax1.set_xlim(100, 1e4)
+    ax1.set_ylim(1e-5, 1e-2)
+    
+    ax2.legend(frameon=0,loc=0,fontsize=16,ncol=1,labelspacing=0.11,columnspacing=0.3)
+    #ax1.set_yticklabels(fontsize=16)
+    ax2.set_xscale('log')
+    ax2.set_xlim(100, 1e4)
+    ax2.set_ylim(-0.08,-0.02)
+    ax2.set_xlabel(r'$\ell$',fontsize=22)
+    ax2.set_ylabel(r'$P_{\kappa\kappa}^{0.1eV} / P_{\kappa\kappa}^{0 eV} - 1$',fontsize=22)
+    
+    plt.setp(ax1.get_xticklabels(), visible=False)
+    plt.subplots_adjust(hspace=0.09,left=0.15)
+    ax2.locator_params(axis = 'y', nbins = 5)
+    plt.tight_layout()
+    savefig('plots/plot_pkappa_fidu.pdf')
+    close()
