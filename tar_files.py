@@ -3,11 +3,12 @@ from scipy import *
 from emcee.utils import MPIPool 
 import sys
 
-#os.system('''mkdir -pv /scratch/02977/jialiu/neutrino_sims
-#mkdir -pv /scratch/02977/jialiu/neutrino_sims/rockstar
-#mkdir -pv /scratch/02977/jialiu/neutrino_sims/trees
-#mkdir -pv /scratch/02977/jialiu/neutrino_sims/planes
-#mkdir -pv /scratch/02977/jialiu/neutrino_sims/convergence_maps''')
+os.system('''mkdir -pv /scratch/02977/jialiu/neutrino_sims
+mkdir -pv /scratch/02977/jialiu/neutrino_sims/rockstar
+mkdir -pv /scratch/02977/jialiu/neutrino_sims/trees
+mkdir -pv /scratch/02977/jialiu/neutrino_sims/planes
+mkdir -pv /scratch/02977/jialiu/neutrino_sims/convergence_maps
+mkdir -pv /scratch/02977/jialiu/neutrino_sims/subsample''')
 
 cosmo_jia_arr = genfromtxt('cosmo_jia_arr.txt',dtype='string')
 cosmo_apetri_arr = genfromtxt('cosmo_apetri_arr.txt',dtype='string')
@@ -25,12 +26,15 @@ tar -cvzf /scratch/02977/jialiu/neutrino_sims/convergence_maps/convergence_CMB_{
 tar -cvzf /scratch/02977/jialiu/neutrino_sims/trees/trees_{0}.tar.gz *'''.format(cosmo_jia)
     #if not os.path.isfile('/scratch/02977/jialiu/neutrino_sims/trees/trees_{0}.tar.gz'.format(cosmo_jia)):
     bash_rockstar = '''cd /scratch/02977/jialiu/temp/{0}/rockstar
-    tar -cvzf /scratch/02977/jialiu/neutrino_sims/rockstar/rockstar_{0}.tar.gz out_*.list'''.format(cosmo_jia) 
-    os.system(bash_maps_gal)
-    os.system(bash_maps_CMB)
-    os.system(bash_planes)
+tar -cvzf /scratch/02977/jialiu/neutrino_sims/rockstar/rockstar_{0}.tar.gz out_*.list'''.format(cosmo_jia) 
+    bash_subsample = '''cd /scratch/02977/jialiu/temp/{0}/snapshots_subsample
+tar -cvzf /scratch/02977/jialiu/neutrino_sims/subsample/subsample_{0}.tar.gz out_*.list'''.format(cosmo_jia) 
+    #os.system(bash_maps_gal)
+    #os.system(bash_maps_CMB)
+    #os.system(bash_planes)
     #os.system(bash_tree)
     #os.system(bash_rockstar)
+    os.system(bash_subsample)
     
     
 pool=MPIPool()
