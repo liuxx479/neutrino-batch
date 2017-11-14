@@ -1149,15 +1149,17 @@ perl do_merger_tree.pl /scratch/02977/jialiu/temp/%s/rockstar/outputs/merger_tre
 #sbatch_ngenic()
 
 i=0
-for iparams in params:#param_restart:#
+
+params_heavy = [[0.6, 0.3, 2.1],]
+for iparams in params_heavy:#params:#param_restart:#
     print iparams
     M_nu, omega_m, A_s9 = iparams
     #onu0_astropy, onu0_num =   Mnu2Omeganu(M_nu, omega_m), M_nu/93.04/h**2
     #print iparams, onu0_astropy, onu0_num, onu0_astropy/onu0_num-1.0
     
-    #camb_gen(M_nu, omega_m, A_s9)
+    camb_gen(M_nu, omega_m, A_s9)
     #camb_gen_quick(M_nu, omega_m, A_s9)
-    #ngenic_gen(M_nu, omega_m, A_s9)
+    ngenic_gen(M_nu, omega_m, A_s9)
     #gadget_gen(M_nu, omega_m, A_s9)
     #outputs(iparams)
     #sbatch_gadget(iparams)
@@ -1169,11 +1171,12 @@ for iparams in params:#param_restart:#
     #prepare_planes (iparams)
     #sbatch_plane(iparams,i)
     #create_plane_infotxt(iparams,i)
-    sbatch_rays(iparams,i) ###### galaxy
+    #sbatch_rays(iparams,i) ###### galaxy
     #sbatch_rays(iparams,i,source_arr=(1100,)) ###### cmb
     #sbatch_mergertree(iparams)
     #source_arr=(0.5, 1.0, 1.5, 2.0, 2.5)
     ###### make galaxy lensing maps 3.5 deg^2 and correlated with CMB lensing maps
     #map(map_ini,source_arr)
     #map_ini(1100, map_angle=3.5)
-    i+=1
+    #i+=1
+
