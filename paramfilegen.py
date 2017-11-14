@@ -1157,15 +1157,15 @@ for iparams in params_heavy:#params:#param_restart:#
     #onu0_astropy, onu0_num =   Mnu2Omeganu(M_nu, omega_m), M_nu/93.04/h**2
     #print iparams, onu0_astropy, onu0_num, onu0_astropy/onu0_num-1.0
     
-    camb_gen(M_nu, omega_m, A_s9)
+    #camb_gen(M_nu, omega_m, A_s9)
     #camb_gen_quick(M_nu, omega_m, A_s9)
-    ngenic_gen(M_nu, omega_m, A_s9)
-    #gadget_gen(M_nu, omega_m, A_s9)
-    #outputs(iparams)
-    #sbatch_gadget(iparams)
+    #ngenic_gen(M_nu, omega_m, A_s9)
+    gadget_gen(M_nu, omega_m, A_s9)
+    outputs(iparams)
+    sbatch_gadget(iparams)
     #if setup_planes_folders:
         #prepare_planes (iparams)
-    #sbatch_rockstar(iparams,i=i,init=0)
+    sbatch_rockstar(iparams,i=i,init=0)
     #if iparams in param_restart:
         #sbatch_plane(iparams,i)
     #prepare_planes (iparams)
