@@ -30,6 +30,12 @@ def subsample(jjj):
 ############## change to by snaps, not by cosmology
 all_snaps = []
 jjj=0
+
+###### for 0.6eV box only #########
+cosmo_arr=['mnv0.60000_om0.30000_As2.1000',]
+nsnaps=[67,]
+###################################
+
 for cosmo in cosmo_arr:
     cosmo_dir = '/scratch/02977/jialiu/temp/'+cosmo
     nsnaps = nsnaps_arr[jjj]
