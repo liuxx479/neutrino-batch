@@ -17,7 +17,7 @@ plot_merger_tree = 0
 plot_mass_accretion = 0
 test_pmatter_noise = 0
 plot_kernels = 0
-plot_pkappa = 1
+plot_pkappa = 0
 
 h=0.7
 k_arr = logspace(-2,1.5,100)
@@ -44,6 +44,7 @@ if plot_design:
     ax2.scatter([0.1, 0],    [0.3, 0.3], marker=imk, s=ims+5, color='r')
     ax3.scatter(0.3,    2.1, marker=imk, s=ims+5, color='r')
     ax4.scatter(0.8295, 2.1, marker=imk, s=ims+5, color='r')
+    ax4.scatter(0.8523, 2.1, marker=imk, s=ims+5, color='r')
     
     ax1.set_xlabel(r'$M_\nu$',fontsize=ifs)
     ax1.set_ylabel(r'$10^9A_s$',fontsize=ifs)
@@ -63,7 +64,7 @@ if plot_design:
         iax.locator_params(axis = 'both', nbins = 5)
     plt.tight_layout()
     #plt.subplots_adjust(wspace=0.35, left=0.07, right=0.97,bottom=0.18)
-    savefig('plots/plot_design.pdf')
+    savefig('plots/plot_design_test.pdf')
     close()
 
 
@@ -187,7 +188,7 @@ if plot_pmatter:
     #ax1.plot(knb1_256, Pnb1_256, 'r-',  lw=1.5,label=r'${\rm Simulation}\; (M_\nu = 0.1\; {\rm eV})$')
 
     #ax.plot((0.2,0.2), (0.1,1e5),'k--')
-    ax1.set_ylabel('$P_{mm}(k)$',fontsize=18)
+    ax1.set_ylabel('$P_{m}(k)$',fontsize=18)
     ax1.set_xscale('log')
     ax1.set_yscale('log')
     ax1.set_xlim(1e-2, 10)
@@ -199,20 +200,21 @@ if plot_pmatter:
     
     ax2.plot(k_arr,Pcamb1_interp/Pcamb0_interp-1,'k-',lw=2, label=r'${\rm Linear\; Theory}$')
     ax2.plot(k_arr,Pbird1_interp/Pbird0_interp-1,'--',color='orange',lw=2.0, label=r'${\rm Halofit\; (Bird2012)}$')
-    ax2.plot(k_arr,Ptaka1_interp/Ptaka0_interp-1,'--',color='purple',lw=1.0, label=r'${\rm Halofit\; (Smith2003+Takahashi2012)}$')
+    ax2.plot(k_arr,Ptaka1_interp/Ptaka0_interp-1,'--',color='purple',lw=1.0, label=r'${\rm Halofit\; (Takahashi2012)}$')
     
     idx_stable = where(Pnb1_256/Pnb0_256-1 < -0.03)
     knb0_256,pnb_diff_256 = knb0_256 [idx_stable], (Pnb1_256/Pnb0_256-1) [idx_stable]
     
-    ax2.plot(knb0_256,pnb_diff_256,'-',color='peru',lw=0.5, label=r'${\rm Simulation\; (256\;Mpc}/h)$')
-    ax2.plot(knb0_1024,Pnb1_1024/Pnb0_1024-1,'g-',lw=1, label=r'${\rm Simulation\; (512\;Mpc}/h)$')
+    ax2.plot(knb0_1024,Pnb1_1024/Pnb0_1024-1,'g-',lw=1, label=r'${\rm Simulation}$')
+    ax2.plot(knb0_256,pnb_diff_256,'-',color='deeppink',lw=0.5, label=r'${\rm Simulation\; (higher\; res.)}$',alpha=0.6)
+    
     ax2.legend(frameon=0,fontsize=12,ncol=1,loc=0)
     
     ax2.set_xscale('log')
     ax2.set_xlim(1e-2, 10)
     ax2.set_ylim(-0.09,0.0)
     ax2.set_xlabel(r'$k\; (h/{\rm Mpc})$',fontsize=18)
-    ax2.set_ylabel(r'$P_{mm}^{0.1eV} / P_{mm}^{0 eV} - 1$',fontsize=18)
+    ax2.set_ylabel(r'$P_{m}^{0.1eV} / P_{m}^{0 eV} - 1$',fontsize=18)
     ax2.plot([0.2,0.2], [-0.5,0],'k--',lw=1)
     
     plt.setp(ax1.get_xticklabels(), visible=False)
@@ -268,7 +270,7 @@ if plot_pmatterall:
         ax2.set_ylim(-1,1.5)
         ax2.set_xlim(1e-2,10)
         ax2.set_xlabel(r'$k\; (h/{\rm Mpc})$',fontsize=18)
-        ax2.set_ylabel(r'$P_{mm} / P_{mm}^{{\rm fidu}, 0eV} - 1$',fontsize=18)
+        ax2.set_ylabel(r'$P_{m} / P_{m}^{{\rm fidu}, 0eV} - 1$',fontsize=18)
         ax2.legend(frameon=0,loc=2,fontsize=10,ncol=4,labelspacing=0.11,columnspacing=0.3, 
                    handletextpad=0.1)
         ax2.set_title(r'${\rm Parameters}=[M_\nu, \Omega_m, 10^9A_s], \; {\rm Dashed: \; Linear\; Theory \;,\; Solid:\; Simulations}$',fontsize=13)
@@ -295,8 +297,8 @@ if plot_pmatter_evolve:
     ax.set_ylim(-0.09,0.0)
     ax.set_xlim(1e-2,10)
     ax.set_xlabel(r'$k\; (h/{\rm Mpc})$',fontsize=18)
-    ax.set_ylabel(r'$P_{mm}^{0.1eV} / P_{mm}^{0 eV} - 1$',fontsize=18)
-    #ax.set_ylabel(r'$P_{mm} / P_{mm}^{{\rm fidu}, 0eV} - 1$',fontsize=18)
+    ax.set_ylabel(r'$P_{m}^{0.1eV} / P_{m}^{0 eV} - 1$',fontsize=18)
+    #ax.set_ylabel(r'$P_{m} / P_{m}^{{\rm fidu}, 0eV} - 1$',fontsize=18)
     cbaxes = f.add_axes([0.2, 0.3, 0.3, 0.03]) 
 
     cb1 = mpl.colorbar.ColorbarBase(cbaxes, cmap=cm.jet,#RdPu ,#
@@ -358,12 +360,21 @@ if plot_sample_maps:
             r'$\kappa_{\rm CMB}^{0.1\;eV}-\kappa_{\rm CMB}^{0\;eV}$',]
     f=figure(figsize=(8,6))
     iii=0
-    for img in [conv_gal0, conv_gal1-conv_gal0, conv_cmb0, conv_cmb1-conv_cmb0]:
+    diff1=conv_gal1-conv_gal0
+    diff2=conv_cmb1-conv_cmb0
+    #diff1=conv_gal1/conv_gal0-1
+    #diff2=conv_cmb1/conv_cmb0-1
+    for img in [conv_gal0, diff1, conv_cmb0, diff2]:
         ax=f.add_subplot(2,2,iii+1)
         #imgs=img.copy()
         imgs=WLanalysis.smooth(img, img.shape[0]/60/3.5)
         istd = std(imgs)
-        imshow(imgs,origin='lower', extent=[0,3.5,0,3.5], vmin=-3*istd, vmax=3*istd,cmap='jet')
+        #if iii%2:
+            #istd = 1.0
+        #if iii%2:
+            #imgs[imgs>=0]=1
+            #imgs[imgs<0]=-1
+        imshow(imgs,origin='lower', extent=[0,3.5,0,3.5], vmin=-3*istd, vmax=3*istd,cmap='jet',interpolation='nearest')
         ax.text(0.05,0.08,titles[iii],transform=ax.transAxes,color='k',bbox={'facecolor':'w','alpha':0.8, 'edgecolor':'k','pad':2, 'linewidth':1})
         icb=colorbar()
         tick_locator = matplotlib.ticker.MaxNLocator(nbins=6)
@@ -374,6 +385,7 @@ if plot_sample_maps:
         iii+=1
     plt.tight_layout()
     savefig('plots/plot_sample_maps.pdf')
+    #savefig('plots/plot_sample_maps_frac.pdf')
     close()
 
             
@@ -442,13 +454,16 @@ if plot_merger_tree:
     ##forest1 = loadtxt('sample_maps/mnv0.10000_om0.30000_As2.1000/forests.list').T
     #forest0 = load('sample_maps/mnv0.00000_om0.30000_As2.1000/forests.list.npy')
     #forest1 = load('sample_maps/mnv0.10000_om0.30000_As2.1000/forests.list.npy')
+    ## scale(0) id(1) desc_scale(2) desc_id(3) num_prog(4) pid(5) upid(6) desc_pid(7) phantom(8) sam_Mmvir(9) Mmvir(10) Rmvir(11) rs(12) vrms(13) mmp?(14) scale_of_last_MM(15) vmax(16) x(17) y(18) z(19) vx(20) vy(21) vz(22) Jx(23) Jy(24) Jz(25) Spin(26) Breadth_first_ID(27) Depth_first_ID(28) Tree_root_ID(29) Orig_halo_ID(30) Snap_idx(31) Next_coprogenitor_depthfirst_ID(32) Last_progenitor_depthfirst_ID(33) Last_mainleaf_depthfirst_ID(34) Tidal_Force(35) Tidal_ID(36) Rs_Klypin Mmvir_all M200b M200c M500c M2500c Xoff Voff Spin_Bullock b_to_a c_to_a A[x] A[y] A[z] b_to_a(500c) c_to_a(500c) A[x](500c) A[y](500c) A[z](500c) T/|U| M_pe_Behroozi M_pe_Diemer Halfmass_Radius
     
     tree0 = loadtxt('sample_maps/tree_massless.txt')[:,1:]
     tree1 = loadtxt('sample_maps/tree_massive.txt')[:,1:]
     IDt0, IDt1=139120302,137345326
     ###### select all halos fall in the same tree root ID
-    tree0 = tree0[where(tree0[:,29]==IDt0)]
-    tree1 = tree1[where(tree1[:,29]==IDt1)]
+    #tree0 = tree0[where(tree0[:,29]==IDt0)]
+    #tree1 = tree1[where(tree1[:,29]==IDt1)]
+    tree0 = tree0[where((tree0[:,29]==IDt0) & (tree0[:,10]>10**11.5))]
+    tree1 = tree1[where((tree1[:,29]==IDt1) & (tree1[:,10]>10**11.5))]
     
     f=figure(figsize=(8,8))
     ax=f.add_subplot(111)
@@ -485,7 +500,7 @@ if plot_merger_tree:
     ax.grid(True)#,axis='x')
     ax.legend(fontsize=18,loc=3,frameon=1)
     plt.tight_layout()
-    savefig('plots/plot_tree.pdf')
+    savefig('plots/plot_tree_cut.pdf')
     
     close()
     
@@ -605,16 +620,17 @@ if plot_kernels:
         idx=where(z_arr<=izs)
         ax.plot(z_arr[idx]+1, iW[idx], lw=4, alpha=0.8, color=rand(3), label=r'$z_s=%s$'%(zs_arr[iii]))
     ax.set_xscale('log')
-    ax.set_xticks(arange(1,7))
+    #ax.set_xticks(arange(1,7))
+    ax.set_xticks([1,1.5, 2, 3, 4, 5, 6])
 
     a=ax.get_xticks().tolist()
-    anew = [str(int(ia-1)) for ia in a]
+    anew = [str((ia-1)) for ia in a]
     ax.set_xticklabels(anew)
     [i.set_linewidth(1.5) for i in ax.spines.itervalues()]
     ax.legend(fontsize=16,loc=0,frameon=0,title=r'${\rm Source\;\; Redshift}$')
     ax.tick_params(which='both', labelsize=18, width=1.5)
     ax.set_xlim(1,7)
-    ax.set_ylim(0,1.05)
+    ax.set_ylim(0.01,1.05)
     ax.locator_params(axis = 'y', nbins = 6)
     ax.set_xlabel(r'$z$',fontsize=22)
     ax.set_ylabel(r'$W \; {\rm (rescaled)}$',fontsize=22)
@@ -660,7 +676,7 @@ if plot_pkappa:
         ax2.plot(ell,ps1/ps0-1,'-',color=icolor,lw=3, alpha=0.8, label=r'$z_s=%s$'%(izs))
 
 
-    ax1.set_ylabel(r'$\frac{\ell(\ell+1)}{2\pi}P_{\kappa\kappa}^{0 eV}(\ell)$',fontsize=22)
+    ax1.set_ylabel(r'$\frac{\ell(\ell+1)}{2\pi}P_{\kappa}^{0 eV}(\ell)$',fontsize=22)
     ax1.set_xscale('log')
     ax1.set_yscale('log')
     ax1.set_xlim(100, 1e4)
@@ -672,7 +688,7 @@ if plot_pkappa:
     ax2.set_xlim(100, 1e4)
     ax2.set_ylim(-0.08,-0.02)
     ax2.set_xlabel(r'$\ell$',fontsize=22)
-    ax2.set_ylabel(r'$P_{\kappa\kappa}^{0.1eV} / P_{\kappa\kappa}^{0 eV} - 1$',fontsize=22)
+    ax2.set_ylabel(r'$P_{\kappa}^{0.1eV} / P_{\kappa}^{0 eV} - 1$',fontsize=22)
     
     plt.setp(ax1.get_xticklabels(), visible=False)
     plt.subplots_adjust(hspace=0.09,left=0.15)
