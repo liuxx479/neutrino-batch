@@ -931,10 +931,10 @@ def create_plane_infotxt(iparams,i):
     f=open(Plane_dir+'info.txt', 'w')
     #s=0,d=11879.9623902 Mpc,z=42.7874346237
     print 'create',Plane_dir+'info.txt'
-    ####### symlink fake plane to each directory
-    #for normal in [0,1,2]:
-        #for cut_point in [0,1,2,3]:
-            #os.system("cp /scratch/02977/jialiu/snap100_potentialPlane0_normal0_1100.fits {2}/1024b512/ic1/Planes/snap100_potentialPlane{0}_normal{1}.fits".format(cut_point, normal, LT_storage+cosmo_apetri_arr[i]))
+    ####### copy fake plane to each directory, maybe simlink won't work, too much IO?
+    for normal in [0,1,2]:
+        for cut_point in [0,1,2,3]:
+            os.system("cp /work/02977/jialiu/neutrino-batch/snap100_potentialPlane0_normal0_1100.fits {2}/1024b512/ic1/Planes/snap100_potentialPlane{0}_normal{1}.fits".format(cut_point, normal, LT_storage+cosmo_apetri_arr[i]))
             #####os.system("ln -sf /scratch/02977/jialiu/snap100_potentialPlane0_normal0_1100.fits {2}/1024b512/ic1/Planes/snap100_potentialPlane{0}_normal{1}.fits".format(cut_point, normal, LT_storage+cosmo_apetri_arr[i]))
     omnu = Mnu2Omeganu(M_nu, omega_m)
     nu_masses = neutrino_mass_calc(M_nu) * u.eV
@@ -1069,8 +1069,8 @@ omega = False'''%(z_source*10, pix, map_angle, z_source, seed, nmaps)
 
 if setup_mapsets:
     ####### CMB lensing
-    #source_arr=(1100,)
-    #map_ini(1100, map_angle=3.5)
+    source_arr=(1100,)
+    map_ini(1100, map_angle=3.5)
     ######## galaxy lensing
     #source_arr=(0.5, 1.0, 1.5, 2.0, 2.5)
     #map(map_ini,source_arr)##### map angle = 6.3
@@ -1152,7 +1152,11 @@ i=0
 
 params_heavy = [[0.6, 0.3, 2.1],]
 
-map_ini (z_source,map_angle=3.5, pix=512, nmaps=10000, seed=10025)
+
+######### create map ini files
+source_arr=(0.5, 1.0, 1.5, 2.0, 2.5, 1100)
+for iz in source_arr:
+    map_ini (iz, map_angle=3.5, pix=512, nmaps=10000, seed=10025)
 
 for iparams in params:#params_heavy:#param_restart:#
     print iparams
@@ -1173,7 +1177,7 @@ for iparams in params:#params_heavy:#param_restart:#
         #sbatch_plane(iparams,i)
     #prepare_planes (iparams)
     #sbatch_plane(iparams,i)
-    #create_plane_infotxt(iparams,i)
+    create_plane_infotxt(iparams,i)
     sbatch_rays(iparams,i) ###### galaxy+cmb
     #sbatch_rays(iparams,i,source_arr=(1100,)) ###### cmb
     #sbatch_mergertree(iparams)
