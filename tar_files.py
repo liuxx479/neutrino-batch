@@ -36,13 +36,20 @@ tar -cvzf /scratch/02977/jialiu/neutrino_sims/subsample/subsample_{0}.tar.gz *hd
     #os.system(bash_rockstar)
     os.system(bash_subsample)
     
+def unzip(i):
+    cosmo_jia = cosmo_jia_arr[i]
+    cosmo_apetri =cosmo_apetri_arr[i]
+    bash_planes='''tar -xvzf /scratch/02977/jialiu/neutrino_sims/planes/planes_{0}.tar.gz /scratch/02977/jialiu/lenstools_storage/{1}/1024b512/ic1Planes'''.format(cosmo_jia, cosmo_apetri)
+    os.system(bash_planes)
+
     
 pool=MPIPool()
 if not pool.is_master():
     pool.wait()
     sys.exit(0)
 
-pool.map(create_targz, range(101))
+#pool.map(create_targz, range(101))
+pool.map(unzip, range(101))
 pool.close()
 
 print 'done-done-done'
