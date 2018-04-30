@@ -1094,7 +1094,7 @@ def sbatch_rays(iparams,i,source_arr=(0.5, 1.0, 1.5, 2.0, 2.5, 1100.0)):
 #SBATCH -N 8  # node count 
 #SBATCH -n 125
 #SBATCH -J ray_%.3f
-#SBATCH -t 4:00:00 #### really just >=2hr for 1000 maps
+#SBATCH -t 48:00:00 #### really just >=2hr for 1000 maps
 #SBATCH --output=%slogs/ray%.3f_%%j.out
 #SBATCH --error=%slogs/ray%.3f_%%j.err
 #SBATCH --mail-type=all
@@ -1148,7 +1148,6 @@ perl do_merger_tree.pl /scratch/02977/jialiu/temp/%s/rockstar/outputs/merger_tre
 
 #sbatch_ngenic()
 
-i=0
 
 params_heavy = [[0.6, 0.3, 2.1],]
 
@@ -1158,6 +1157,7 @@ source_arr=(0.5, 1.0, 1.5, 2.0, 2.5, 1100)
 for iz in source_arr:
     map_ini (iz, map_angle=3.5, pix=512, nmaps=10000, seed=10025)
 
+i=0
 for iparams in params:#params_heavy:#param_restart:#
     print iparams
     M_nu, omega_m, A_s9 = iparams
@@ -1168,7 +1168,7 @@ for iparams in params:#params_heavy:#param_restart:#
     #camb_gen_quick(M_nu, omega_m, A_s9)
     #ngenic_gen(M_nu, omega_m, A_s9)
     #gadget_gen(M_nu, omega_m, A_s9)
-    outputs(iparams)
+    #outputs(iparams)
     #sbatch_gadget(iparams)
     #if setup_planes_folders:
         #prepare_planes (iparams)
@@ -1185,5 +1185,5 @@ for iparams in params:#params_heavy:#param_restart:#
     ###### make galaxy lensing maps 3.5 deg^2 and correlated with CMB lensing maps
     #map(map_ini,source_arr)
     #map_ini(1100, map_angle=3.5)
-    #i+=1
+    i+=1
 
