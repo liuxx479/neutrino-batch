@@ -1033,19 +1033,19 @@ ibrun $exe -c auto-rockstar.cfg
     f.write(scripttext)
     f.close()
     
-def map_ini (z_source,map_angle=3.5):
+def map_ini (z_source,map_angle=3.5, pix=2048, nmaps=1000, seed=10027):
     txt='''[MapSettings]
 
 directory_name = Maps%02d
 override_with_local = False
 format = fits
-map_resolution = 2048
+map_resolution = %i
 map_angle = %.1f
 angle_unit = deg
 source_redshift = %.1f
 
 #Random seed used to generate multiple map realizations
-seed = 10027
+seed = %i
 
 #Set of lens planes to be used during ray tracing
 plane_set = Planes
@@ -1056,20 +1056,20 @@ plane_name_format = snap{0}_potentialPlane{1}_normal{2}.{3}
 mix_nbody_realizations = 1
 mix_cut_points = 0,1,2,3
 mix_normals = 0,1,2
-lens_map_realizations = 1000
+lens_map_realizations = %i
 first_realization = 1
 
 #Which lensing quantities do we need?
 convergence = True
 shear = False
-omega = False'''%(z_source*10, map_angle, z_source)
+omega = False'''%(z_source*10, pix, map_angle, z_source, seed, nmaps)
     f=open(main_dir+'params/rays%02d.ini'%(z_source*10),'w')
     f.write(txt)
     f.close()
 
 if setup_mapsets:
     ####### CMB lensing
-    source_arr=(1100,)
+    #source_arr=(1100,)
     #map_ini(1100, map_angle=3.5)
     ######## galaxy lensing
     #source_arr=(0.5, 1.0, 1.5, 2.0, 2.5)
@@ -1094,7 +1094,7 @@ def sbatch_rays(iparams,i,source_arr=(0.5, 1.0, 1.5, 2.0, 2.5, 1100.0)):
 #SBATCH -N 8  # node count 
 #SBATCH -n 125
 #SBATCH -J ray_%.3f
-#SBATCH -t 4:00:00 
+#SBATCH -t 4:00:00 #### really just >=2hr for 1000 maps
 #SBATCH --output=%slogs/ray%.3f_%%j.out
 #SBATCH --error=%slogs/ray%.3f_%%j.err
 #SBATCH --mail-type=all
@@ -1151,7 +1151,10 @@ perl do_merger_tree.pl /scratch/02977/jialiu/temp/%s/rockstar/outputs/merger_tre
 i=0
 
 params_heavy = [[0.6, 0.3, 2.1],]
-for iparams in params_heavy:#params:#param_restart:#
+
+map_ini (z_source,map_angle=3.5, pix=512, nmaps=10000, seed=10025)
+
+for iparams in params:#params_heavy:#param_restart:#
     print iparams
     M_nu, omega_m, A_s9 = iparams
     #onu0_astropy, onu0_num =   Mnu2Omeganu(M_nu, omega_m), M_nu/93.04/h**2
@@ -1160,18 +1163,18 @@ for iparams in params_heavy:#params:#param_restart:#
     #camb_gen(M_nu, omega_m, A_s9)
     #camb_gen_quick(M_nu, omega_m, A_s9)
     #ngenic_gen(M_nu, omega_m, A_s9)
-    gadget_gen(M_nu, omega_m, A_s9)
+    #gadget_gen(M_nu, omega_m, A_s9)
     outputs(iparams)
-    sbatch_gadget(iparams)
+    #sbatch_gadget(iparams)
     #if setup_planes_folders:
         #prepare_planes (iparams)
-    sbatch_rockstar(iparams,i=i,init=0)
+    #sbatch_rockstar(iparams,i=i,init=0)
     #if iparams in param_restart:
         #sbatch_plane(iparams,i)
     #prepare_planes (iparams)
     #sbatch_plane(iparams,i)
     #create_plane_infotxt(iparams,i)
-    #sbatch_rays(iparams,i) ###### galaxy
+    sbatch_rays(iparams,i) ###### galaxy+cmb
     #sbatch_rays(iparams,i,source_arr=(1100,)) ###### cmb
     #sbatch_mergertree(iparams)
     #source_arr=(0.5, 1.0, 1.5, 2.0, 2.5)

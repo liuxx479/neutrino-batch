@@ -5,7 +5,7 @@ import sys
 import os
 
 cosmo_arr = genfromtxt('/work/02977/jialiu/neutrino-batch/cosmo_jia_arr.txt',dtype='string')
-nsnaps_arr = loadtxt('/work/02977/jialiu/neutrino-batch/nsnaps_cosmo_jia.txt')
+nsnaps_arr = loadtxt('/work/02977/jialiu/neutrino-batch/nsnaps_cosmo_jia.txt',dtype='string')
 
 def subsample(jjj):
     cosmo = cosmo_arr[jjj]
