@@ -1094,7 +1094,7 @@ def sbatch_rays(iparams,i,source_arr=(0.5, 1.0, 1.5, 2.0, 2.5, 1100.0)):
 #SBATCH -N 8  # node count 
 #SBATCH -n 125
 #SBATCH -J ray_%.3f
-#SBATCH -t 48:00:00 #### really just >=2hr for 1000 maps
+#SBATCH -t 12:00:00 #### really just >=2hr for 1000 maps
 #SBATCH --output=%slogs/ray%.3f_%%j.out
 #SBATCH --error=%slogs/ray%.3f_%%j.err
 #SBATCH --mail-type=all
@@ -1178,7 +1178,7 @@ for iparams in params:#params_heavy:#param_restart:#
     #prepare_planes (iparams)
     #sbatch_plane(iparams,i)
     #create_plane_infotxt(iparams,i)
-    #sbatch_rays(iparams,i) ###### galaxy+cmb
+    sbatch_rays(iparams,i) ###### galaxy+cmb
     #sbatch_rays(iparams,i,source_arr=(1100,)) ###### cmb
     #sbatch_mergertree(iparams)
     #source_arr=(0.5, 1.0, 1.5, 2.0, 2.5)
