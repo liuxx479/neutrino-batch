@@ -3,8 +3,6 @@ from scipy import *
 from emcee.utils import MPIPool 
 import sys
 
-print 'start'
-
 os.system('''mkdir -pv /scratch/02977/jialiu/neutrino_sims
 mkdir -pv /scratch/02977/jialiu/neutrino_sims/rockstar
 mkdir -pv /scratch/02977/jialiu/neutrino_sims/trees
