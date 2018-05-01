@@ -1155,7 +1155,7 @@ params_heavy = [[0.6, 0.3, 2.1],]
 ######### create map ini files
 source_arr=(0.5, 1.0, 1.5, 2.0, 2.5, 1100)
 for iz in source_arr:
-    map_ini (iz, map_angle=3.5, pix=512, nmaps=10000, seed=10025)
+    map_ini (iz, map_angle=3.5, pix=512, nmaps=10000, seed=10027)
 
 i=0
 for iparams in params:#params_heavy:#param_restart:#
@@ -1177,8 +1177,8 @@ for iparams in params:#params_heavy:#param_restart:#
         #sbatch_plane(iparams,i)
     #prepare_planes (iparams)
     #sbatch_plane(iparams,i)
-    create_plane_infotxt(iparams,i)
-    sbatch_rays(iparams,i) ###### galaxy+cmb
+    #create_plane_infotxt(iparams,i)
+    #sbatch_rays(iparams,i) ###### galaxy+cmb
     #sbatch_rays(iparams,i,source_arr=(1100,)) ###### cmb
     #sbatch_mergertree(iparams)
     #source_arr=(0.5, 1.0, 1.5, 2.0, 2.5)
