@@ -44,7 +44,7 @@ def unzip(i):
     
     print cosmo_jia
     
-    bash_planes='''tar -xvzf /scratch/02977/jialiu/neutrino_sims/planes/planes_{0}.tar.gz /scratch/02977/jialiu/lenstools_storage/{1}/1024b512/ic1/Planes'''.format(cosmo_jia, cosmo_apetri)
+    bash_planes='''tar -xvzf /scratch/02977/jialiu/neutrino_sims/planes/planes_{0}.tar.gz -C /scratch/02977/jialiu/lenstools_storage/{1}/1024b512/ic1/'''.format(cosmo_jia, cosmo_apetri)
     os.system(bash_planes)
 
     
