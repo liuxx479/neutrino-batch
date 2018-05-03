@@ -1067,6 +1067,7 @@ omega = False'''%(z_source*10, pix, map_angle, z_source, seed, nmaps)
     f.write(txt)
     f.close()
 
+    
 if setup_mapsets:
     ####### CMB lensing
     source_arr=(1100,)
