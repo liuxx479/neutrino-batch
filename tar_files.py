@@ -3,12 +3,12 @@ from scipy import *
 from emcee.utils import MPIPool 
 import sys
 
-os.system('''mkdir -pv /scratch/02977/jialiu/neutrino_sims
-mkdir -pv /scratch/02977/jialiu/neutrino_sims/rockstar
-mkdir -pv /scratch/02977/jialiu/neutrino_sims/trees
-mkdir -pv /scratch/02977/jialiu/neutrino_sims/planes
-mkdir -pv /scratch/02977/jialiu/neutrino_sims/convergence_maps
-mkdir -pv /scratch/02977/jialiu/neutrino_sims/subsample''')
+#os.system('''mkdir -pv /scratch/02977/jialiu/neutrino_sims
+#mkdir -pv /scratch/02977/jialiu/neutrino_sims/rockstar
+#mkdir -pv /scratch/02977/jialiu/neutrino_sims/trees
+#mkdir -pv /scratch/02977/jialiu/neutrino_sims/planes
+#mkdir -pv /scratch/02977/jialiu/neutrino_sims/convergence_maps
+#mkdir -pv /scratch/02977/jialiu/neutrino_sims/subsample''')
 
 cosmo_jia_arr = genfromtxt('cosmo_jia_arr.txt',dtype='string')
 cosmo_apetri_arr = genfromtxt('cosmo_apetri_arr.txt',dtype='string')
@@ -48,14 +48,30 @@ def unzip(i):
     bash_planes='''tar -xvzf /scratch/02977/jialiu/neutrino_sims/planes/planes_{0}.tar.gz -C /scratch/02977/jialiu/lenstools_storage/{1}/1024b512/ic1/'''.format(cosmo_jia, cosmo_apetri)
     os.system(bash_planes)
 
+def unzip_maps_edison (i):
+    cosmo_jia = cosmo_jia_arr[i]
+    print cosmo_jia
+    foldername = '/global/cscratch1/sd/jialiu/convergence_6redshifts/convergence_6redshifts_'+cosmo_jia
+    bash_maps = '''mkdir -pv {0}    
+    tar -xvf {0}.tar -C {0}    
+    echo done untar {0}
+    
+    for i in {0}/*
+    echo $i
+    do chmod 755 $i
+    chmod 644 $i/*
+    done
+    echo done-done-done
+    '''.format(foldername)
     
 pool=MPIPool()
 if not pool.is_master():
     pool.wait()
     sys.exit(0)
 
-pool.map(create_targz, range(101))
+#pool.map(create_targz, range(101))
 #pool.map(unzip, range(101))
+poool.map(unzip_maps_edison, range(10,101))
 pool.close()
 
 print 'done-done-done'
