@@ -63,6 +63,7 @@ def unzip_maps_edison (i):
     done
     echo done-done-done
     '''.format(foldername)
+    os.system(bash_maps)
     
 pool=MPIPool()
 if not pool.is_master():
