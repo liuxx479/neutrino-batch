@@ -52,18 +52,19 @@ def unzip_maps_edison (i):
     cosmo_jia = cosmo_jia_arr[i]
     print cosmo_jia
     foldername = '/global/cscratch1/sd/jialiu/convergence_6redshifts/convergence_6redshifts_'+cosmo_jia
-    bash_maps = '''mkdir -pv {0}    
+    bash_tar_maps = '''mkdir -pv {0}    
     tar -xvf {0}.tar -C {0}    
-    echo done untar {0}
-    
-    for i in {0}/*
-    echo $i
-    do chmod 755 $i
+    echo done untar {0}'''.format(foldername)
+
+    bash_chmod = '''
+    for i in {0}/M*
+    do echo $i
     chmod 644 $i/*
     done
     echo done-done-done
     '''.format(foldername)
-    os.system(bash_maps)
+    #os.system(bash_tar_maps)
+    os.system(bash_chmod)
     
 pool=MPIPool()
 if not pool.is_master():
