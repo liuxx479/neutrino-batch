@@ -7,10 +7,13 @@ import numpy as np
 import sys
 
 
-machine = ['perseus','stampede2','stampede1','local'][int(sys.argv[1])]
-plane_thickness = 180.0 #512/3.0###128 Mpc/h
+machine = 'stampede2'
+if len(sys.argv)>1:
+    machine = ['perseus','stampede2','local'][int(sys.argv[1])]
+
 ############# CAREFUL WITH BELOW 2 LINES ################
-setup_planes_folders = 0 ## (will delete current planes if set this to 1)
+plane_thickness = 180.0 #512/3.0###128 Mpc/h
+setup_planes_folders = 0 ## (warning!! will delete current planes if set this to 1)
 setup_mapsets = 0
 
 if machine =='stampede2':
@@ -22,21 +25,6 @@ if machine =='stampede2':
     Gadget_loc = '/work/02977/jialiu/PipelineJL/Gadget-2.0.7-stampede2/Gadget2/Gadget2_massive'
     mpicc = 'ibrun'
     Ncore, nnodes = 22, 34# 11, 68#
-    extracomments ='''#SBATCH -A TG-AST140041
-#SBATCH -p normal
-
-module load fftw2
-module load gsl'''
-
-elif machine =='stampede1':
-    from astropy.cosmology import FlatLambdaCDM
-    import astropy.units as u
-    main_dir = '/work/02977/jialiu/neutrino-batch/'
-    temp_dir = '/scratch/02977/jialiu/temp/'
-    NgenIC_loc = '/work/02977/jialiu/PipelineJL/S-GenIC/N-GenIC'
-    Gadget_loc = '/work/02977/jialiu/PipelineJL/Gadget-2.0.7-stampede1/Gadget2/Gadget2_massive'
-    mpicc = 'ibrun'
-    Ncore, nnodes = 90, 8#16
     extracomments ='''#SBATCH -A TG-AST140041
 #SBATCH -p normal
 
@@ -1089,13 +1077,13 @@ if setup_mapsets:
 
 def sbatch_rays(iparams,i,source_arr=(0.5, 1.0, 1.5, 2.0, 2.5, 1100.0)):
     M_nu, omega_m, A_s9 = iparams
-    fn_job='%sjobs/ray_mnv%.5f_%s.sh'%(main_dir,M_nu,machine)
+    fn_job='%sjobs/rayCMB_mnv%.5f_%s.sh'%(main_dir,M_nu,machine)
     f = open(fn_job, 'w')
     scripttext='''#!/bin/bash 
 #SBATCH -N 8  # node count 
 #SBATCH -n 125
 #SBATCH -J ray_%.3f
-#SBATCH -t 12:00:00 #### really just >=2hr for 1000 maps
+#SBATCH -t 24:00:00 #### really just >=2hr for 1000 maps
 #SBATCH --output=%slogs/ray%.3f_%%j.out
 #SBATCH --error=%slogs/ray%.3f_%%j.err
 #SBATCH --mail-type=all
@@ -1154,9 +1142,9 @@ params_heavy = [[0.6, 0.3, 2.1],]
 
 
 ######### create map ini files
-source_arr=(0.5, 1.0, 1.5, 2.0, 2.5, 1100)
-for iz in source_arr:
-    map_ini (iz, map_angle=3.5, pix=512, nmaps=10000, seed=10027)
+#source_arr=(0.5, 1.0, 1.5, 2.0, 2.5, 1100)
+#for iz in source_arr:
+    #map_ini (iz, map_angle=3.5, pix=512, nmaps=10000, seed=10027)
 
 i=0
 for iparams in params:#params_heavy:#param_restart:#
@@ -1179,8 +1167,8 @@ for iparams in params:#params_heavy:#param_restart:#
     #prepare_planes (iparams)
     #sbatch_plane(iparams,i)
     #create_plane_infotxt(iparams,i)
-    sbatch_rays(iparams,i) ###### galaxy+cmb
-    #sbatch_rays(iparams,i,source_arr=(1100,)) ###### cmb
+    #sbatch_rays(iparams,i) ###### galaxy+cmb
+    sbatch_rays(iparams,i,source_arr=(1100,)) ###### cmb
     #sbatch_mergertree(iparams)
     #source_arr=(0.5, 1.0, 1.5, 2.0, 2.5)
     ###### make galaxy lensing maps 3.5 deg^2 and correlated with CMB lensing maps
