@@ -7,9 +7,10 @@ import numpy as np
 import sys
 
 
-machine = 'stampede2'
-if len(sys.argv)>1:
+try:
     machine = ['perseus','stampede2','local'][int(sys.argv[1])]
+except Exception:
+    machine = 'stampede2'
 
 ############# CAREFUL WITH BELOW 2 LINES ################
 plane_thickness = 180.0 #512/3.0###128 Mpc/h
