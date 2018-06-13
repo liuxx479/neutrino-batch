@@ -31,8 +31,8 @@ tar -cvzf /scratch/02977/jialiu/neutrino_sims/trees/trees_{0}.tar.gz *'''.format
 tar -cvzf /scratch/02977/jialiu/neutrino_sims/rockstar/rockstar_{0}.tar.gz out_*.list'''.format(cosmo_jia) 
     bash_subsample = '''cd /scratch/02977/jialiu/temp/{0}/snapshots_subsample
 tar -cvzf /scratch/02977/jialiu/neutrino_sims/subsample/subsample_{0}.tar.gz *hdf5'''.format(cosmo_jia) 
-    #os.system(bash_maps_gal)
-    #os.system(bash_maps_CMB)
+    os.system(bash_maps_gal)
+    os.system(bash_maps_CMB)
     #os.system(bash_planes)
     #os.system(bash_tree)
     #os.system(bash_rockstar)
