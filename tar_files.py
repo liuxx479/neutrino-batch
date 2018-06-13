@@ -19,9 +19,9 @@ def create_targz(i):
     bash_planes='''cd /scratch/02977/jialiu/lenstools_storage/{1}/1024b512/ic1
 tar -cvzf /scratch/02977/jialiu/neutrino_sims/planes/planes_{0}.tar.gz Planes'''.format(cosmo_jia, cosmo_apetri)
     bash_maps_gal='''cd /scratch/02977/jialiu/lenstools_storage/{1}/1024b512
-tar -cvzf /scratch/02977/jialiu/neutrino_sims/convergence_maps/convergence_gal_{0}.tar.gz Maps??'''.format(cosmo_jia, cosmo_apetri)
+tar -cvf /scratch/02977/jialiu/neutrino_sims/convergence_maps/convergence_gal_{0}.tar Maps??'''.format(cosmo_jia, cosmo_apetri)
     bash_maps_CMB='''cd /scratch/02977/jialiu/lenstools_storage/{1}/1024b512
-tar -cvzf /scratch/02977/jialiu/neutrino_sims/convergence_maps/convergence_CMB_{0}.tar.gz Maps11000'''.format(cosmo_jia, cosmo_apetri)
+tar -cvf /scratch/02977/jialiu/neutrino_sims/convergence_maps/convergence_CMB_{0}.tar Maps11000'''.format(cosmo_jia, cosmo_apetri)
     bash_maps_both='''cd /scratch/02977/jialiu/lenstools_storage/{1}/1024b512
 tar -cvf /scratch/02977/jialiu/neutrino_sims/convergence_maps/convergence_6redshifts_{0}.tar Maps*'''.format(cosmo_jia, cosmo_apetri)
     bash_tree='''cd /scratch/02977/jialiu/temp/{0}/rockstar/trees
