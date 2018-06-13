@@ -65,15 +65,34 @@ def unzip_maps_edison (i):
     '''.format(foldername)
     #os.system(bash_tar_maps)
     os.system(bash_chmod)
+
+def unzip_CMBmaps_edison (i):
+    cosmo_jia = cosmo_jia_arr[i]
+    print cosmo_jia
+    foldername = '/global/cscratch1/sd/jialiu/convergence_6redshifts/convergence_6redshifts_'+cosmo_jia
+    tarname = '/global/cscratch1/sd/jialiu/convergence_6redshifts/convergence_CMB_'+cosmo_jia+'.tar'
+    bash_tar_maps = '''mkdir -pv {0}    
+    tar -xvf {1} -C {0}    
+    echo done untar {0}'''.format(foldername,tarname)
+
+    bash_chmod = '''
+    chmod 755 {0}/Maps11000
+    chmod 644 {0}/Maps11000/*
+    done
+    echo done-done-done
+    '''.format(foldername)
+    os.system(bash_tar_maps)
+    os.system(bash_chmod)
     
 pool=MPIPool()
 if not pool.is_master():
     pool.wait()
     sys.exit(0)
 
-pool.map(create_targz, range(101))
+#pool.map(create_targz, range(101))
 #pool.map(unzip, range(101))
 #pool.map(unzip_maps_edison, range(101))
+pool.map(unzip_CMBmaps_edison, range(101))
 pool.close()
 
 print 'done-done-done'
