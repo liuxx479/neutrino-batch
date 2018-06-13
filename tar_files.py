@@ -71,9 +71,9 @@ if not pool.is_master():
     pool.wait()
     sys.exit(0)
 
-#pool.map(create_targz, range(101))
+pool.map(create_targz, range(101))
 #pool.map(unzip, range(101))
-pool.map(unzip_maps_edison, range(101))
+#pool.map(unzip_maps_edison, range(101))
 pool.close()
 
 print 'done-done-done'
