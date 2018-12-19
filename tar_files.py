@@ -35,7 +35,10 @@ tar -cvzf /scratch/02977/jialiu/neutrino_sims/subsample/subsample_{0}.tar.gz *hd
 tar -cvf /scratch/02977/jialiu/neutrino_sims/convergence_maps/convergence_6redshifts_{0}.tar Maps*'''.format(cosmo_jia, cosmo_jia)
     bash_maps_box5='''cd /scratch/02977/jialiu/neutrino_sims/convergence_maps/convergence_6redshifts_{0}
 tar -cvf /scratch/02977/jialiu/neutrino_sims/convergence_maps/convergence_6redshifts_{0}_box5.tar b*'''.format(cosmo_jia, cosmo_jia)
-
+    bash_recon = '''cd /scratch/02977/jialiu/peakaboo/{0}/1024b512 
+tar -cvf /scratch/02977/jialiu/neutrino_sims/recon/recon_eb_5000_s4_{1}.tar output_eb_5000_s4'''.format(cosmo_apetri, cosmo_jia)
+    bash_recon_box5 = '''cd /scratch/02977/jialiu/peakaboo/{0}/1024b512/box5
+tar -cvf /scratch/02977/jialiu/neutrino_sims/recon/recon_eb_5000_s4_{1}_box5.tar output_eb_5000_s4'''.format(cosmo_apetri, cosmo_jia)
     #os.system(bash_maps_CMB)
     #os.system(bash_maps_gal)
     #os.system(bash_planes)
@@ -43,10 +46,11 @@ tar -cvf /scratch/02977/jialiu/neutrino_sims/convergence_maps/convergence_6redsh
     #os.system(bash_rockstar)
     #os.system(bash_subsample)
     #os.system(bash_maps_both)
-    if cosmo_jia =='mnv0.00000_om0.30000_As2.1000':
+    os.system(bash_recon)
+    #if cosmo_jia =='mnv0.00000_om0.30000_As2.1000':
         #os.system(bash_maps_both2)
+        os.system(bash_recon_box5)
         os.system(bash_maps_box5)
-        
     
 def unzip(i):    
     cosmo_jia = cosmo_jia_arr[i]
