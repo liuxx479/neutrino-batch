@@ -34,7 +34,7 @@ tar -cvzf /scratch/02977/jialiu/neutrino_sims/subsample/subsample_{0}.tar.gz *hd
     bash_maps_both2='''cd /scratch/02977/jialiu/neutrino_sims/convergence_maps/convergence_6redshifts_{0}
 tar -cvf /scratch/02977/jialiu/neutrino_sims/convergence_maps/convergence_6redshifts_{0}.tar Maps*'''.format(cosmo_jia, cosmo_jia)
     bash_maps_box5='''cd /scratch/02977/jialiu/neutrino_sims/convergence_maps/convergence_6redshifts_{0}
-tar -cvf /scratch/02977/jialiu/neutrino_sims/convergence_maps/convergence_6redshifts_{0}_box5.tar B*'''.format(cosmo_jia, cosmo_jia)
+tar -cvf /scratch/02977/jialiu/neutrino_sims/convergence_maps/convergence_6redshifts_{0}_box5.tar b*'''.format(cosmo_jia, cosmo_jia)
 
     #os.system(bash_maps_CMB)
     #os.system(bash_maps_gal)
@@ -44,7 +44,7 @@ tar -cvf /scratch/02977/jialiu/neutrino_sims/convergence_maps/convergence_6redsh
     #os.system(bash_subsample)
     #os.system(bash_maps_both)
     if cosmo_jia =='mnv0.00000_om0.30000_As2.1000':
-        os.system(bash_maps_both2)
+        #os.system(bash_maps_both2)
         os.system(bash_maps_box5)
         
     
