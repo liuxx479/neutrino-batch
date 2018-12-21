@@ -47,10 +47,10 @@ tar -cvf /scratch/02977/jialiu/neutrino_sims/recon/recon_eb_5000_s4_{1}_box5.tar
     #os.system(bash_subsample)
     #os.system(bash_maps_both)
     os.system(bash_recon)
-    if cosmo_jia =='mnv0.00000_om0.30000_As2.1000':
-        #os.system(bash_maps_both2)
-        os.system(bash_recon_box5)
-        os.system(bash_maps_box5)
+    #if cosmo_jia =='mnv0.00000_om0.30000_As2.1000':
+        ##os.system(bash_maps_both2)
+        #os.system(bash_recon_box5)
+        #os.system(bash_maps_box5)
     
 def unzip(i):    
     cosmo_jia = cosmo_jia_arr[i]
