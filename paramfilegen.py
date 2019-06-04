@@ -1148,17 +1148,17 @@ params_heavy = [[0.6, 0.3, 2.1],]
     #map_ini (iz, map_angle=3.5, pix=512, nmaps=10000, seed=10027)
 
 i=0
-for iparams in params:#params_heavy:#param_restart:#
+for iparams in params_heavy:#param_restart:#params:#
     print iparams
     M_nu, omega_m, A_s9 = iparams
-    #onu0_astropy, onu0_num =   Mnu2Omeganu(M_nu, omega_m), M_nu/93.04/h**2
-    #print iparams, onu0_astropy, onu0_num, onu0_astropy/onu0_num-1.0
+    onu0_astropy, onu0_num =   Mnu2Omeganu(M_nu, omega_m), M_nu/93.04/h**2
+    print iparams, onu0_astropy, onu0_num, onu0_astropy/onu0_num-1.0
     
     #camb_gen(M_nu, omega_m, A_s9)
     #camb_gen_quick(M_nu, omega_m, A_s9)
     #ngenic_gen(M_nu, omega_m, A_s9)
     #gadget_gen(M_nu, omega_m, A_s9)
-    #outputs(iparams)
+    outputs(iparams)
     #sbatch_gadget(iparams)
     #if setup_planes_folders:
         #prepare_planes (iparams)
@@ -1169,7 +1169,7 @@ for iparams in params:#params_heavy:#param_restart:#
     #sbatch_plane(iparams,i)
     #create_plane_infotxt(iparams,i)
     #sbatch_rays(iparams,i) ###### galaxy+cmb
-    sbatch_rays(iparams,i,source_arr=(1100,)) ###### cmb
+    #sbatch_rays(iparams,i,source_arr=(1100,)) ###### cmb
     #sbatch_mergertree(iparams)
     #source_arr=(0.5, 1.0, 1.5, 2.0, 2.5)
     ###### make galaxy lensing maps 3.5 deg^2 and correlated with CMB lensing maps
