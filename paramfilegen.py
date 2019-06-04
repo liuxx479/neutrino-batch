@@ -1157,8 +1157,8 @@ for iparams in params_heavy:#param_restart:#params:#
     #camb_gen(M_nu, omega_m, A_s9)
     #camb_gen_quick(M_nu, omega_m, A_s9)
     #ngenic_gen(M_nu, omega_m, A_s9)
-    #gadget_gen(M_nu, omega_m, A_s9)
-    outputs(iparams)
+    gadget_gen(M_nu, omega_m, A_s9)
+    #outputs(iparams)
     #sbatch_gadget(iparams)
     #if setup_planes_folders:
         #prepare_planes (iparams)
